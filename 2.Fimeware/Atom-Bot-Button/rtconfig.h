@@ -81,6 +81,7 @@
 #define RT_USING_PIN
 #define RT_USING_PWM
 #define RT_USING_SPI
+#define RT_USING_PULSE_ENCODER
 
 /* Using USB */
 
@@ -102,9 +103,6 @@
 
 
 /* Utilities */
-
-
-/* RT-Thread Utestcases */
 
 
 /* RT-Thread online packages */
@@ -258,6 +256,9 @@
 #define BSP_USING_PWM4_CH2
 #define BSP_USING_PWM4_CH3
 #define BSP_USING_PWM4_CH4
+#define BSP_USING_PULSE_ENCODER
+#define BSP_USING_PULSE_ENCODER2
+#define BSP_USING_PULSE_ENCODER3
 
 /* Board extended module Drivers */
 

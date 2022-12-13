@@ -115,6 +115,20 @@ menu "On-chip Peripheral Drivers"
             endif
         endif
 
+    menuconfig BSP_USING_PULSE_ENCODER
+        bool "Enable Pulse Encoder"
+        default n
+        select RT_USING_PULSE_ENCODER
+        if BSP_USING_PULSE_ENCODER
+            config BSP_USING_PULSE_ENCODER2
+                bool "Enable Pulse Encoder2"
+                default n
+
+            config BSP_USING_PULSE_ENCODER3
+                bool "Enable Pulse Encoder3"
+                default n
+        endif
+
     source "libraries/HAL_Drivers/Kconfig"
     
 endmenu

@@ -41,7 +41,15 @@ extern int __bss_end;
 
 #define HEAP_END        STM32_SRAM_END
 
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
+
 void SystemClock_Config(void);
+
+void MX_TIM2_Init(void);
+void MX_TIM3_Init(void);
+void MX_TIM4_Init(void);
 
 #ifdef __cplusplus
 }

@@ -15,8 +15,8 @@ CDefines=USE_HAL_DRIVER;STM32F103xE;
 SourceFiles=;;
 
 [PreviousGenFiles]
-HeaderPath=D:/workspace_rb/rt-thread/bsp/stm32/Atom-Bot/board/CubeMX_Config/Inc
+HeaderPath=D:/workspace_rb/ATom-Bot/2.Fimeware/Atom-Bot-Button/board/CubeMX_Config/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=D:/workspace_rb/rt-thread/bsp/stm32/Atom-Bot/board/CubeMX_Config/Src
+SourcePath=D:/workspace_rb/ATom-Bot/2.Fimeware/Atom-Bot-Button/board/CubeMX_Config/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 

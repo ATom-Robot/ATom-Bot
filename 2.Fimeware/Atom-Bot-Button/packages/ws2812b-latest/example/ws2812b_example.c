@@ -55,11 +55,11 @@ int ws2812b_test(int argc, char *argv[])
 
     ws2812_clear_buff(ws2812);
 
-	ws281x_theaterChaseRainbow(ws2812, 25);
+	ws281x_rainbowCycle(ws2812, 25);
 	ws2812_write_rgb_to_all(ws2812, 0, 0, 0);
 	rt_thread_mdelay(1000);
 
-	ws281x_rainbowCycle(ws2812, 25);
+	ws281x_theaterChaseRainbow(ws2812, 25);
 	ws2812_write_rgb_to_all(ws2812, 0, 0, 0);
 	rt_thread_mdelay(1000);
 
