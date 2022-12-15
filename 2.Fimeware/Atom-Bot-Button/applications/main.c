@@ -18,6 +18,9 @@ int main(void)
 
     rt_kprintf("SCL:%d,SDA:%d\n", GET_PIN(B, 10), GET_PIN(B, 11));
 
+    rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 0), GET_PIN(A, 1));
+	rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));	
+
     MX_TIM2_Init();
     MX_TIM3_Init();
     MX_TIM4_Init();
@@ -125,7 +128,6 @@ static int pulse_encoder_sample(int argc, char *argv[])
     rt_int32_t count_R;
     rt_int32_t count_L;
 
-    /* 查找脉冲编码器设备 */
     pulse_encoderR_dev = rt_device_find(PULSE_ENCODER_R_DEV_NAME);
     if (pulse_encoderR_dev == RT_NULL)
     {
@@ -156,10 +158,10 @@ static int pulse_encoder_sample(int argc, char *argv[])
     for (index = 0; index <= 30; index ++)
     {
         rt_thread_mdelay(200);
-        /* 读取脉冲编码器计数值 */
+
         rt_device_read(pulse_encoderR_dev, 0, &count_R, 1);
         rt_device_read(pulse_encoderL_dev, 0, &count_L, 1);
-        /* 清空脉冲编码器计数值 */
+
         rt_device_control(pulse_encoderR_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
         rt_device_control(pulse_encoderL_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
 
@@ -172,5 +174,4 @@ static int pulse_encoder_sample(int argc, char *argv[])
 
     return ret;
 }
-/* 导出到 msh 命令列表中 */
 MSH_CMD_EXPORT(pulse_encoder_sample, pulse encoder sample);
