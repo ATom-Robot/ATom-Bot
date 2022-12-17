@@ -21,29 +21,12 @@ int main(void)
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 0), GET_PIN(A, 1));
 	rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));	
 
-    MX_TIM2_Init();
-    MX_TIM3_Init();
+//    MX_TIM2_Init();
+//    MX_TIM3_Init();
     MX_TIM4_Init();
 
     return 0;
 }
-
-#define MOTOR_IN1 GET_PIN(B, 6)
-#define MOTOR_IN2 GET_PIN(B, 7)
-
-int motor_run_test()
-{
-    rt_pin_mode(MOTOR_IN1, PIN_MODE_OUTPUT);
-    rt_pin_mode(MOTOR_IN2, PIN_MODE_OUTPUT);
-
-    rt_pin_write(MOTOR_IN1, PIN_HIGH);
-    rt_pin_write(MOTOR_IN2, PIN_LOW);
-
-    rt_kprintf("MOTOR_IN1:%d	MOTOR_IN2:%d\n", rt_pin_read(MOTOR_IN1), rt_pin_read(MOTOR_IN2));
-    return 0;
-}
-MSH_CMD_EXPORT(motor_run_test, motor_run_test);
-
 
 #define PWM_DEV_NAME        "pwm4"      /* PWM设备名称 */
 #define PWM_DEV_CHANNEL1     1          /* PWM通道 */
@@ -100,15 +83,6 @@ rt_int8_t car_speedSet_R(int argc, const char **argv)
 }
 MSH_CMD_EXPORT(car_speedSet_R, car set speed left);
 
-int hw_Encoder_init(void)
-{
-    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(hw_Encoder_init, Encoder_init);
-
 void encoder_clearCounter(void)
 {
     __HAL_TIM_SET_COUNTER(&htim2, 0);
@@ -155,15 +129,15 @@ static int pulse_encoder_sample(int argc, char *argv[])
         return ret;
     }
 
-    for (index = 0; index <= 30; index ++)
+    for (index = 0; index <= 50; index ++)
     {
         rt_thread_mdelay(200);
 
         rt_device_read(pulse_encoderR_dev, 0, &count_R, 1);
         rt_device_read(pulse_encoderL_dev, 0, &count_L, 1);
 
-        rt_device_control(pulse_encoderR_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
-        rt_device_control(pulse_encoderL_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
+//        rt_device_control(pulse_encoderR_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
+//        rt_device_control(pulse_encoderL_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
 
         rt_kprintf("=================================\n");
         rt_kprintf("R count:%d   |   L count:%d\n", count_R, count_L);

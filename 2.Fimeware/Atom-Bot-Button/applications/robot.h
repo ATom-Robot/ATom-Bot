@@ -22,23 +22,23 @@
 #define RIGHT_BACKWARD_PWM_CHANNEL   4			// GPIO PB10
 
 // ENCODER
-#define LEFT_FORWARD_ENCODER_PIN_A     0		// GET_PIN(A, 0)
-#define RIGHT_FORWARD_ENCODER_PIN_A    1		// GET_PIN(A, 1)
+#define LEFT_FORWARD_ENCODER_PIN_A		0		// GET_PIN(A, 0)
+#define LEFT_FORWARD_ENCODER_PIN_B		1		// GET_PIN(A, 1)
 
-#define LEFT_FORWARD_ENCODER_PIN_B     6		// GET_PIN(A, 6)
-#define RIGHT_FORWARD_ENCODER_PIN_B    7		// GET_PIN(A, 7)
+#define RIGHT_FORWARD_ENCODER_PIN_A		6		// GET_PIN(A, 6)
+#define RIGHT_FORWARD_ENCODER_PIN_B		7		// GET_PIN(A, 7)
 
 #define PULSE_PER_REVOL             7			// Real value 20
 #define ENCODER_SAMPLE_TIME			50
 
 // CONTROLLER PID
 #define PID_SAMPLE_TIME             50
-#define PID_PARAM_KP                6
+#define PID_PARAM_KP                2//2
 #define PID_PARAM_KI                0
-#define PID_PARAM_KD                0
+#define PID_PARAM_KD                0.1//0.1
 
 // WHEEL
-#define WHEEL_RADIUS             0.066
+#define WHEEL_RADIUS             0.020
 #define GEAR_RATIO                  50
 
 #define WHEEL_DIST_X                 0
@@ -70,7 +70,7 @@ typedef struct
     kinematics_t c_kinematics;
     E_ROC_ROBOT_STATUS status;
 
-    rt_int8_t speed ;
+    rt_int8_t speed;
     rt_int16_t degree;
 
 } ST_ROC_ROBOT;
