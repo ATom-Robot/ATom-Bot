@@ -98,6 +98,7 @@
 
 /* Socket is in the 'Network' category */
 
+#define RT_USING_CPLUSPLUS
 
 /* Network */
 
@@ -159,9 +160,6 @@
 
 /* Micrium: Micrium software products porting for RT-Thread */
 
-#define PKG_USING_ROBOTS
-#define PKG_USING_ROBOTS_LATEST_VERSION
-#define PKG_ROBOT_VER_NUM 0x99999
 
 /* peripheral libraries and drivers */
 

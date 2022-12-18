@@ -1,0 +1,17 @@
+from building import *
+Import('rtconfig')
+
+src   = []
+cwd   = GetCurrentDir()
+
+# add mpu6xxx src files.
+if GetDepend('RT_USING_CPLUSPLUS'):
+    src += Glob('PID_v1.cpp')
+
+# add mpu6xxx include path.
+path  = [cwd + '/']
+
+# add src and include to group.
+group = DefineGroup('PID-Library', src, depend = [''], CPPPATH = path)
+
+Return('group')
