@@ -9,10 +9,10 @@
 
 // MOTOR
 #define MOTOR_PWM						"pwm4"
-#define RIGHT_FORWARD_PWM_CHANNEL		1			// GPIO PB6
-#define RIGHT_BACKWARD_PWM_CHANNEL		2			// GPIO PB7
-#define LEFT_FORWARD_PWM_CHANNEL		3			// GPIO PB8
-#define LEFT_BACKWARD_PWM_CHANNEL		4			// GPIO PB9
+#define RIGHT_FORWARD_PWM_CHANNEL		1		// GPIO PB6
+#define RIGHT_BACKWARD_PWM_CHANNEL		2		// GPIO PB7
+#define LEFT_FORWARD_PWM_CHANNEL		3		// GPIO PB8
+#define LEFT_BACKWARD_PWM_CHANNEL		4		// GPIO PB9
 
 // ENCODER
 #define LEFT_FORWARD_ENCODER_PIN_A		0		// GET_PIN(A, 0)
@@ -21,10 +21,11 @@
 #define RIGHT_FORWARD_ENCODER_PIN_A		6		// GET_PIN(A, 6)
 #define RIGHT_FORWARD_ENCODER_PIN_B		7		// GET_PIN(A, 7)
 
-#define PULSE_PER_REVOL             7			// Real value 20
+#define PULSE_PER_REVOL             7			// Real value 7
 #define ENCODER_SAMPLE_TIME			50
 
 /* Maximum PWM signal */
+#define MIN_PWM						-1000
 #define MAX_PWM						1000
 
 #define ENABLE_DBG					1

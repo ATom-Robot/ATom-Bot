@@ -5,6 +5,9 @@
    http://vanadium-ros-pkg.googlecode.com/svn/trunk/arbotix/
 */
 #include "robot.h"
+
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
 /* PID setpoint info For a Motor */
 typedef struct
 {
@@ -16,8 +19,8 @@ typedef struct
     * Using previous input (PrevInput) instead of PrevError to avoid derivative kick,
     * see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-derivative-kick/
     */
-    int PrevInput;					// last input
-    //int PrevErr;					// last error
+    int PrevInput;                  // last input
+    //int PrevErr;                  // last error
 
     /*
     * Using integrated term (ITerm) instead of integrated error (Ierror),
@@ -25,22 +28,31 @@ typedef struct
     * see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-tuning-changes/
     */
     //int Ierror;
-    int ITerm;						//integrated term
+    int ITerm;                      //integrated term
 
-    long output;					// last motor setting
+    long output;                    // last motor setting
+
+    int Kp, Kd, Ki, Ko;
 }
 SetPointInfo;
 
 SetPointInfo leftPID, rightPID;
 
-/* PID Parameters */
-int Kp = 23;
-int Kd = 2;
-int Ki = 0;
-int Ko = 50;
-
 unsigned char moving = 0; // is the base in motion?
 
+void InitPID(void)
+{
+    /* PID Parameters */
+    leftPID.Kp = 288;
+    leftPID.Kd = 380;
+    leftPID.Ki = 0;
+    leftPID.Ko = 100;
+
+    rightPID.Kp = 283;
+    rightPID.Kd = 330;
+    rightPID.Ki = 0;
+    rightPID.Ko = 100;
+}
 /*
 * Initialize PID variables to zero to prevent startup spikes
 * when turning PID on to start moving
@@ -49,7 +61,7 @@ unsigned char moving = 0; // is the base in motion?
 * Note that the assumption here is that PID is only turned on
 * when going from stop to moving, that's why we can init everything on zero.
 */
-void resetPID()
+void resetPID(void)
 {
     leftPID.TargetTicksPerFrame = 0.0;
     leftPID.Encoder = encoder_read((encoder_t)robot.left_forward_encoder);
@@ -67,11 +79,11 @@ void resetPID()
 }
 
 #if ENABLE_DBG
-static int inputL;
-static int inputR;
+    static int inputL;
+    static int inputR;
 #endif
 /* PID routine to compute the next motor commands */
-void doPID(SetPointInfo *p)
+rt_inline void doPID(SetPointInfo *p)
 {
     long Perror;
     long output;
@@ -82,19 +94,19 @@ void doPID(SetPointInfo *p)
     Perror = p->TargetTicksPerFrame - input;
 
 #if ENABLE_DBG
-	if (p == &leftPID)
-	{
-		inputL = input;
-	}
-	if (p == &rightPID)
-	{
-		inputR = input;
-	}
-	
-	ano_send_user_data(1, (rt_int16_t)inputL,
-						   (rt_int16_t)inputR,
-						   (rt_int16_t)0,
-						   (rt_int16_t)0);
+    if (p == &leftPID)
+    {
+        inputL = input;
+    }
+    if (p == &rightPID)
+    {
+        inputR = input;
+    }
+
+    ano_send_user_data(1, (rt_int16_t)inputL,
+                       (rt_int16_t)inputR,
+                       (rt_int16_t)0,
+                       (rt_int16_t)0);
 #endif
     /*
     * Avoid derivative kick and allow tuning changes,
@@ -103,21 +115,18 @@ void doPID(SetPointInfo *p)
     */
     //output = (Kp * Perror + Kd * (Perror - p->PrevErr) + Ki * p->Ierror) / Ko;
     // p->PrevErr = Perror;
-    output = (Kp * Perror - Kd * (input - p->PrevInput) + p->ITerm) / Ko;
+    output = (p->Kp * Perror - p->Kd * (input - p->PrevInput) + p->ITerm) / p->Ko;
     p->PrevEnc = p->Encoder;
 
     output += p->output;
     // Accumulate Integral error *or* Limit output.
     // Stop accumulating when output saturates
-    if (output >= MAX_PWM)
-        output = MAX_PWM;
-    else if (output <= -MAX_PWM)
-        output = -MAX_PWM;
-    else
-        /*
-        * allow turning changes, see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-tuning-changes/
-        */
-        p->ITerm += Ki * Perror;
+    constrain(output, MIN_PWM, MAX_PWM);
+
+    /*
+    * allow turning changes, see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-tuning-changes/
+    */
+    p->ITerm += p->Ki * Perror;
 
     p->output = output;
     p->PrevInput = input;
@@ -148,6 +157,6 @@ void updatePID()
     doPID(&rightPID);
 
     /* Set the motor speeds accordingly */
-	motor_run_double((motor_t)robot.left_forward_motor, (motor_t)robot.right_forward_motor, leftPID.output, rightPID.output);
+    motor_run_double((motor_t)robot.left_forward_motor, (motor_t)robot.right_forward_motor, leftPID.output, rightPID.output);
 }
 

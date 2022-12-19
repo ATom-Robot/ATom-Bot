@@ -8,8 +8,10 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
+#if ENABLE_DBG
 #define AUTO_STOP_INTERVAL 5000
-long lastMotorCommand = AUTO_STOP_INTERVAL;
+static int lastMotorCommand = AUTO_STOP_INTERVAL;
+#endif
 
 static void car_thread(void *param);
 
@@ -48,6 +50,7 @@ int robot_init(void)
 }
 MSH_CMD_EXPORT(robot_init, robot_init);
 
+#if ENABLE_DBG
 static int motor_test(int arvc, char **argv)
 {
     if (arvc < 2)
@@ -56,20 +59,23 @@ static int motor_test(int arvc, char **argv)
     int arg1 = atoi(argv[1]);
     int arg2 = atoi(argv[2]);
 
-    LOG_D("go_forward speed:%d.%d[m/s]", arg1, arg2);
+    LOG_D("set speed:%d %d[m/s]", arg1, arg2);
 
     lastMotorCommand = rt_tick_get();
     if (arg1 == 0 && arg2 == 0)
     {
         motor_stop((motor_t)robot.left_forward_motor);
-		motor_stop((motor_t)robot.right_forward_motor);
+        motor_stop((motor_t)robot.right_forward_motor);
 
         resetPID();
         moving = 0;
 
         LOG_D("resetPID");
     }
-    else moving = 1;
+    else
+    {
+      moving = 1;
+    }
 
     leftPID.TargetTicksPerFrame = arg1;
     rightPID.TargetTicksPerFrame = arg2;
@@ -77,11 +83,15 @@ static int motor_test(int arvc, char **argv)
     return RT_EOK;
 }
 MSH_CMD_EXPORT(motor_test, roc_robot_go_forward);
+#endif
 
 static void car_thread(void *param)
 {
+#if ENABLE_DBG
     ano_init((char *)"uart3");
-
+#endif
+	
+	InitPID();
     resetPID();
 
     while (1)
@@ -90,12 +100,14 @@ static void car_thread(void *param)
 
         updatePID();
 
+#if ENABLE_DBG
         // Check to see if we have exceeded the auto-stop interval
         if ((rt_tick_get() - lastMotorCommand) > AUTO_STOP_INTERVAL)
         {
             motor_stop((motor_t)robot.left_forward_motor);
-			motor_stop((motor_t)robot.right_forward_motor);
+            motor_stop((motor_t)robot.right_forward_motor);
             moving = 0;
         }
     }
+#endif
 }
