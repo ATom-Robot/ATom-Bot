@@ -34,9 +34,9 @@
 
 static const int SPI_Command_Mode = 0;
 static const int SPI_Data_Mode = 1;
-static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
+// static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
 //static const int SPI_Frequency = SPI_MASTER_FREQ_26M;
-//static const int SPI_Frequency = SPI_MASTER_FREQ_40M;
+static const int SPI_Frequency = SPI_MASTER_FREQ_40M;
 //static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
 static void st7789_set_orientation(TFT_t *dev, uint8_t orientation);
 
@@ -91,7 +91,7 @@ void spi_master_init(TFT_t *dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t G
         .sclk_io_num = GPIO_SCLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 135 * 240 * 2,
+        .max_transfer_sz = CONFIG_WIDTH * CONFIG_HEIGHT * 2 + 10,
         .flags = 0
     };
 
