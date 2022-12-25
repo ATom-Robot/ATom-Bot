@@ -12,10 +12,10 @@
 #include "st7789.h"
 #include "camera_sensor.h"
 
+static const char *TAG = "main";
+
 #define DISP_BUF_SIZE (LV_VER_RES_MAX * LV_VER_RES_MAX / 2)
 #define LV_TICK_PERIOD_MS 1
-
-static TFT_t lcd_dev;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -23,11 +23,14 @@ static TFT_t lcd_dev;
 static void lv_tick_task(void *arg);
 static void guiTask(void *pvParameter);
 
+static TFT_t lcd_dev;
+
+extern SemaphoreHandle_t BinarySemaphore;
 static IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
-    lcd_fill_array(&lcd_dev, area, color_map);
+    xSemaphoreGive(BinarySemaphore);
 
-    lv_disp_flush_ready(drv);
+    lcd_fill_array(&lcd_dev, area, color_map);
 }
 
 static void guiTask(void *pvParameter)
@@ -77,10 +80,13 @@ void app_main(void)
 {
     printf("Hello-Atom-Bot!!\n");
 
+    assert(Init_Camera() == ESP_OK);
+    ESP_LOGI(TAG, "Camera Init Success");
+
     spi_master_init(&lcd_dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);
     lcdInit(&lcd_dev, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
 
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4096, NULL, 0, NULL, 1);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4096, NULL, 5, NULL, 1);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
 

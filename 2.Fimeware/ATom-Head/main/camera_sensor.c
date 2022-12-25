@@ -3,8 +3,8 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
 
+#include "esp_timer.h"
 #include "esp_camera.h"
 
 #define USE_WEB_CAMERA      0
@@ -73,7 +73,7 @@ static camera_config_t camera_config =
     .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };
 
-static esp_err_t init_camera()
+esp_err_t Init_Camera(void)
 {
     //initialize the camera
     esp_err_t err = esp_camera_init(&camera_config);
@@ -205,7 +205,7 @@ void app_main(void)
 {
     app_wifi_main();
 
-    init_camera();
+    Init_Camera();
 
     app_wifi_wait_connected();
 
@@ -221,7 +221,6 @@ lv_img_dsc_t img_dsc =
     .data_size = 240 * 135 * 2,
     .data = NULL,
 };
-lv_obj_t *img_cam;
 
 static void lvgl_camera_task(void *param)
 {
@@ -245,7 +244,7 @@ static void lvgl_camera_task(void *param)
         else
         {
             img_dsc.data = fb->buf;
-            lv_img_set_src(img_cam, &img_dsc);
+            lv_img_set_src(param, &img_dsc);
             esp_camera_fb_return(fb);
         }
 
@@ -253,12 +252,14 @@ static void lvgl_camera_task(void *param)
         int64_t frame_time = fr_end - last_frame;
         last_frame = fr_end;
         frame_time /= 1000;
+
+        // ESP_LOGI(TAG, "(%.1ffps)", 1000.0 / (uint32_t)frame_time);
     }
 }
 
-void lv_set_cam_area()
+void lv_set_cam_area(lv_obj_t *obj)
 {
-    img_cam = lv_img_create(lv_scr_act(), NULL);
+    obj = lv_img_create(lv_scr_act(), NULL);
 
     static lv_style_t style;
     lv_style_init(&style);
@@ -267,24 +268,18 @@ void lv_set_cam_area()
     lv_style_set_image_recolor(&style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
     lv_style_set_image_recolor_opa(&style, LV_STATE_DEFAULT, LV_OPA_0);
     lv_style_set_image_opa(&style, LV_STATE_DEFAULT, 255);
-    lv_obj_add_style(img_cam, LV_IMG_PART_MAIN, &style);
+    lv_obj_add_style(obj, LV_IMG_PART_MAIN, &style);
 
-    lv_obj_set_pos(img_cam, 0, 0);
-    lv_obj_set_size(img_cam, 240, 135);
+    lv_obj_set_pos(obj, 0, 0);
+    lv_obj_set_size(obj, 240, 135);
 
-    // lv_img_set_src(img_cam, &img_dsc);
-    // lv_obj_align(img_cam, NULL, LV_ALIGN_CENTER, 0, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(lvgl_camera_task, "cam", 4096, (lv_obj_t *)obj, 2, NULL, 0);
+    assert("Failed to create task" && result == (BaseType_t) 1);
 }
 
 void lv_camera_create(void)
 {
-    int res = init_camera();
-    assert(res == ESP_OK);
-    ESP_LOGI(TAG, "Camera Init Success");
-
-    lv_set_cam_area();
-
-    BaseType_t result = xTaskCreatePinnedToCore(lvgl_camera_task, "cam", 4096, NULL, 0, NULL, 0);
-    assert("Failed to create task" && result == (BaseType_t) 1);
+    static lv_obj_t *camera_obj;
+    lv_set_cam_area(camera_obj);
 }
 #endif

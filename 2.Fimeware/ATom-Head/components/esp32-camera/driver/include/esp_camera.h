@@ -67,6 +67,7 @@
 #pragma once
 
 #include "esp_err.h"
+#include "esp_log.h"
 #include "driver/ledc.h"
 #include "sensor.h"
 #include "sys/time.h"

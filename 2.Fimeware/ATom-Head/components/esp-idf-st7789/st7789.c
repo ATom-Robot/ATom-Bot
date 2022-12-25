@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/Semphr.h"
 #include "freertos/task.h"
 
 #include <driver/spi_master.h>
@@ -14,18 +15,6 @@
 #define TAG "ST7789"
 #define _DEBUG_ 0
 
-#if 0
-    #ifdef CONFIG_IDF_TARGET_ESP32
-        #define LCD_HOST HSPI_HOST
-    #elif defined CONFIG_IDF_TARGET_ESP32S2
-        #define LCD_HOST SPI2_HOST
-    #elif defined CONFIG_IDF_TARGET_ESP32S3
-        #define LCD_HOST SPI2_HOST
-    #elif defined CONFIG_IDF_TARGET_ESP32C3
-        #define LCD_HOST SPI2_HOST
-    #endif
-#endif
-
 #if CONFIG_SPI2_HOST
     #define HOST_ID SPI2_HOST
 #elif CONFIG_SPI3_HOST
@@ -34,11 +23,53 @@
 
 static const int SPI_Command_Mode = 0;
 static const int SPI_Data_Mode = 1;
-// static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
+static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
 //static const int SPI_Frequency = SPI_MASTER_FREQ_26M;
-static const int SPI_Frequency = SPI_MASTER_FREQ_40M;
+// static const int SPI_Frequency = SPI_MASTER_FREQ_40M;
 //static const int SPI_Frequency = SPI_MASTER_FREQ_80M;
-static void st7789_set_orientation(TFT_t *dev, uint8_t orientation);
+
+SemaphoreHandle_t BinarySemaphore;
+
+static inline void _gpio_set_level(gpio_num_t gpio_num, uint32_t level)
+{
+    if (level)
+    {
+        if (gpio_num < 32)
+        {
+            GPIO.out_w1ts = (1 << gpio_num);
+        }
+        else
+        {
+            GPIO.out1_w1ts.data = (1 << (gpio_num - 32));
+        }
+    }
+    else
+    {
+        if (gpio_num < 32)
+        {
+            GPIO.out_w1tc = (1 << gpio_num);
+        }
+        else
+        {
+            GPIO.out1_w1tc.data = (1 << (gpio_num - 32));
+        }
+    }
+}
+
+static void IRAM_ATTR spi_ready(spi_transaction_t *trans)
+{
+    BaseType_t err;
+    BaseType_t xHigherPriorityTaskWoken;
+    err = xSemaphoreTakeFromISR(BinarySemaphore, &xHigherPriorityTaskWoken);
+    if (err == pdTRUE)
+    {
+        lv_disp_t *disp = NULL;
+
+        disp = _lv_refr_get_disp_refreshing();
+
+        lv_disp_flush_ready(&disp->driver);
+    }
+}
 
 void spi_master_init(TFT_t *dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t GPIO_CS, int16_t GPIO_DC, int16_t GPIO_RESET, int16_t GPIO_BL)
 {
@@ -102,9 +133,10 @@ void spi_master_init(TFT_t *dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t G
     spi_device_interface_config_t devcfg;
     memset(&devcfg, 0, sizeof(devcfg));
     devcfg.clock_speed_hz = SPI_Frequency;
-    devcfg.queue_size = 7;
+    devcfg.queue_size = 50;
     devcfg.mode = 2;
     devcfg.flags = SPI_DEVICE_NO_DUMMY;
+    devcfg.post_cb = spi_ready;
 
     if (GPIO_CS >= 0)
     {
@@ -122,6 +154,12 @@ void spi_master_init(TFT_t *dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t G
     dev->_dc = GPIO_DC;
     dev->_bl = GPIO_BL;
     dev->_SPIHandle = handle;
+
+    BinarySemaphore = xSemaphoreCreateBinary();
+    if (BinarySemaphore == NULL)
+    {
+        printf("Binary Sem Create Failed!\r\n");
+    }
 }
 
 
@@ -229,10 +267,10 @@ void lcdInit(TFT_t *dev, int width, int height, int offsetx, int offsety)
     dev->_font_underline = false;
 
     spi_master_write_command(dev, 0x01);    //Software Reset
-    delayMS(150);
+    delayMS(120);
 
     spi_master_write_command(dev, 0x11);    //Sleep Out
-    delayMS(255);
+    delayMS(120);
 
     spi_master_write_command(dev, 0x3A);    //Interface Pixel Format
     spi_master_write_data_byte(dev, 0x55);
@@ -260,7 +298,7 @@ void lcdInit(TFT_t *dev, int width, int height, int offsetx, int offsety)
     delayMS(10);
 
     spi_master_write_command(dev, 0x29);    //Display ON
-    delayMS(255);
+    delayMS(100);
 
     if (dev->_bl >= 0)
     {
@@ -351,7 +389,7 @@ void lcdDrawFillRect(TFT_t *dev, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t
     }
 }
 
-void lcd_fill_array(TFT_t *dev, const lv_area_t * area, void *pcolor)
+void lcd_fill_array(TFT_t *dev, const lv_area_t *area, void *pcolor)
 {
     uint16_t offsetx1 = area->x1 + dev->_offsetx;
     uint16_t offsetx2 = area->x2 + dev->_offsetx;

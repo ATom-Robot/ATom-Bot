@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+esp_err_t Init_Camera(void);
+void lv_set_cam_area(lv_obj_t *obj);
 void lv_camera_create(void);
 
 #ifdef __cplusplus
