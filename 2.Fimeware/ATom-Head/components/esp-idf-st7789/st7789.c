@@ -136,7 +136,7 @@ void spi_master_init(TFT_t *dev, int16_t GPIO_MOSI, int16_t GPIO_SCLK, int16_t G
     devcfg.queue_size = 50;
     devcfg.mode = 2;
     devcfg.flags = SPI_DEVICE_NO_DUMMY;
-    devcfg.post_cb = spi_ready;
+    devcfg.post_cb = NULL;
 
     if (GPIO_CS >= 0)
     {

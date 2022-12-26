@@ -3,13 +3,14 @@
  *
  */
 
- /*Copy this file as "lv_port_indev.c" and set this value to "1" to enable content*/
+/*Copy this file as "lv_port_indev.c" and set this value to "1" to enable content*/
 #if 0
 
 /*********************
  *      INCLUDES
  *********************/
 #include "lv_port_indev_template.h"
+#include "../../lvgl.h"
 
 /*********************
  *      DEFINES
@@ -24,25 +25,25 @@
  **********************/
 
 static void touchpad_init(void);
-static bool touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static bool touchpad_is_pressed(void);
 static void touchpad_get_xy(lv_coord_t * x, lv_coord_t * y);
 
 static void mouse_init(void);
-static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static bool mouse_is_pressed(void);
 static void mouse_get_xy(lv_coord_t * x, lv_coord_t * y);
 
 static void keypad_init(void);
-static bool keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static uint32_t keypad_get_key(void);
 
 static void encoder_init(void);
-static bool encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static void encoder_handler(void);
 
 static void button_init(void);
-static bool button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static int8_t button_get_pressed_id(void);
 static bool button_is_pressed(uint8_t id);
 
@@ -68,7 +69,8 @@ static lv_indev_state_t encoder_state;
 
 void lv_port_indev_init(void)
 {
-    /* Here you will find example implementation of input devices supported by LittelvGL:
+    /**
+     * Here you will find example implementation of input devices supported by LittelvGL:
      *  - Touchpad
      *  - Mouse (with cursor support)
      *  - Keypad (supports GUI usage only with key)
@@ -79,7 +81,7 @@ void lv_port_indev_init(void)
      *  You should shape them according to your hardware
      */
 
-    lv_indev_drv_t indev_drv;
+    static lv_indev_drv_t indev_drv;
 
     /*------------------
      * Touchpad
@@ -98,7 +100,7 @@ void lv_port_indev_init(void)
      * Mouse
      * -----------------*/
 
-    /*Initialize your touchpad if you have*/
+    /*Initialize your mouse if you have*/
     mouse_init();
 
     /*Register a mouse input device*/
@@ -108,7 +110,7 @@ void lv_port_indev_init(void)
     indev_mouse = lv_indev_drv_register(&indev_drv);
 
     /*Set cursor. For simplicity set a HOME symbol now.*/
-    lv_obj_t * mouse_cursor = lv_img_create(lv_disp_get_scr_act(NULL), NULL);
+    lv_obj_t * mouse_cursor = lv_img_create(lv_scr_act());
     lv_img_set_src(mouse_cursor, LV_SYMBOL_HOME);
     lv_indev_set_cursor(indev_mouse, mouse_cursor);
 
@@ -125,10 +127,10 @@ void lv_port_indev_init(void)
     indev_drv.read_cb = keypad_read;
     indev_keypad = lv_indev_drv_register(&indev_drv);
 
-    /* Later you should create group(s) with `lv_group_t * group = lv_group_create()`,
-     * add objects to the group with `lv_group_add_obj(group, obj)`
-     * and assign this input device to group to navigate in it:
-     * `lv_indev_set_group(indev_keypad, group);` */
+    /*Later you should create group(s) with `lv_group_t * group = lv_group_create()`,
+     *add objects to the group with `lv_group_add_obj(group, obj)`
+     *and assign this input device to group to navigate in it:
+     *`lv_indev_set_group(indev_keypad, group);`*/
 
     /*------------------
      * Encoder
@@ -143,10 +145,10 @@ void lv_port_indev_init(void)
     indev_drv.read_cb = encoder_read;
     indev_encoder = lv_indev_drv_register(&indev_drv);
 
-    /* Later you should create group(s) with `lv_group_t * group = lv_group_create()`,
-     * add objects to the group with `lv_group_add_obj(group, obj)`
-     * and assign this input device to group to navigate in it:
-     * `lv_indev_set_group(indev_encoder, group);` */
+    /*Later you should create group(s) with `lv_group_t * group = lv_group_create()`,
+     *add objects to the group with `lv_group_add_obj(group, obj)`
+     *and assign this input device to group to navigate in it:
+     *`lv_indev_set_group(indev_encoder, group);`*/
 
     /*------------------
      * Button
@@ -163,8 +165,8 @@ void lv_port_indev_init(void)
 
     /*Assign buttons to points on the screen*/
     static const lv_point_t btn_points[2] = {
-            {10, 10},   /*Button 0 -> x:10; y:10*/
-            {40, 100},  /*Button 1 -> x:40; y:100*/
+        {10, 10},   /*Button 0 -> x:10; y:10*/
+        {40, 100},  /*Button 1 -> x:40; y:100*/
     };
     lv_indev_set_button_points(indev_button, btn_points);
 }
@@ -183,8 +185,8 @@ static void touchpad_init(void)
     /*Your code comes here*/
 }
 
-/* Will be called by the library to read the touchpad */
-static bool touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+/*Will be called by the library to read the touchpad*/
+static void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
     static lv_coord_t last_x = 0;
     static lv_coord_t last_y = 0;
@@ -193,16 +195,14 @@ static bool touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
     if(touchpad_is_pressed()) {
         touchpad_get_xy(&last_x, &last_y);
         data->state = LV_INDEV_STATE_PR;
-    } else {
+    }
+    else {
         data->state = LV_INDEV_STATE_REL;
     }
 
     /*Set the last pressed coordinates*/
     data->point.x = last_x;
     data->point.y = last_y;
-
-    /*Return `false` because we are not buffering and no more data to read*/
-    return false;
 }
 
 /*Return true is the touchpad is pressed*/
@@ -226,14 +226,14 @@ static void touchpad_get_xy(lv_coord_t * x, lv_coord_t * y)
  * Mouse
  * -----------------*/
 
-/* Initialize your mouse */
+/*Initialize your mouse*/
 static void mouse_init(void)
 {
     /*Your code comes here*/
 }
 
-/* Will be called by the library to read the mouse */
-static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+/*Will be called by the library to read the mouse*/
+static void mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
     /*Get the current x and y coordinates*/
     mouse_get_xy(&data->point.x, &data->point.y);
@@ -241,12 +241,10 @@ static bool mouse_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
     /*Get whether the mouse button is pressed or released*/
     if(mouse_is_pressed()) {
         data->state = LV_INDEV_STATE_PR;
-    } else {
+    }
+    else {
         data->state = LV_INDEV_STATE_REL;
     }
-
-    /*Return `false` because we are not buffering and no more data to read*/
-    return false;
 }
 
 /*Return true is the mouse button is pressed*/
@@ -270,14 +268,14 @@ static void mouse_get_xy(lv_coord_t * x, lv_coord_t * y)
  * Keypad
  * -----------------*/
 
-/* Initialize your keypad */
+/*Initialize your keypad*/
 static void keypad_init(void)
 {
     /*Your code comes here*/
 }
 
-/* Will be called by the library to read the mouse */
-static bool keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+/*Will be called by the library to read the mouse*/
+static void keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
     static uint32_t last_key = 0;
 
@@ -291,32 +289,30 @@ static bool keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 
         /*Translate the keys to LVGL control characters according to your key definitions*/
         switch(act_key) {
-        case 1:
-            act_key = LV_KEY_NEXT;
-            break;
-        case 2:
-            act_key = LV_KEY_PREV;
-            break;
-        case 3:
-            act_key = LV_KEY_LEFT;
-            break;
-        case 4:
-            act_key = LV_KEY_RIGHT;
-            break;
-        case 5:
-            act_key = LV_KEY_ENTER;
-            break;
+            case 1:
+                act_key = LV_KEY_NEXT;
+                break;
+            case 2:
+                act_key = LV_KEY_PREV;
+                break;
+            case 3:
+                act_key = LV_KEY_LEFT;
+                break;
+            case 4:
+                act_key = LV_KEY_RIGHT;
+                break;
+            case 5:
+                act_key = LV_KEY_ENTER;
+                break;
         }
 
         last_key = act_key;
-    } else {
+    }
+    else {
         data->state = LV_INDEV_STATE_REL;
     }
 
     data->key = last_key;
-
-    /*Return `false` because we are not buffering and no more data to read*/
-    return false;
 }
 
 /*Get the currently being pressed key.  0 if no key is pressed*/
@@ -331,21 +327,18 @@ static uint32_t keypad_get_key(void)
  * Encoder
  * -----------------*/
 
-/* Initialize your keypad */
+/*Initialize your keypad*/
 static void encoder_init(void)
 {
     /*Your code comes here*/
 }
 
-/* Will be called by the library to read the encoder */
-static bool encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+/*Will be called by the library to read the encoder*/
+static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
 
     data->enc_diff = encoder_diff;
     data->state = encoder_state;
-
-    /*Return `false` because we are not buffering and no more data to read*/
-    return false;
 }
 
 /*Call this function in an interrupt to process encoder events (turn, press)*/
@@ -361,14 +354,14 @@ static void encoder_handler(void)
  * Button
  * -----------------*/
 
-/* Initialize your buttons */
+/*Initialize your buttons*/
 static void button_init(void)
 {
     /*Your code comes here*/
 }
 
-/* Will be called by the library to read the button */
-static bool button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+/*Will be called by the library to read the button*/
+static void button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
 
     static uint8_t last_btn = 0;
@@ -379,15 +372,13 @@ static bool button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
     if(btn_act >= 0) {
         data->state = LV_INDEV_STATE_PR;
         last_btn = btn_act;
-    } else {
+    }
+    else {
         data->state = LV_INDEV_STATE_REL;
     }
 
     /*Save the last pressed button's ID*/
     data->btn_id = last_btn;
-
-    /*Return `false` because we are not buffering and no more data to read*/
-    return false;
 }
 
 /*Get ID  (0, 1, 2 ..) of the pressed button*/
@@ -416,8 +407,8 @@ static bool button_is_pressed(uint8_t id)
     return false;
 }
 
-#else /* Enable this file at the top */
+#else /*Enable this file at the top*/
 
-/* This dummy typedef exists purely to silence -Wpedantic. */
+/*This dummy typedef exists purely to silence -Wpedantic.*/
 typedef int keep_pedantic_happy;
 #endif

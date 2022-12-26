@@ -261,16 +261,16 @@ static void lvgl_camera_task(void *param)
 
 void lv_set_cam_area(lv_obj_t *obj)
 {
-    obj = lv_img_create(lv_scr_act(), NULL);
+    obj = lv_img_create(lv_scr_act());
 
     static lv_style_t style;
     lv_style_init(&style);
 
     /*Set a background*/
-    lv_style_set_image_recolor(&style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_style_set_image_recolor_opa(&style, LV_STATE_DEFAULT, LV_OPA_0);
-    lv_style_set_image_opa(&style, LV_STATE_DEFAULT, 255);
-    lv_obj_add_style(obj, LV_IMG_PART_MAIN, &style);
+    lv_style_set_img_recolor(&style, lv_color_black());
+    lv_style_set_img_recolor_opa(&style, LV_OPA_0);
+    lv_style_set_img_opa(&style, 255);
+    lv_obj_add_style(obj, &style, 0);
 
     lv_obj_set_pos(obj, 0, 0);
     lv_obj_set_size(obj, 240, 135);
