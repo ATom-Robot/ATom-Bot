@@ -83,6 +83,8 @@ esp_err_t Init_Camera(void)
         return err;
     }
 
+    sensor_t *s = esp_camera_sensor_get();
+
     return ESP_OK;
 }
 
@@ -212,7 +214,7 @@ void app_main(void)
     xTaskCreate(http_test_task, "cam", 2048 * 4, NULL, 5, NULL);
 }
 #else
-lv_img_dsc_t img_dsc =
+static lv_img_dsc_t img_dsc =
 {
     .header.always_zero = 0,
     .header.w = 240,
@@ -279,6 +281,9 @@ void lv_set_cam_area(lv_obj_t *obj)
 
 void lv_camera_create(void)
 {
+    assert(Init_Camera() == ESP_OK);
+    ESP_LOGI(TAG, "Camera Init Success");
+
     static lv_obj_t *camera_obj;
     lv_set_cam_area(camera_obj);
 }
