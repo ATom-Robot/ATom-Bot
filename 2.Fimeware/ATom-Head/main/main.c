@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -7,7 +6,7 @@
 #include "esp_log.h"
 
 #include <lvgl.h>
-#include "lvgl/demos/benchmark/lv_demo_benchmark.h"
+// #include "lvgl/demos/benchmark/lv_demo_benchmark.h"
 
 #include "st7789.h"
 #include "camera_sensor.h"
@@ -27,7 +26,6 @@ static const char *TAG = "main";
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-static void lv_tick_task(void *arg);
 static void guiTask(void *pvParameter);
 
 static TFT_t lcd_dev;
@@ -63,18 +61,8 @@ static void guiTask(void *pvParameter)
     disp_drv.ver_res = LV_VER_RES_MAX;
     lv_disp_drv_register(&disp_drv);
 
-    /* Create and start a periodic timer interrupt to call lv_tick_inc */
-    // const esp_timer_create_args_t periodic_timer_args =
-    // {
-    //     .callback = &lv_tick_task,
-    //     .name = "periodic_gui"
-    // };
-    // esp_timer_handle_t periodic_timer;
-    // ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    // ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
-
-    // lv_camera_create();
-    lv_avi_create();
+    lv_camera_create();
+    // lv_avi_create();
     // lv_demo_benchmark();
 
     static TickType_t tick;
@@ -144,14 +132,13 @@ static void SPI_FS_Init(void)
     {
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
+
+    SPIFFS_Directory("/spiffs/");
 }
 
 void app_main(void)
 {
-    printf("Hello-Atom-Bot!!\n");
-
     SPI_FS_Init();
-    SPIFFS_Directory("/spiffs/");
 
     spi_master_init(&lcd_dev, CONFIG_MOSI_GPIO, CONFIG_SCLK_GPIO, CONFIG_CS_GPIO, CONFIG_DC_GPIO, CONFIG_RESET_GPIO, CONFIG_BL_GPIO);
     lcdInit(&lcd_dev, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
@@ -159,10 +146,3 @@ void app_main(void)
     BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4096, NULL, 5, NULL, 1);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
-
-// static void lv_tick_task(void *arg)
-// {
-//     (void) arg;
-
-//     lv_tick_inc(LV_TICK_PERIOD_MS);
-// }

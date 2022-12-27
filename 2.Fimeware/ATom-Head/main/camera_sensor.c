@@ -275,7 +275,7 @@ void lv_set_cam_area(lv_obj_t *obj)
     lv_obj_set_pos(obj, 0, 0);
     lv_obj_set_size(obj, 240, 135);
 
-    BaseType_t result = xTaskCreatePinnedToCore(lvgl_camera_task, "cam", 4096, (lv_obj_t *)obj, 2, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(lvgl_camera_task, "cam", 4 * 1024, (lv_obj_t *)obj, 2, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
 

@@ -217,7 +217,7 @@ void lv_set_avi_area(lv_obj_t *obj)
     lv_obj_set_pos(obj, 0, 0);
     lv_obj_set_size(obj, 240, 135);
 
-    BaseType_t result = xTaskCreatePinnedToCore(aviTask, "avi", 1024 * 5, (lv_obj_t *)obj, 2, NULL, 1);
+    BaseType_t result = xTaskCreatePinnedToCore(aviTask, "avi", 1024 * 5, (lv_obj_t *)obj, 2, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
 
