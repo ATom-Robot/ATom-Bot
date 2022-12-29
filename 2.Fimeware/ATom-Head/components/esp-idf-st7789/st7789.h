@@ -1,6 +1,10 @@
 #ifndef MAIN_ST7789_H_
 #define MAIN_ST7789_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "driver/spi_master.h"
 #include <../lvgl/lvgl.h>
 
@@ -14,12 +18,10 @@
 #define CYAN            0x07FF
 #define PURPLE          0xF81F
 
-
-#define DIRECTION0			0
-#define DIRECTION90			1
+#define DIRECTION0          0
+#define DIRECTION90         1
 #define DIRECTION180        2
 #define DIRECTION270        3
-
 
 typedef struct
 {
@@ -76,5 +78,9 @@ void lcdBacklightOff(TFT_t *dev);
 void lcdBacklightOn(TFT_t *dev);
 void lcdInversionOff(TFT_t *dev);
 void lcdInversionOn(TFT_t *dev);
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* MAIN_ST7789_H_ */
 
