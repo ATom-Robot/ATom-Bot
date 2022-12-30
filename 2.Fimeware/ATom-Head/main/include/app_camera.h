@@ -21,8 +21,7 @@
   * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   *
   */
-#ifndef APP_CAMERA_H
-#define APP_CAMERA_H
+#pragma once
 
 #include "esp_camera.h"
 
@@ -63,6 +62,4 @@ void AppCamera_run(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

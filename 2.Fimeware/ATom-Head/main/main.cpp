@@ -6,6 +6,9 @@
 
 #include "app_lcd.h"
 #include "app_camera.h"
+#include "app_speech.h"
+
+#include "app_face_detection.hpp"
 
 static const char *TAG = "main";
 
@@ -71,14 +74,19 @@ static void SPI_FS_Init(void)
 
 extern "C" void app_main()
 {
-    SPI_FS_Init();
+    // SPI_FS_Init();
 
-    QueueHandle_t xQueueFrame_0 = xQueueCreate(2, sizeof(camera_fb_t *));
+    // QueueHandle_t xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
+    // QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueFrame_0);
-    AppLCD_Init(xQueueFrame_0, NULL, true);
+    // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
+    // register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
+    // AppLCD_Init(xQueueLCDFrame, NULL, true);
 
-    AppCamera_run();
-    AppLVGL_run();
-    AppLCD_run();
+    // AppCamera_run();
+    // AppLVGL_run();
+    // AppLCD_run();
+
+    AppSpeech_Init();
+    AppSpeech_run();
 }

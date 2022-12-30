@@ -1,5 +1,4 @@
-#ifndef APP_LCD_H
-#define APP_LCD_H
+#pragma once
 
 #include <stdio.h>
 #include <string.h>
@@ -22,6 +21,4 @@ void AppLVGL_run(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
