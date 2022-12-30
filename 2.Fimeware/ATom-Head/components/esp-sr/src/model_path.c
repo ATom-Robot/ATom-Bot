@@ -90,7 +90,6 @@ srmodel_list_t *read_models_form_spiffs(esp_vfs_spiffs_conf_t *conf)
     return models;
 }
 
-
 srmodel_list_t *srmodel_spiffs_init(const char *partition_label)
 {
     ESP_LOGI(TAG, "\nInitializing models from SPIFFS, partition label: %s\n", partition_label);

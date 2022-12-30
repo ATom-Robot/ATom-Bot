@@ -8,7 +8,7 @@
 
 #define LV_HOR_RES_MAX 240
 #define LV_VER_RES_MAX 135
-#define DISP_BUF_SIZE (LV_VER_RES_MAX * LV_HOR_RES_MAX / 2)
+#define DISP_BUF_SIZE (LV_VER_RES_MAX * LV_HOR_RES_MAX / 4)
 
 #ifdef __cplusplus
 extern "C"

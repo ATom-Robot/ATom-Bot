@@ -76,17 +76,16 @@ extern "C" void app_main()
 {
     // SPI_FS_Init();
 
-    // QueueHandle_t xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
-    // QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
-
-    // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
-    // register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
-    // AppLCD_Init(xQueueLCDFrame, NULL, true);
-
-    // AppCamera_run();
-    // AppLVGL_run();
-    // AppLCD_run();
+    QueueHandle_t xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
+    QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
     AppSpeech_Init();
+    AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
+    register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
+    AppLCD_Init(xQueueLCDFrame, NULL, true);
+
+    AppCamera_run();
+    AppLVGL_run();
+    AppLCD_run();
     AppSpeech_run();
 }

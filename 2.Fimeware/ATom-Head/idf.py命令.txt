@@ -28,3 +28,5 @@ idf.py size                             打印应用程序相关的大小信息
 
 python spiffsgen.py 0x500000 angry spiffs.bin       A:分区大小  B:要打包的文件  C:生成的文件
 python esptool.py --chip esp32-s3 --port COM6 --baud 921600 write_flash -z 0x210000 spiffs.bin
+
+python esptool.py --chip esp32-s3 --port COM6 --baud 921600 write_flash -z 0x210000 model.bin   烧录语音识别模型

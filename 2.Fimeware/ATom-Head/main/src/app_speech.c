@@ -200,6 +200,10 @@ void AppSpeech_Init(void)
 void AppSpeech_run(void)
 {
     task_flag = true;
-    xTaskCreatePinnedToCore(&feed_Task, "App/SR/Feed", 4 * 1024, afe_data, 5, NULL, 0);
-    xTaskCreatePinnedToCore(&detect_Task, "App/SR/Detect", 5 * 1024, afe_data, 5, NULL, 0);
+
+    BaseType_t result1 = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, afe_data, 5, NULL, 0);
+    assert("Failed to create task" && result1 == (BaseType_t) 1);
+
+    BaseType_t result2 = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 5 * 1024, afe_data, 5, NULL, 0);
+    assert("Failed to create task" && result2 == (BaseType_t) 1);
 }

@@ -3,3 +3,4 @@
 nvs,      data, nvs,     0x9000,  0x6000,
 factory,  app,  factory, 0x10000, 2M,
 model,    data, spiffs,  ,        3M,
+storage,  data, spiffs,  ,        2M,
