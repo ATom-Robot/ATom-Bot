@@ -47,9 +47,9 @@ extern TIM_HandleTypeDef htim4;
 
 void SystemClock_Config(void);
 
-void MX_TIM2_Init(void);
-void MX_TIM3_Init(void);
-void MX_TIM4_Init(void);
+extern void MX_TIM2_Init(void);
+extern void MX_TIM3_Init(void);
+extern void MX_TIM4_Init(void);
 
 #ifdef __cplusplus
 }

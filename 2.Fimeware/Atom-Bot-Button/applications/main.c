@@ -12,6 +12,9 @@
 #include <rtdevice.h>
 #include <board.h>
 
+#include "bsp_motor.h"
+#include "bsp_encoder.h"
+
 int main(void)
 {
     rt_kprintf("Hello Atom-Bot!!\n");
@@ -19,133 +22,56 @@ int main(void)
     rt_kprintf("SCL:%d,SDA:%d\n", GET_PIN(B, 10), GET_PIN(B, 11));
 
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 0), GET_PIN(A, 1));
-	rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));	
+    rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));
 
-//    MX_TIM2_Init();
-//    MX_TIM3_Init();
     MX_TIM4_Init();
+    MX_TIM2_Init();
+    MX_TIM3_Init();
+
+	Motor_Init();
+	Encoder_Init();
 
     return 0;
 }
 
-#define PWM_DEV_NAME        "pwm4"      /* PWM设备名称 */
-#define PWM_DEV_CHANNEL1     1          /* PWM通道 */
-#define PWM_DEV_CHANNEL2     2          /* PWM通道 */
-#define PWM_DEV_CHANNER1     3          /* PWM通道 */
-#define PWM_DEV_CHANNER2     4          /* PWM通道 */
-
-struct rt_device_pwm *pwm_dev;      /* PWM设备句柄 */
-
-rt_int8_t car_pwmInit(void)
+/**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
 {
-    pwm_dev = (struct rt_device_pwm *)rt_device_find(PWM_DEV_NAME);
-    if (pwm_dev == RT_NULL)
-    {
-        rt_kprintf("\r\npwm run failed! can't find %s device!\r\n", PWM_DEV_NAME);
-        return RT_ERROR;
-    }
-    rt_kprintf("\r\npwm run success! find %s device!\r\n", PWM_DEV_NAME);
-
-    //开启PWM
-    rt_pwm_enable(pwm_dev, PWM_DEV_CHANNEL1);
-    rt_pwm_enable(pwm_dev, PWM_DEV_CHANNEL2);
-    rt_pwm_enable(pwm_dev, PWM_DEV_CHANNER1);
-    rt_pwm_enable(pwm_dev, PWM_DEV_CHANNER2);
-
-    return RT_EOK;
-
-}
-MSH_CMD_EXPORT(car_pwmInit, car_pwmInit);
-
-rt_int8_t car_speedSet_L(int argc, const char **argv)
-{
-    if (argc > 1)
-    {
-        rt_kprintf("set speed_L:%d\n", atoi(argv[1]));
-        rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL1, 1000 * 1000, atoi(argv[1])); // 500 * 1000
-        rt_pwm_set(pwm_dev, PWM_DEV_CHANNEL2, 1000 * 1000, 0);
-    }
-
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(car_speedSet_L, car set speed right);
-
-rt_int8_t car_speedSet_R(int argc, const char **argv)
-{
-    if (argc > 1)
-    {
-        rt_kprintf("set speed_R:%d\n", atoi(argv[1]));
-        rt_pwm_set(pwm_dev, PWM_DEV_CHANNER1, 1000 * 1000, atoi(argv[1])); // 500 * 1000
-        rt_pwm_set(pwm_dev, PWM_DEV_CHANNER2, 1000 * 1000, 0);
-    }
-
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(car_speedSet_R, car set speed left);
-
-void encoder_clearCounter(void)
-{
-    __HAL_TIM_SET_COUNTER(&htim2, 0);
-    __HAL_TIM_SET_COUNTER(&htim3, 0);
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+    int level = rt_hw_interrupt_disable();
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim2);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+    rt_hw_interrupt_enable(level);
+    /* USER CODE END TIM2_IRQn 1 */
 }
 
-#define PULSE_ENCODER_R_DEV_NAME    "pulse2"    /* 脉冲编码器名称 */
-#define PULSE_ENCODER_L_DEV_NAME    "pulse3"    /* 脉冲编码器名称 */
-
-static int pulse_encoder_sample(int argc, char *argv[])
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
 {
-    rt_err_t ret = RT_EOK;
-    rt_device_t pulse_encoderR_dev = RT_NULL;   /* 脉冲编码器设备句柄 */
-    rt_device_t pulse_encoderL_dev = RT_NULL;   /* 脉冲编码器设备句柄 */
-
-    rt_uint32_t index;
-    rt_int32_t count_R;
-    rt_int32_t count_L;
-
-    pulse_encoderR_dev = rt_device_find(PULSE_ENCODER_R_DEV_NAME);
-    if (pulse_encoderR_dev == RT_NULL)
-    {
-        rt_kprintf("pulse encoder sample run failed! can't find %s device!\n", PULSE_ENCODER_R_DEV_NAME);
-        return RT_ERROR;
-    }
-    pulse_encoderL_dev = rt_device_find(PULSE_ENCODER_L_DEV_NAME);
-    if (pulse_encoderL_dev == RT_NULL)
-    {
-        rt_kprintf("pulse encoder sample run failed! can't find %s device!\n", PULSE_ENCODER_L_DEV_NAME);
-        return RT_ERROR;
-    }
-
-    /* 以只读方式打开设备 */
-    ret = rt_device_open(pulse_encoderR_dev, RT_DEVICE_OFLAG_RDONLY);
-    if (ret != RT_EOK)
-    {
-        rt_kprintf("open %s device failed!\n", PULSE_ENCODER_R_DEV_NAME);
-        return ret;
-    }
-    ret = rt_device_open(pulse_encoderL_dev, RT_DEVICE_OFLAG_RDONLY);
-    if (ret != RT_EOK)
-    {
-        rt_kprintf("open %s device failed!\n", PULSE_ENCODER_L_DEV_NAME);
-        return ret;
-    }
-
-    for (index = 0; index <= 50; index ++)
-    {
-        rt_thread_mdelay(200);
-
-        rt_device_read(pulse_encoderR_dev, 0, &count_R, 1);
-        rt_device_read(pulse_encoderL_dev, 0, &count_L, 1);
-
-//        rt_device_control(pulse_encoderR_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
-//        rt_device_control(pulse_encoderL_dev, PULSE_ENCODER_CMD_CLEAR_COUNT, RT_NULL);
-
-        rt_kprintf("=================================\n");
-        rt_kprintf("R count:%d   |   L count:%d\n", count_R, count_L);
-    }
-
-    rt_device_close(pulse_encoderR_dev);
-    rt_device_close(pulse_encoderL_dev);
-
-    return ret;
+    /* USER CODE BEGIN TIM3_IRQn 0 */
+    int level = rt_hw_interrupt_disable();
+    /* USER CODE END TIM3_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim3);
+    /* USER CODE BEGIN TIM3_IRQn 1 */
+    rt_hw_interrupt_enable(level);
+    /* USER CODE END TIM3_IRQn 1 */
 }
-MSH_CMD_EXPORT(pulse_encoder_sample, pulse encoder sample);
+
+/**
+  * @brief This function handles TIM4 global interrupt.
+  */
+void TIM4_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM4_IRQn 0 */
+    int level = rt_hw_interrupt_disable();
+    /* USER CODE END TIM4_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim4);
+    /* USER CODE BEGIN TIM4_IRQn 1 */
+    rt_hw_interrupt_enable(level);
+    /* USER CODE END TIM4_IRQn 1 */
+}

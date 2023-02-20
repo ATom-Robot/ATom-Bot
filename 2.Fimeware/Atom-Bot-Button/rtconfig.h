@@ -146,6 +146,8 @@
 
 /* tools packages */
 
+#define PKG_USING_CPU_USAGE
+#define PKG_USING_CPU_USAGE_LATEST_VERSION
 
 /* system packages */
 
@@ -166,7 +168,6 @@
 /* sensors drivers */
 
 #define PKG_USING_MPU6XXX
-#define PKG_USING_MPU6XXX_LATEST_VERSION
 #define PKG_USING_MPU6XXX_ACCE
 #define PKG_USING_MPU6XXX_GYRO
 #define PKG_USING_MPU6XXX_MAG
@@ -226,6 +227,7 @@
 
 /* Other */
 
+
 /* Signal IO */
 
 
@@ -257,12 +259,6 @@
 #define BSP_USING_I2C2
 #define BSP_I2C2_SCL_PIN 26
 #define BSP_I2C2_SDA_PIN 27
-#define BSP_USING_PWM
-#define BSP_USING_PWM4
-#define BSP_USING_PWM4_CH1
-#define BSP_USING_PWM4_CH2
-#define BSP_USING_PWM4_CH3
-#define BSP_USING_PWM4_CH4
 
 /* Board extended module Drivers */
 
