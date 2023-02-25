@@ -30,8 +30,8 @@ int16_t motor_kd = 0;	//电机转速PID-D
 
 int16_t PID_Motor_Control(int8_t Motor_Num, int16_t speed_target, int16_t speed_current)
 {
-    static int16_t motor_pwm_out[4];
-    static int32_t bias[4], bias_last[4], bias_integral[4] = {0};
+    static int16_t motor_pwm_out[2];
+    static int32_t bias[2], bias_last[2], bias_integral[2] = {0};
 
     //获得偏差值
     bias[Motor_Num - 1] = speed_target - speed_current;

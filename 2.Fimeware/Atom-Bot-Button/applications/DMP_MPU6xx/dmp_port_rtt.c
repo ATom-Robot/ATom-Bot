@@ -368,12 +368,6 @@ int MPU6050_DMP_Init(void)
     uint8_t res = 0;
     int ok = 1;
 
-//    mpu6xxx_set_param(i2c_bus, MPU6XXX_ACCEL_RANGE, MPU6XXX_GYRO_RANGE_2000DPS);    //陀螺仪范围配置
-//    mpu6xxx_set_param(i2c_bus, MPU6XXX_ACCEL_RANGE, MPU6XXX_ACCEL_RANGE_2G);        //加速度计，一般设置为±2G
-//    mpu6xxx_set_param(i2c_bus, MPU6XXX_SAMPLE_RATE, 50);                            //采样频率
-//    mpu6xxx_set_param(i2c_bus, MPU6XXX_DLPF_CONFIG, 25);                            //数字低通滤波器设置，一般为1/2采样率
-
-
     //设置所需要的传感器
     res = mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     if (res && ok)
@@ -475,43 +469,28 @@ int MPU6050_Init(void)
 {
     i2c_bus = (struct mpu6xxx_device *)mpu6xxx_init(MPU6050_I2C_BUS_NAME, MPU6050_ADDR);
     RT_ASSERT(i2c_bus != RT_NULL);
-	
-    //配置MPU6050寄存器
-    MPU6050_Write_Byte(MPU6050_PWR_MGMT1_REG, 0X80); //复位MPU6050
-    rt_thread_mdelay(100);
-    MPU6050_Write_Byte(MPU6050_PWR_MGMT1_REG, 0x00); //唤醒MPU6050
 
-    MPU6050_SetGyroRange(GYRO_RANGE_2000); //陀螺仪量程 ±2000dps
-    MPU6050_SetAccelRange(ACC_RANGE_2G); //加速计量程 ±2g
-
-    MPU6050_Write_Byte(MPU6050_INT_EN_REG, 0X00);   //关闭所有中断
-    MPU6050_Write_Byte(MPU6050_USER_CTRL_REG, 0X00); //I2C主模式关闭
-    MPU6050_Write_Byte(MPU6050_FIFO_EN_REG, 0xFF);	//关闭FIFO
-    MPU6050_Write_Byte(MPU6050_INTBP_CFG_REG, 0x80); //INT引脚低电平有效
-
-    //检验器件ID
-    uint8_t ID;
-    MPU6050_Read_Byte(MPU6050_DEVICE_ID_REG, &ID);
-    if (ID == MPU6050_ADDR) //器件ID正确
+    if (!mpu_init())
     {
-        MPU6050_Write_Byte(MPU6050_PWR_MGMT1_REG, 0X01); //设置CLKSEL,PLL X轴为参考
-        MPU6050_Write_Byte(MPU6050_PWR_MGMT2_REG, 0X00); //加速度与陀螺仪都工作
-        MPU6050_SetSmplRate(50); //设置采样率为50Hz
-
-        rt_thread_mdelay(100);  //等待传感器稳定
-
-        if (MPU6050_DMP_Init()) //DMP初始化
-        {
-            LOG_I("MPU6050 Init Success, ID=0x%x\r\n", ID);
-        }
-        else
-        {
-            LOG_E("MPU6050 Init Failed: DMP Failed");
-        }
-    }
-    else
-    {
-        LOG_E("MPU6050 Init Failed, ID=0x%x\r\n", ID);
+        if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+            rt_kprintf("mpu设置传感器完成 ......\r\n");
+        if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+            rt_kprintf("mpu配置FIFO完成 ......\r\n");
+        if (!mpu_set_sample_rate(DEFAULT_MPU_HZ))
+            rt_kprintf("mpu设定的采样率完成 ......\r\n");
+        if (!dmp_load_motion_driver_firmware())
+            rt_kprintf("DMP加载动作驱动程序固件完成 ......\r\n");
+        if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
+            rt_kprintf("DMP设置陀螺仪方向完成 ......\r\n");
+        if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
+                                DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
+                                DMP_FEATURE_GYRO_CAL))
+            rt_kprintf("DMP功能已使能 ......\r\n");
+        if (!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
+            rt_kprintf("DMP设定FIFO速率完成 ......\r\n");
+        run_self_test();
+        if (!mpu_set_dmp_state(1))
+            rt_kprintf("mpu设置DMP状态完成 ......\r\n");
     }
 
     return RT_EOK;
