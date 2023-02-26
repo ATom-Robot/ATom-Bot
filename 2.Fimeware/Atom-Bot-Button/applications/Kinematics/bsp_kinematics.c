@@ -1,22 +1,15 @@
 /*
-    Copyright 2022 Fan Ziqi
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-02-26     Rbb66			First version
+ */
 #include "main.h"
 #include "bsp_kinematics.h"
-#include <math.h>
+#include <AT_Math.h>
 
 #define DBG_SECTION_NAME  "KINEMATICS"
 #define DBG_LEVEL         DBG_LOG
@@ -78,7 +71,6 @@ void Kinematics_Inverse(int16_t *input, int16_t *output)
     //计算一个PID控制周期内，电机编码器计数值的变化
     output[0] = (int16_t)(v_w[0] * pulse_per_meter / PID_RATE);
     output[1] = (int16_t)(v_w[1] * pulse_per_meter / PID_RATE);
-
 }
 
 /**
@@ -91,7 +83,7 @@ void Kinematics_Forward(int16_t *input, int16_t *output)
 {
 //  static double delta_v_integral[2];
 
-    static double dv_w_times_dt[4]; //轮子瞬时变化量dxw=dvw*dt
+    static double dv_w_times_dt[2]; //轮子瞬时变化量dxw=dvw*dt
     static double dv_t_times_dt[3]; //底盘瞬时变化量dxt=dvt*dt
     static int16_t encoder_sum[2];
 
@@ -131,15 +123,15 @@ void Kinematics_Forward(int16_t *input, int16_t *output)
 	// 0 1
 	// 2 3
     //计算底盘坐标系(base_link)下x轴、y轴变化距离m与Yaw轴朝向变化rad 一段时间内的变化量
-    dv_t_times_dt[0] = (dv_w_times_dt[3] + dv_w_times_dt[2]) / 2.0;
-    dv_t_times_dt[1] = (dv_w_times_dt[2] - dv_w_times_dt[0]) / 2.0;
-    dv_t_times_dt[2] = (-dv_w_times_dt[2] + dv_w_times_dt[1]) / (2 * rx_plus_ry_cali);
+    dv_t_times_dt[0] = (dv_w_times_dt[0] + dv_w_times_dt[1]) / 2.0;
+    dv_t_times_dt[1] = 0.0f;
+    dv_t_times_dt[2] = (-dv_w_times_dt[1] + dv_w_times_dt[0]) / (2 * rx_plus_ry_cali);
 
     //积分计算里程计坐标系(odom_frame)下的机器人X,Y,Yaw轴坐标
     //dx = ( vx*cos(theta) - vy*sin(theta) )*dt
     //dy = ( vx*sin(theta) + vy*cos(theta) )*dt
-    output[0] += (int16_t)((cos((double)output[2] / 1000) * dv_t_times_dt[0] - sin((double)output[2] / 1000) * dv_t_times_dt[1]) * 1000);
-    output[1] += (int16_t)((sin((double)output[2] / 1000) * dv_t_times_dt[0] + cos((double)output[2] / 1000) * dv_t_times_dt[1]) * 1000);
+    output[0] += (int16_t)((my_cos((double)output[2] / 1000) * dv_t_times_dt[0] - my_sin((double)output[2] / 1000) * dv_t_times_dt[1]) * 1000);
+    output[1] += 0.0f;
     output[2] += (int16_t)(dv_t_times_dt[2] * 1000);
 
     //Yaw轴坐标变化范围控制-2pi -> 2pi

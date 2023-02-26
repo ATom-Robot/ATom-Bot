@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author        Notes
- * 2021-10-18     Meco Man      First version
+ * 2023-02-26     Rbb66			First version
  */
-
 #ifndef DMP_PORT_RTT_H
 #define DMP_PORT_RTT_H
 
@@ -45,11 +44,6 @@
 #define MPU6050_I2CSLV4_CTRL_REG    0X34    //IIC从机4控制寄存器
 #define MPU6050_I2CSLV4_DI_REG      0X35    //IIC从机4读数据寄存器
 
-#define MPU6050_I2CMST_STA_REG      0X36    //IIC主机状态寄存器
-#define MPU6050_INTBP_CFG_REG       0X37    //中断/旁路设置寄存器
-#define MPU6050_INT_EN_REG          0X38    //中断使能寄存器
-#define MPU6050_INT_STA_REG         0X3A    //中断状态寄存器
-
 #define MPU6050_ACCEL_XOUTH_REG     0X3B    //加速度值,X轴高8位寄存器
 #define MPU6050_ACCEL_XOUTL_REG     0X3C    //加速度值,X轴低8位寄存器
 #define MPU6050_ACCEL_YOUTH_REG     0X3D    //加速度值,Y轴高8位寄存器
@@ -59,35 +53,6 @@
 
 #define MPU6050_TEMP_OUTH_REG       0X41    //温度值高八位寄存器
 #define MPU6050_TEMP_OUTL_REG       0X42    //温度值低8位寄存器
-
-#define MPU6050_GYRO_XOUTH_REG      0X43    //陀螺仪值,X轴高8位寄存器
-#define MPU6050_GYRO_XOUTL_REG      0X44    //陀螺仪值,X轴低8位寄存器
-#define MPU6050_GYRO_YOUTH_REG      0X45    //陀螺仪值,Y轴高8位寄存器
-#define MPU6050_GYRO_YOUTL_REG      0X46    //陀螺仪值,Y轴低8位寄存器
-#define MPU6050_GYRO_ZOUTH_REG      0X47    //陀螺仪值,Z轴高8位寄存器
-#define MPU6050_GYRO_ZOUTL_REG      0X48    //陀螺仪值,Z轴低8位寄存器
-
-#define MPU6050_I2CSLV0_DO_REG      0X63    //IIC从机0数据寄存器
-#define MPU6050_I2CSLV1_DO_REG      0X64    //IIC从机1数据寄存器
-#define MPU6050_I2CSLV2_DO_REG      0X65    //IIC从机2数据寄存器
-#define MPU6050_I2CSLV3_DO_REG      0X66    //IIC从机3数据寄存器
-
-#define MPU6050_I2CMST_DELAY_REG    0X67    //IIC主机延时管理寄存器
-#define MPU6050_SIGPATH_RST_REG     0X68    //信号通道复位寄存器
-#define MPU6050_MDETECT_CTRL_REG    0X69    //运动检测控制寄存器
-#define MPU6050_USER_CTRL_REG       0X6A    //用户控制寄存器
-#define MPU6050_PWR_MGMT1_REG       0X6B    //电源管理寄存器1
-#define MPU6050_PWR_MGMT2_REG       0X6C    //电源管理寄存器2
-#define MPU6050_FIFO_CNTH_REG       0X72    //FIFO计数寄存器高八位
-#define MPU6050_FIFO_CNTL_REG       0X73    //FIFO计数寄存器低八位
-#define MPU6050_FIFO_RW_REG         0X74    //FIFO读写寄存器
-#define MPU6050_DEVICE_ID_REG       0x68    //器件ID寄存器
-
-//加速度量程
-#define  ACC_RANGE_2G  0  //2g   
-#define  ACC_RANGE_4G  1  //4g
-#define  ACC_RANGE_8G  2  //8g   
-#define  ACC_RANGE_16G 3  //16g
 
 //陀螺仪量程
 #define  GYRO_RANGE_250  0  //250度/秒     

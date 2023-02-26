@@ -1,6 +1,15 @@
-#include <rtthread.h>
+/*
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-02-26     Rbb66			First version
+ */
 #include <rtdevice.h>
 #include <math.h>
+#include <AT_Math.h>
 #include "mpu6xxx.h"
 
 #include "inv_mpu.h"
@@ -352,10 +361,13 @@ void MPU6050_DMP_GetData(struct imu_data *robot_imu_data)
         q2 = quat[2] / q30;
         q3 = quat[3] / q30;
 
+        float t_temp;
+        t_temp = LIMIT(1 - my_pow(-2 * q1 * q3 + 2 * q0 * q2), 0, 1);
+
         //计算得到俯仰角/横滚角/航向角
-        pitch = asin(-2 * q1 * q3 + 2 * q0 * q2) * 57.3f; // pitch
-        roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3f; // roll
-        yaw   = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f; //yaw
+        pitch = fast_atan2((-2 * q1 * q3 + 2 * q0 * q2), my_sqrt(t_temp)) * 57.3f; // pitch
+        roll  = fast_atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3f; // roll
+        yaw   = fast_atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f; //yaw
 
         robot_imu_data->pitch = pitch * 100;
         robot_imu_data->roll  = roll  * 100;
@@ -365,97 +377,65 @@ void MPU6050_DMP_GetData(struct imu_data *robot_imu_data)
 
 int MPU6050_DMP_Init(void)
 {
-    uint8_t res = 0;
-    int ok = 1;
-
-    //设置所需要的传感器
-    res = mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("mpu_set_sensor error\r\n");
-        return 0;
-    }
-
-    //设置FIFO
-    res = mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("mpu_configure_fifo error\r\n");
-        return 0;
-    }
-
-    //设置采样率
-    res = mpu_set_sample_rate(DEFAULT_MPU_HZ);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("mpu_set_sample_rate error\r\n");
-        return 0;
-    }
-
-    //加载dmp固件
-    res = dmp_load_motion_driver_firmware();
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("dmp_load_motion_driver_firmware error\r\n");
-        return 0;
-    }
-
-    //设置陀螺仪方向
-    res = dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation));
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("dmp_set_orientation error\r\n");
-        return 0;
-    }
-
-    //设置dmp功能
-    res = dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
-                             DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
-                             DMP_FEATURE_GYRO_CAL);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("dmp_enable_feature error\r\n");
-        return 0;
-    }
-
-    //设置DMP输出速率(最大不超过200Hz)
-    res = dmp_set_fifo_rate(DEFAULT_MPU_HZ);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("dmp_set_fifo_rate error\r\n");
-        return 0;
-    }
-
-    //自检
-    res = run_self_test();
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("run_self_test error\r\n");
-        return 0;
-    }
-
-    //使能DMP
-    res = mpu_set_dmp_state(1);
-    if (res && ok)
-    {
-        ok = 0;
-        LOG_E("mpu_set_dmp_state error\r\n");
-        return 0;
-    }
-
-    if (ok)
-    {
-        LOG_D("MPU6050_DMP Init Success\r\n");
-        return 1;
-    }
+	if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+		LOG_I("mpu设置传感器完成 ......");
+	else
+	{
+		LOG_E("mpu设置传感器失败");
+		return RT_ERROR;
+	}
+	if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+		LOG_I("mpu配置FIFO完成 ......");
+	else
+	{
+		LOG_E("mpu配置FIFO失败");
+		return RT_ERROR;
+	}
+	if (!mpu_set_sample_rate(DEFAULT_MPU_HZ))
+		LOG_I("mpu设定的采样率完成 ......");
+	else
+	{
+		LOG_E("mpu设定的采样率失败");
+		return RT_ERROR;
+	}
+	if (!dmp_load_motion_driver_firmware())
+		LOG_I("DMP加载动作固件完成 ......");
+	else
+	{
+		LOG_E("DMP加载动作固件失败");
+		return RT_ERROR;
+	}
+	if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
+		LOG_I("DMP设置陀螺仪方向完成 ......");
+	else
+	{
+		LOG_E("mpu设置传感器失败");
+		return RT_ERROR;
+	}
+	if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
+							DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
+							DMP_FEATURE_GYRO_CAL))
+		LOG_I("DMP功能已使能 ......");
+	else
+	{
+		LOG_E("DMP使能失败");
+		return RT_ERROR;
+	}
+	if (!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
+		LOG_I("DMP设定FIFO速率完成 ......");
+	else
+	{
+		LOG_E("DMP设定FIFO速率失败");
+		return RT_ERROR;
+	}
+	run_self_test();
+	if (!mpu_set_dmp_state(1))
+		LOG_I("mpu设置DMP状态完成 ......");
+	else
+	{
+		LOG_E("mpu设置DMP状态失败");
+		return RT_ERROR;
+	}
 
     return RT_EOK;
 }
@@ -467,33 +447,18 @@ int MPU6050_DMP_Init(void)
   */
 int MPU6050_Init(void)
 {
+	rt_err_t res = RT_EOK;
+
     i2c_bus = (struct mpu6xxx_device *)mpu6xxx_init(MPU6050_I2C_BUS_NAME, MPU6050_ADDR);
     RT_ASSERT(i2c_bus != RT_NULL);
 
     if (!mpu_init())
     {
-        if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-            rt_kprintf("mpu设置传感器完成 ......\r\n");
-        if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-            rt_kprintf("mpu配置FIFO完成 ......\r\n");
-        if (!mpu_set_sample_rate(DEFAULT_MPU_HZ))
-            rt_kprintf("mpu设定的采样率完成 ......\r\n");
-        if (!dmp_load_motion_driver_firmware())
-            rt_kprintf("DMP加载动作驱动程序固件完成 ......\r\n");
-        if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
-            rt_kprintf("DMP设置陀螺仪方向完成 ......\r\n");
-        if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
-                                DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
-                                DMP_FEATURE_GYRO_CAL))
-            rt_kprintf("DMP功能已使能 ......\r\n");
-        if (!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
-            rt_kprintf("DMP设定FIFO速率完成 ......\r\n");
-        run_self_test();
-        if (!mpu_set_dmp_state(1))
-            rt_kprintf("mpu设置DMP状态完成 ......\r\n");
+		res = MPU6050_DMP_Init();
+		RT_ASSERT(res != RT_ERROR);
     }
 
-    return RT_EOK;
+    return res;
 }
 MSH_CMD_EXPORT(MPU6050_Init, MPU6050 DMP Init);
 
@@ -513,12 +478,12 @@ rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
     {
         //读取DMP数据 251 2.51
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
-        LOG_D("%d.%d %d.%d %d.%d \r\n",
+        LOG_I("%d.%d %d.%d %d.%d \r\n",
               robot_imu_dmp_data.pitch / 100, abs(robot_imu_dmp_data.pitch / 10 % 10),
               robot_imu_dmp_data.roll / 100, abs(robot_imu_dmp_data.roll / 10 % 10),
               robot_imu_dmp_data.yaw / 100, abs(robot_imu_dmp_data.yaw / 10 % 10));
 
-        rt_thread_mdelay(100);
+        rt_thread_mdelay(50);
     }
 
     return RT_EOK;
