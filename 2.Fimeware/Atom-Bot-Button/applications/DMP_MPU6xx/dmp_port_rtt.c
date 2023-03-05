@@ -7,6 +7,7 @@
  * Date           Author        Notes
  * 2023-02-26     Rbb66			First version
  */
+
 #include <rtdevice.h>
 #include <math.h>
 #include <AT_Math.h>

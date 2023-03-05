@@ -12,7 +12,7 @@
 
 #include <rtthread.h>
 
-#define ENCODER_RESOLUTION	7.0		//编码器分辨率, 轮子转一圈，编码器产生的脉冲数(编码器分辨率：12*30*4（12线，1：30减速比，四倍频）)
+#define ENCODER_RESOLUTION	840		//编码器分辨率, 轮子转一圈，编码器产生的脉冲数(编码器分辨率：7*30*4（12线，1：30减速比，四倍频）)
 #define WHEEL_DIAMETER		0.017	//轮子直径,单位：米
 #define D_X					0.045	//底盘Y轴上两轮中心的间距
 #define D_Y					0.059	//底盘X轴上两轮中心的间距

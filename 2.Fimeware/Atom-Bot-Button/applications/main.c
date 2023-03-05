@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author        Notes
- * 2023-02-26     Rbb66			First version
+ * 2023-02-26     Rbb66         First version
  */
 #include <rtthread.h>
 #include <rtdevice.h>
@@ -13,6 +13,9 @@
 
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
+
+#define POWER_SW GET_PIN(C, 6)
+#define VOLTAGE_ADC_EN GET_PIN(B, 12)
 
 int main(void)
 {
@@ -27,8 +30,19 @@ int main(void)
     MX_TIM2_Init();
     MX_TIM3_Init();
 
-	Motor_Init();
-	Encoder_Init();
+    Motor_Init();
+    Encoder_Init();
+
+    rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
+    rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
+    rt_pin_write(VOLTAGE_ADC_EN, PIN_LOW);
+
+    while (1)
+    {
+        rt_pin_write(POWER_SW, PIN_HIGH);
+        rt_pin_write(POWER_SW, PIN_LOW);
+        rt_thread_mdelay(200);
+    }
 
     return 0;
 }
@@ -39,11 +53,11 @@ int main(void)
 void TIM2_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM2_IRQn 0 */
-    int level = rt_hw_interrupt_disable();
+    rt_interrupt_enter();
     /* USER CODE END TIM2_IRQn 0 */
     HAL_TIM_IRQHandler(&htim2);
     /* USER CODE BEGIN TIM2_IRQn 1 */
-    rt_hw_interrupt_enable(level);
+    rt_interrupt_leave();
     /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -53,11 +67,11 @@ void TIM2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM3_IRQn 0 */
-    int level = rt_hw_interrupt_disable();
+    rt_interrupt_enter();
     /* USER CODE END TIM3_IRQn 0 */
     HAL_TIM_IRQHandler(&htim3);
     /* USER CODE BEGIN TIM3_IRQn 1 */
-    rt_hw_interrupt_enable(level);
+    rt_interrupt_leave();
     /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -67,10 +81,10 @@ void TIM3_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
     /* USER CODE BEGIN TIM4_IRQn 0 */
-    int level = rt_hw_interrupt_disable();
+    rt_interrupt_enter();
     /* USER CODE END TIM4_IRQn 0 */
     HAL_TIM_IRQHandler(&htim4);
     /* USER CODE BEGIN TIM4_IRQn 1 */
-    rt_hw_interrupt_enable(level);
+    rt_interrupt_leave();
     /* USER CODE END TIM4_IRQn 1 */
 }

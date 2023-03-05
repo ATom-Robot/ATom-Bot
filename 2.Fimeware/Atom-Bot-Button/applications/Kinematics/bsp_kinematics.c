@@ -61,7 +61,7 @@ void Kinematics_Init(int16_t *robot_params)
 void Kinematics_Inverse(int16_t *input, int16_t *output)
 {
     float v_tx   = ((float)input[0]) / 1000;
-    float v_ty   = ((float)input[1]) / 1000;
+    float v_ty   = 0.0f;
     float omega = ((float)input[2]) / 1000;
     static float v_w[2] = {0};
 

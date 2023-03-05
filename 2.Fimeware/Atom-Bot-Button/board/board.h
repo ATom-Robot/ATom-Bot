@@ -50,6 +50,7 @@ void SystemClock_Config(void);
 extern void MX_TIM2_Init(void);
 extern void MX_TIM3_Init(void);
 extern void MX_TIM4_Init(void);
+extern void MX_ADC1_Init(void);
 
 #ifdef __cplusplus
 }
