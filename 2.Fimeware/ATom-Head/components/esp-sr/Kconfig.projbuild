@@ -110,7 +110,7 @@ choice SR_WN_WAKE_WORD_SEL
         depends on SR_WN_MODEL_WN7_QUANT || SR_WN_MODEL_WN7_QUANT8
 
     config SR_WN_WN8_ALEXA
-        bool "Alexas (WakeNet8)"
+        bool "Alexa (WakeNet8)"
         depends on SR_WN_MODEL_WN8_QUANT 
 
     config SR_WN_WN8_HIESP

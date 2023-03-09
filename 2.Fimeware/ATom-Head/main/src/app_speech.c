@@ -81,7 +81,7 @@ static void feed_Task(void *arg)
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
     int nch = afe_handle->get_channel_num(afe_data);
     int feed_channel = bsp_get_feed_channel();
-    int16_t *i2s_buff = malloc(audio_chunksize * sizeof(int16_t) * feed_channel);
+    int16_t *i2s_buff = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * feed_channel, MALLOC_CAP_SPIRAM);;
     assert(i2s_buff);
     size_t bytes_read;
 
@@ -190,9 +190,6 @@ void AppSpeech_Init(void)
         .alloc_from_psram = AFE_PSRAM_MEDIA_COST,
         .agc_mode = 2,
     };
-    afe_config.aec_init = false;
-    afe_config.se_init = false;
-    afe_config.vad_init = false;
     afe_config.afe_ringbuf_size = 10;
     afe_data = afe_handle->create_from_config(&afe_config);
 }

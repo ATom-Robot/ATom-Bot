@@ -1,3 +1,13 @@
 {
-    "idf.adapterTargetName": "esp32s3"
+    "idf.adapterTargetName": "esp32s3",
+    "files.associations": {
+        "sdkconfig.h": "c",
+        "freertos.h": "c",
+        "argtable3.h": "c",
+        "model_path.h": "c",
+        "ratio": "c",
+        "esp_spiffs.h": "c",
+        "esp_log.h": "c",
+        "dirent.h": "c"
+    }
 }

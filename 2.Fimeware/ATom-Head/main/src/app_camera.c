@@ -81,7 +81,7 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
 
 void AppCamera_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 4 * 1024, NULL, 2, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 2 * 1024, NULL, 2, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
 
