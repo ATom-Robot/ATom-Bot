@@ -8,6 +8,7 @@
         "ratio": "c",
         "esp_spiffs.h": "c",
         "esp_log.h": "c",
-        "dirent.h": "c"
+        "dirent.h": "c",
+        "esp_process_sdkconfig.h": "c"
     }
 }

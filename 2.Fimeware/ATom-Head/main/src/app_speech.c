@@ -104,7 +104,7 @@ static void detect_Task(void *arg)
     esp_afe_sr_data_t *afe_data = arg;
     int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
     int nch = afe_handle->get_channel_num(afe_data);
-    int16_t *buff = (int16_t *)malloc(afe_chunksize * sizeof(int16_t));
+    int16_t *buff = (int16_t *)heap_caps_malloc(afe_chunksize * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     assert(buff);
 
     static const esp_mn_iface_t *multinet = &MULTINET_MODEL;
@@ -173,24 +173,13 @@ void AppSpeech_Init(void)
     }
 
     afe_handle = &esp_afe_sr_1mic;
-    afe_config_t afe_config =
-    {
-        .aec_init = true,
-        .se_init = true,
-        .vad_init = true,
-        .wakenet_init = true,
-        .vad_mode = 3,
-        .wakenet_model = &WAKENET_MODEL,
-        .wakenet_coeff = (const model_coeff_getter_t *) &WAKENET_COEFF,
-        .wakenet_mode = DET_MODE_2CH_90,
-        .afe_mode = SR_MODE_LOW_COST,
-        .afe_perferred_core = 0,
-        .afe_perferred_priority = 5,
-        .afe_ringbuf_size = 50,
-        .alloc_from_psram = AFE_PSRAM_MEDIA_COST,
-        .agc_mode = 2,
-    };
+    afe_config_t afe_config = AFE_CONFIG_DEFAULT();
+    afe_config.aec_init = false;
+    afe_config.se_init = false;
+    afe_config.vad_init = false;
     afe_config.afe_ringbuf_size = 10;
+    afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
+
     afe_data = afe_handle->create_from_config(&afe_config);
 }
 
@@ -198,9 +187,9 @@ void AppSpeech_run(void)
 {
     task_flag = true;
 
-    BaseType_t result1 = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, afe_data, 5, NULL, 0);
+    BaseType_t result1 = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 3 * 1024, afe_data, 2, NULL, 0);
     assert("Failed to create task" && result1 == (BaseType_t) 1);
 
-    BaseType_t result2 = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 5 * 1024, afe_data, 5, NULL, 0);
+    BaseType_t result2 = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 5 * 1024, afe_data, 2, NULL, 0);
     assert("Failed to create task" && result2 == (BaseType_t) 1);
 }

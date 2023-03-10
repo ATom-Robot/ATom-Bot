@@ -34,9 +34,6 @@ static void lv_set_cam_area(void)
     lv_style_init(&style);
 
     /*Set a background*/
-    lv_style_set_img_recolor(&style, lv_color_black());
-    lv_style_set_img_recolor_opa(&style, LV_OPA_0);
-    lv_style_set_img_opa(&style, 255);
     lv_obj_add_style(camera_obj, &style, 0);
 
     lv_obj_set_pos(camera_obj, 0, 0);
@@ -94,7 +91,7 @@ void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const
 
 void AppLCD_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 4 * 1024, NULL, 2, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
 
@@ -111,9 +108,9 @@ static void guiTask(void *pvParameter)
 
     lv_init();
 
-    lv_color_t *buf1 = (lv_color_t *)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
+    lv_color_t *buf1 = (lv_color_t *)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     assert(buf1 != NULL);
-    lv_color_t *buf2 = (lv_color_t *)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
+    lv_color_t *buf2 = (lv_color_t *)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     assert(buf2 != NULL);
 
     lv_disp_draw_buf_init(&disp_buf, buf1, buf2, DISP_BUF_SIZE);
@@ -144,6 +141,6 @@ static void guiTask(void *pvParameter)
 
 void AppLVGL_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 3 * 1024, NULL, 5, NULL, 1);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, NULL, 1);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }

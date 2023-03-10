@@ -198,7 +198,7 @@ static esp_afe_sr_data_t *afe_create_from_config(afe_config_t *afe_config)
     afe->rb_out = sr_rb_init(BUFFER_PROCESS, afe->rb_out_size, 1, NULL);
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    xTaskCreatePinnedToCore(&afe_se_task, "afe_mase", 8 * 1024, (void *)afe, afe_config->afe_perferred_priority, NULL, afe_config->afe_perferred_core);
+    xTaskCreatePinnedToCore(&afe_se_task, "afe_mase", 6 * 1024, (void *)afe, afe_config->afe_perferred_priority, NULL, afe_config->afe_perferred_core);
 
     printf("Initial ONE-MIC auido front-end for speech recognition, mode:%d, (%s %s)\n", afe->mode, __DATE__, __TIME__);
     return afe;
