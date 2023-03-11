@@ -9,6 +9,11 @@
         "esp_spiffs.h": "c",
         "esp_log.h": "c",
         "dirent.h": "c",
-        "esp_process_sdkconfig.h": "c"
+        "esp_process_sdkconfig.h": "c",
+        "app_speech.h": "c",
+        "app_speecher.h": "c",
+        "app_speaker.h": "c",
+        "gpio.h": "c",
+        "soc_caps.h": "c"
     }
 }

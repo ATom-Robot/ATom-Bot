@@ -16,9 +16,9 @@
     .bits_per_sample        = I2S_BITS_PER_SAMPLE_32BIT, \
     .channel_format         = I2S_CHANNEL_FMT_ONLY_LEFT, \
     .communication_format   = I2S_COMM_FORMAT_STAND_I2S, \
-    .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL2, \
-    .dma_buf_count          = 3, \
-    .dma_buf_len            = 300, \
+    .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1, \
+    .dma_buf_count          = 6, \
+    .dma_buf_len            = 160, \
     .use_apll               = false, \
     .tx_desc_auto_clear     = true, \
     .fixed_mclk             = 0, \

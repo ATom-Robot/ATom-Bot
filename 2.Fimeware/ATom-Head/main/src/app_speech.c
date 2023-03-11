@@ -161,7 +161,9 @@ static void detect_Task(void *arg)
 
 void AppSpeech_Init(void)
 {
-    bsp_i2s_init(I2S_NUM_1);
+    esp_err_t res = -1;
+    res = bsp_i2s_init(I2S_NUM_1);
+    assert(res != ESP_FAIL);
 
     models = esp_srmodel_init("model");
     if (models != NULL)
