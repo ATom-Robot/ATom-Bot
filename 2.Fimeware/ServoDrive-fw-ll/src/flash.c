@@ -13,7 +13,7 @@
           + ((uint32_t)((Byte3) & 0x00FF) << 24)))
 
 
-uint32_t flash_read(uint32_t address, uint8_t* pdata, uint32_t size)
+uint32_t flash_read(uint32_t address, uint8_t *pdata, uint32_t size)
 {
     uint32_t read_index = 0;
     uint8_t value;
@@ -34,7 +34,7 @@ uint32_t flash_read(uint32_t address, uint8_t* pdata, uint32_t size)
     read_index = 0;
     while (read_index < size)
     {
-        value = *(__IO uint8_t*) start_addr;
+        value = *(__IO uint8_t *) start_addr;
         start_addr = start_addr + 1;
         *(pdata + read_index) = value;
         read_index++;
@@ -43,7 +43,7 @@ uint32_t flash_read(uint32_t address, uint8_t* pdata, uint32_t size)
 }
 
 
-FLASH_ERROR_CODE_E flash_write(uint32_t address, const uint8_t* pdata, uint32_t size)
+FLASH_ERROR_CODE_E flash_write(uint32_t address, const uint8_t *pdata, uint32_t size)
 {
     HAL_StatusTypeDef result = HAL_ERROR;
 
@@ -72,13 +72,14 @@ FLASH_ERROR_CODE_E flash_write(uint32_t address, const uint8_t* pdata, uint32_t 
     while (write_index < word_num)
     {
         result = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, start_addr,
-                                   BUILD_UINT32 (*(pdata), *(pdata + 1), *(pdata + 2), *(pdata + 3)));
+                                   BUILD_UINT32(*(pdata), *(pdata + 1), *(pdata + 2), *(pdata + 3)));
         if (HAL_OK == result)
         {
             start_addr = start_addr + 4;
             pdata = pdata + 4;
             write_index++;
-        } else
+        }
+        else
         {
             return FLASH_WRITE_WORD_ERROR;
         }
@@ -87,13 +88,14 @@ FLASH_ERROR_CODE_E flash_write(uint32_t address, const uint8_t* pdata, uint32_t 
     while (write_index < half_word_num)
     {
         result = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, start_addr,
-                                   BUILD_UINT16 (*(pdata), *(pdata + 1)));
+                                   BUILD_UINT16(*(pdata), *(pdata + 1)));
         if (HAL_OK == result)
         {
             start_addr = start_addr + 2;
             pdata = pdata + 2;
             write_index++;
-        } else
+        }
+        else
         {
             return FLASH_WRITE_HALF_WORD_ERROR;
         }
@@ -101,13 +103,14 @@ FLASH_ERROR_CODE_E flash_write(uint32_t address, const uint8_t* pdata, uint32_t 
     write_index = 0;
     while (write_index < byte_num)
     {
-        result = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, start_addr, BUILD_UINT16 (*(pdata), 0xFFFF));
+        result = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, start_addr, BUILD_UINT16(*(pdata), 0xFFFF));
         if (HAL_OK == result)
         {
             start_addr = start_addr + 2;
             pdata = pdata + 2;
             write_index++;
-        } else
+        }
+        else
         {
             return FLASH_WRITE_BYTE_ERROR;
         }
@@ -141,7 +144,7 @@ FLASH_ERROR_CODE_E flash_erase(uint32_t start_addr, uint32_t end_addr)
 }
 
 
-uint32_t flash_read_page(uint8_t page_no, uint32_t offect, uint8_t* pdata, uint32_t size)
+uint32_t flash_read_page(uint8_t page_no, uint32_t offect, uint8_t *pdata, uint32_t size)
 {
     uint32_t result = 0;
     uint32_t addr;
@@ -153,7 +156,7 @@ uint32_t flash_read_page(uint8_t page_no, uint32_t offect, uint8_t* pdata, uint3
 }
 
 
-uint32_t flash_write_page(uint8_t page_no, uint32_t offect, const uint8_t* pdata, uint32_t size)
+uint32_t flash_write_page(uint8_t page_no, uint32_t offect, const uint8_t *pdata, uint32_t size)
 {
     uint32_t result = 0;
     uint32_t addr;

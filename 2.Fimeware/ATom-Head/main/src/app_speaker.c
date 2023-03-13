@@ -13,11 +13,11 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
     i2s_config_t i2s_config =
     {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-        .sample_rate = SAMPLE_RATE,
+        .sample_rate = ADUIO_SAMPLE_RATE,
         .bits_per_sample = BPS,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-        .intr_alloc_flags = 0,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
         .dma_buf_count = 6,
         .dma_buf_len = 160,
         .use_apll = false
@@ -40,6 +40,9 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
         ESP_LOGI(TAG, "speaker set pin failed");
         return false;
     }
+
+    i2s_set_clk(I2S_NUM, ADUIO_SAMPLE_RATE, ADUIO_SAMPLE_BITS, I2S_CHANNEL_STEREO);
+
     return true;
 }
 

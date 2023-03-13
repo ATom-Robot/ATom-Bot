@@ -1539,6 +1539,14 @@ CONFIG_COLOR_SPACE_RGB_565=y
 # end of Decoder JPEG IJG
 
 #
+# Audio playback
+#
+CONFIG_AUDIO_PLAYER_ENABLE_MP3=y
+CONFIG_AUDIO_PLAYER_ENABLE_WAV=y
+CONFIG_AUDIO_PLAYER_LOG_LEVEL=0
+# end of Audio playback
+
+#
 # Camera configuration
 #
 CONFIG_OV7670_SUPPORT=y

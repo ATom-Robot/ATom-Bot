@@ -31,17 +31,19 @@ void Motor::SetPwm(int16_t _pwm)
     {
         if (_pwm >= 0)
         {
-            LL_TIM_OC_SetCompareCH1(TIM3,0);
-            LL_TIM_OC_SetCompareCH2(TIM3,_pwm > 1000 ? 1000 : _pwm);
-        } else
-        {
-            LL_TIM_OC_SetCompareCH1(TIM3,_pwm < -1000 ? 1000 : -_pwm);
-            LL_TIM_OC_SetCompareCH2(TIM3,0);
+            LL_TIM_OC_SetCompareCH1(TIM3, 0);
+            LL_TIM_OC_SetCompareCH2(TIM3, _pwm > 1000 ? 1000 : _pwm);
         }
-    } else
+        else
+        {
+            LL_TIM_OC_SetCompareCH1(TIM3, _pwm < -1000 ? 1000 : -_pwm);
+            LL_TIM_OC_SetCompareCH2(TIM3, 0);
+        }
+    }
+    else
     {
-        LL_TIM_OC_SetCompareCH1(TIM3,0);
-        LL_TIM_OC_SetCompareCH2(TIM3,0);
+        LL_TIM_OC_SetCompareCH1(TIM3, 0);
+        LL_TIM_OC_SetCompareCH2(TIM3, 0);
     }
 }
 

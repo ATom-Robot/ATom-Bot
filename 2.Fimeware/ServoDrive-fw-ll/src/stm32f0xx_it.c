@@ -71,14 +71,14 @@
   */
 void NMI_Handler(void)
 {
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+    /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-  while (1)
-  {
-  }
-  /* USER CODE END NonMaskableInt_IRQn 1 */
+    /* USER CODE END NonMaskableInt_IRQn 0 */
+    /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+    while (1)
+    {
+    }
+    /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
 /**
@@ -86,14 +86,14 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+    /* USER CODE BEGIN HardFault_IRQn 0 */
 
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
+    /* USER CODE END HardFault_IRQn 0 */
+    while (1)
+    {
+        /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+        /* USER CODE END W1_HardFault_IRQn 0 */
+    }
 }
 
 /**
@@ -101,12 +101,12 @@ void HardFault_Handler(void)
   */
 void SVC_Handler(void)
 {
-  /* USER CODE BEGIN SVC_IRQn 0 */
+    /* USER CODE BEGIN SVC_IRQn 0 */
 
-  /* USER CODE END SVC_IRQn 0 */
-  /* USER CODE BEGIN SVC_IRQn 1 */
+    /* USER CODE END SVC_IRQn 0 */
+    /* USER CODE BEGIN SVC_IRQn 1 */
 
-  /* USER CODE END SVC_IRQn 1 */
+    /* USER CODE END SVC_IRQn 1 */
 }
 
 /**
@@ -114,12 +114,12 @@ void SVC_Handler(void)
   */
 void PendSV_Handler(void)
 {
-  /* USER CODE BEGIN PendSV_IRQn 0 */
+    /* USER CODE BEGIN PendSV_IRQn 0 */
 
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
+    /* USER CODE END PendSV_IRQn 0 */
+    /* USER CODE BEGIN PendSV_IRQn 1 */
 
-  /* USER CODE END PendSV_IRQn 1 */
+    /* USER CODE END PendSV_IRQn 1 */
 }
 
 /**
@@ -127,13 +127,13 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-  /* USER CODE BEGIN SysTick_IRQn 0 */
+    /* USER CODE BEGIN SysTick_IRQn 0 */
 
-  /* USER CODE END SysTick_IRQn 0 */
+    /* USER CODE END SysTick_IRQn 0 */
 
-  /* USER CODE BEGIN SysTick_IRQn 1 */
+    /* USER CODE BEGIN SysTick_IRQn 1 */
 
-  /* USER CODE END SysTick_IRQn 1 */
+    /* USER CODE END SysTick_IRQn 1 */
 }
 
 /******************************************************************************/
@@ -148,45 +148,45 @@ void SysTick_Handler(void)
   */
 void DMA1_Channel1_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+    /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
     LL_DMA_ClearFlag_TC1(DMA1);
-    LL_DMA_DisableChannel(DMA1,LL_DMA_CHANNEL_1);
-    LL_DMA_SetDataLength(DMA1,LL_DMA_CHANNEL_1,1);
-  /* USER CODE END DMA1_Channel1_IRQn 0 */
+    LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_1);
+    LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_1, 1);
+    /* USER CODE END DMA1_Channel1_IRQn 0 */
 
-  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+    /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
-  /* USER CODE END DMA1_Channel1_IRQn 1 */
+    /* USER CODE END DMA1_Channel1_IRQn 1 */
 }
 void DMA1_Channel2_3_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Channel2_3_IRQn 0 */
-    if(LL_DMA_IsActiveFlag_TC3(DMA1))
+    /* USER CODE BEGIN DMA1_Channel2_3_IRQn 0 */
+    if (LL_DMA_IsActiveFlag_TC3(DMA1))
     {
         //LL_DMA_ClearFlag_GI3(DMA1);
         LL_DMA_ClearFlag_TC3(DMA1);
-        
-        I2C_SlaveDMARxCpltCallback();  
-        LL_DMA_DisableChannel(DMA1,LL_DMA_CHANNEL_3);
-        LL_DMA_SetDataLength(DMA1,LL_DMA_CHANNEL_3,5);      
-    }    
-  /* USER CODE END DMA1_Channel2_3_IRQn 0 */
 
-  /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
+        I2C_SlaveDMARxCpltCallback();
+        LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_3);
+        LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_3, 5);
+    }
+    /* USER CODE END DMA1_Channel2_3_IRQn 0 */
 
-  /* USER CODE END DMA1_Channel2_3_IRQn 1 */
+    /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
+
+    /* USER CODE END DMA1_Channel2_3_IRQn 1 */
 }
 /**
   * @brief This function handles ADC interrupt.
   */
 void ADC1_IRQHandler(void)
 {
-  /* USER CODE BEGIN ADC1_IRQn 0 */
+    /* USER CODE BEGIN ADC1_IRQn 0 */
     LL_ADC_ClearFlag_ADRDY(ADC1);
-  /* USER CODE END ADC1_IRQn 0 */
-  /* USER CODE BEGIN ADC1_IRQn 1 */
+    /* USER CODE END ADC1_IRQn 0 */
+    /* USER CODE BEGIN ADC1_IRQn 1 */
 
-  /* USER CODE END ADC1_IRQn 1 */
+    /* USER CODE END ADC1_IRQn 1 */
 }
 
 /**
@@ -194,13 +194,13 @@ void ADC1_IRQHandler(void)
   */
 void TIM14_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM14_IRQn 0 */
+    /* USER CODE BEGIN TIM14_IRQn 0 */
     TIM14_PeriodElapsedCallback();
     LL_TIM_ClearFlag_UPDATE(TIM14);
-  /* USER CODE END TIM14_IRQn 0 */
-  /* USER CODE BEGIN TIM14_IRQn 1 */
+    /* USER CODE END TIM14_IRQn 0 */
+    /* USER CODE BEGIN TIM14_IRQn 1 */
 
-  /* USER CODE END TIM14_IRQn 1 */
+    /* USER CODE END TIM14_IRQn 1 */
 }
 
 /**
@@ -208,22 +208,22 @@ void TIM14_IRQHandler(void)
   */
 void I2C1_IRQHandler(void)
 {
-  /* USER CODE BEGIN I2C1_IRQn 0 */
-    if(LL_I2C_IsActiveFlag_ADDR(I2C1))
+    /* USER CODE BEGIN I2C1_IRQn 0 */
+    if (LL_I2C_IsActiveFlag_ADDR(I2C1))
     {
-        if(LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_WRITE)
+        if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_WRITE)
         {
-            LL_DMA_EnableChannel(DMA1,LL_DMA_CHANNEL_3);
+            LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_3);
             LL_I2C_ClearFlag_ADDR(I2C1);
         }
-       
+
     }
 
-  /* USER CODE END I2C1_IRQn 0 */
+    /* USER CODE END I2C1_IRQn 0 */
 
-  /* USER CODE BEGIN I2C1_IRQn 1 */
+    /* USER CODE BEGIN I2C1_IRQn 1 */
 
-  /* USER CODE END I2C1_IRQn 1 */
+    /* USER CODE END I2C1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
