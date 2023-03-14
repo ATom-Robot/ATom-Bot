@@ -24,6 +24,13 @@
         "ff.h": "c",
         "stdio.h": "c",
         "i2s.h": "c",
-        "random": "cpp"
+        "random": "cpp",
+        "app_shell.h": "c",
+        "linenoise.h": "c",
+        "cmd_system.h": "c",
+        "esp_console.h": "c",
+        "esp_vfs_dev.h": "c",
+        "uart.h": "c",
+        "i2s_types.h": "c"
     }
 }

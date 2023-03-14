@@ -1,5 +1,5 @@
 #include <string.h>
-#include <driver/i2s.h>
+
 #include "app_speaker.h"
 #include "esp_log.h"
 
@@ -61,4 +61,17 @@ void speaker_init(void)
 void speaker_uninstall(void)
 {
     i2s_driver_uninstall(I2S_NUM);
+}
+
+esp_err_t audio_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch)
+{
+    i2s_set_clk(I2S_NUM, rate, bits_cfg, ch);
+    return ESP_OK;
+}
+
+esp_err_t audio_i2s_write(void * audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
+{
+    esp_err_t ret = ESP_OK;
+    ret = i2s_write(I2S_NUM, (char *)audio_buffer, len, bytes_written, timeout_ms);
+    return ret;
 }
