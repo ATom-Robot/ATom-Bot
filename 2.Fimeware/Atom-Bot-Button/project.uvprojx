@@ -314,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>6</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, printf=rt_kprintf, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__, RT_USING_ARM_LIBC</Define>
               <Undefine></Undefine>
-              <IncludePath>applications\Battery;applications;applications\Control;applications\Debug;applications\Kinematics;applications\Math;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\extension\fcntl\octal;rt-thread\components\libc\cplusplus;rt-thread\libcpu\arm\common;rt-thread\libcpu\arm\cortex-m3;packages\cpu_usage-latest;.;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\spi;rt-thread\components\drivers\include;applications\DMP_MPU6xx\eMPL;applications\DMP_MPU6xx;board;board\CubeMX_Config\Inc;libraries\HAL_Drivers;libraries\HAL_Drivers\config;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\finsh;.;rt-thread\include;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;packages\mpu6xxx-latest\inc;rt-thread\components\libc\posix\io\poll;rt-thread\components\libc\posix\io\stdio;rt-thread\components\libc\posix\ipc;packages\ws2812b-latest</IncludePath>
+              <IncludePath>applications\Battery;applications;applications\Control;applications\Debug;applications\Joint;applications\Kinematics;applications\LED;applications\Math;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\extension\fcntl\octal;rt-thread\components\libc\cplusplus;rt-thread\libcpu\arm\common;rt-thread\libcpu\arm\cortex-m3;packages\cpu_usage-latest;.;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\spi;rt-thread\components\drivers\include;applications\DMP_MPU6xx\eMPL;applications\DMP_MPU6xx;board;board\CubeMX_Config\Inc;libraries\HAL_Drivers;libraries\HAL_Drivers\config;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\finsh;packages\i2c-tools-latest;packages\i2c-tools-latest\src;.;rt-thread\include;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;packages\mpu6xxx-v1.1.1\inc;rt-thread\components\libc\posix\io\poll;rt-thread\components\libc\posix\io\stdio;rt-thread\components\libc\posix\ipc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -410,11 +410,6 @@
           <GroupName>AT-Control</GroupName>
           <Files>
             <File>
-              <FileName>bsp_motor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\Control\bsp_motor.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_pid.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_pid.c</FilePath>
@@ -423,6 +418,11 @@
               <FileName>bsp_encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\Control\bsp_motor.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -437,12 +437,37 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>AT-Joint</GroupName>
+          <Files>
+            <File>
+              <FileName>BSP_Joint.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\Joint\BSP_Joint.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>AT-Kinematics</GroupName>
           <Files>
             <File>
               <FileName>bsp_kinematics.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Kinematics\bsp_kinematics.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AT-LED</GroupName>
+          <Files>
+            <File>
+              <FileName>ws2812b_example.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\LED\ws2812b_example.c</FilePath>
+            </File>
+            <File>
+              <FileName>ws2812.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\LED\ws2812.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -505,14 +530,9 @@
           <GroupName>CPlusPlus</GroupName>
           <Files>
             <File>
-              <FileName>cxx_Mutex.cpp</FileName>
+              <FileName>cxx_Semaphore.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_Mutex.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>cxx_crt_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt_init.c</FilePath>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_Semaphore.cpp</FilePath>
             </File>
             <File>
               <FileName>cxx_Thread.cpp</FileName>
@@ -520,14 +540,19 @@
               <FilePath>rt-thread\components\libc\cplusplus\cxx_Thread.cpp</FilePath>
             </File>
             <File>
+              <FileName>cxx_crt_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt_init.c</FilePath>
+            </File>
+            <File>
               <FileName>cxx_crt.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>rt-thread\components\libc\cplusplus\cxx_crt.cpp</FilePath>
             </File>
             <File>
-              <FileName>cxx_Semaphore.cpp</FileName>
+              <FileName>cxx_Mutex.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_Semaphore.cpp</FilePath>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_Mutex.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -762,6 +787,26 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>i2c-tools</GroupName>
+          <Files>
+            <File>
+              <FileName>i2c_utils.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_tools.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>SoftwareI2C.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-latest\src\SoftwareI2C.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Kernel</GroupName>
           <Files>
             <File>
@@ -942,7 +987,7 @@
             <File>
               <FileName>mpu6xxx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>packages\mpu6xxx-latest\src\mpu6xxx.c</FilePath>
+              <FilePath>packages\mpu6xxx-v1.1.1\src\mpu6xxx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -953,21 +998,6 @@
               <FileName>rt_vsnprintf.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\rt_vsnprintf_full-latest\rt_vsnprintf.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>ws2812b</GroupName>
-          <Files>
-            <File>
-              <FileName>ws2812b_example.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\ws2812b-latest\example\ws2812b_example.c</FilePath>
-            </File>
-            <File>
-              <FileName>ws2812.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\ws2812b-latest\ws2812.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -11,6 +11,7 @@
 #include <rtdevice.h>
 #include <board.h>
 
+#include "BSP_Joint.h"
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
 
@@ -32,6 +33,8 @@ int main(void)
 
     Motor_Init();
     Encoder_Init();
+
+	joint_i2s_init();
 
     rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
     rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);

@@ -142,9 +142,6 @@
 /* u8g2: a monochrome graphic library */
 
 
-/* PainterEngine: A cross-platform graphics application framework written in C language */
-
-
 /* tools packages */
 
 #define PKG_USING_CPU_USAGE
@@ -172,6 +169,7 @@
 /* sensors drivers */
 
 #define PKG_USING_MPU6XXX
+#define PKG_USING_MPU6XXX_V111
 #define PKG_USING_MPU6XXX_ACCE
 #define PKG_USING_MPU6XXX_GYRO
 #define PKG_USING_MPU6XXX_MAG
@@ -181,11 +179,10 @@
 
 /* Kendryte SDK */
 
-#define PKG_USING_WS2812B
-#define PKG_USING_WS2812B_LATEST_VERSION
-#define WS2812B_USING_EXAMPLE
-#define WS2812B_EXAMPLE_SPI_NAME "spi10"
-#define WS2812B_EXAMPLE_NODE_LENGTH 2
+#define PKG_USING_I2C_TOOLS
+#define I2C_TOOLS_USE_SW_I2C
+#define I2C_TOOLS_SW_ACK_TIMEOUT 100
+#define PKG_USING_I2C_TOOLS_LATEST_VERSION
 
 /* AI packages */
 
