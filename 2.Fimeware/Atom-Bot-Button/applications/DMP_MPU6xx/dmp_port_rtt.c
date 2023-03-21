@@ -448,7 +448,7 @@ int MPU6050_DMP_Init(void)
   */
 int MPU6050_Init(void)
 {
-	rt_err_t res = RT_EOK;
+	rt_err_t res = -RT_ERROR;
 
     i2c_bus = (struct mpu6xxx_device *)mpu6xxx_init(MPU6050_I2C_BUS_NAME, MPU6050_ADDR);
     RT_ASSERT(i2c_bus != RT_NULL);
@@ -456,7 +456,6 @@ int MPU6050_Init(void)
     if (!mpu_init())
     {
 		res = MPU6050_DMP_Init();
-		RT_ASSERT(res != RT_ERROR);
     }
 
     return res;

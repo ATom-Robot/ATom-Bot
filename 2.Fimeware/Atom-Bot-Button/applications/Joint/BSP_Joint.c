@@ -13,8 +13,8 @@ static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uin
 {
     rt_int8_t res = 0;
     struct rt_i2c_msg msgs;
-    rt_uint8_t buf[5] = {0};
-	rt_memcpy(buf, pData, len);
+    uint8_t buf[5] = {0};
+	rt_memcpy((uint8_t *)buf, (uint8_t *)pData, len);
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)
     {
@@ -270,7 +270,11 @@ int set_id_to_joint()
     joint[ANY].config.angle = 0;
     joint[ANY].config.modelAngelMin = -90;
     joint[ANY].config.modelAngelMax = 90;
-    SetJointId(&joint[ANY], 2);
+    SetJointId(&joint[ANY], 4);
+	
+	rt_thread_mdelay(1000);
+	joint[ANY].config.id = 2;
+	SetJointEnable(&joint[ANY], RT_TRUE);
 	
 	return RT_EOK;
 }
@@ -279,7 +283,7 @@ MSH_CMD_EXPORT(set_id_to_joint, set_id_to_joint)
 int joint_init(void)
 {
 	// Left arm
-	joint[ANY].config.id = 1;
+	joint[ANY].config.id = 2;
 	joint[ANY].config.angleMin = 0;
 	joint[ANY].config.angleMax = 180;
 	joint[ANY].config.angle = 0;
@@ -304,7 +308,7 @@ int joint_angele_test(int argc, const char*argv[])
 	float angle = atof(argv[1]);
 
 	UpdateJointAngle_2(&joint[ANY], angle);
-	LOG_I("set:%f,target:%f", angle, joint[ANY].config.angle);	
+	LOG_I("set angle:%f | target angle:%f", angle, joint[ANY].config.angle);	
 
 	return RT_EOK;
 }
@@ -325,7 +329,7 @@ int joint_i2s_init(void)
 		}
 	}
 	
-	rt_thread_mdelay(2000);
+	rt_thread_mdelay(1000);
 
 	joint_init();
 
