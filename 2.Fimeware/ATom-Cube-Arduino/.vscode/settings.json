@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp",
+        "lv_demo_benchmark.h": "c"
+    }
+}
