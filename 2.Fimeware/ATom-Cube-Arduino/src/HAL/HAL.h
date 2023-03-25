@@ -26,23 +26,17 @@ void I2C_Init(bool startScan);
 void IMU_Init();
 void IMU_Update();
 
-/* Power */
-void Power_Init();
-void Power_HandleTimeUpdate();
-void Power_SetAutoLowPowerTimeout(uint16_t sec);
-uint16_t Power_GetAutoLowPowerTimeout();
-void Power_SetAutoLowPowerEnable(bool en);
-void Power_Shutdown();
-void Power_Update();
-void Power_EventMonitor();
-void Power_GetInfo(Power_Info_t *info);
-typedef void(* Power_CallbackFunction_t)(void);
-void Power_SetEventCallback(Power_CallbackFunction_t callback);
-
 /* Buzzer */
 void Buzz_init();
 void Buzz_SetEnable(bool en);
 void Buzz_Tone(uint32_t freq, int32_t duration = 0);
+
+/* Led */
+void Led_Init();
+void setRGB(int id, int r, int g, int b);
+void setBrightness(float duty);
+void Led_firt_light(void);
+void led_rainbow(void);
 
 /* Audio */
 void Audio_Init();

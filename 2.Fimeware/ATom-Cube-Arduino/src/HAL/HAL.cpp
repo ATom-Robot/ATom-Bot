@@ -16,6 +16,10 @@ void HAL::Init()
         LV_LOG_WARN("lv_port_disp_init malloc failed!\n");
 
     HAL::Backlight_Init();
+    HAL::Led_Init();
+    HAL::setBrightness(0.25);
+    HAL::Led_firt_light();
+
     HAL::Buzz_init();
     HAL::Audio_Init();
     HAL::I2C_Init(true);
@@ -28,4 +32,5 @@ void HAL::Update()
 {
     HAL::Audio_Update();
     HAL::IMU_Update();
+    HAL::led_rainbow();
 }

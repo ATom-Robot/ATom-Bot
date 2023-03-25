@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.tcc": "cpp",
-        "lv_demo_benchmark.h": "c"
+        "lv_demo_benchmark.h": "c",
+        "thread": "cpp"
     }
 }

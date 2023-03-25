@@ -31,7 +31,7 @@ void Port_Init()
                  "LvglThread",
                  5 * 1024,
                  NULL,
-                 configMAX_PRIORITIES - 20,
+                 4,
                  &handleTaskLvgl,
                  1);
     assert("Failed to create task" && result == (BaseType_t) 1);

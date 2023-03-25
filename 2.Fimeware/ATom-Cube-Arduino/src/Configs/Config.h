@@ -23,7 +23,7 @@
 
 #define CONFIG_SCREEN_HOR_RES       240
 #define CONFIG_SCREEN_VER_RES       240
-#define CONFIG_SCREEN_BUFFER_SIZE   (CONFIG_SCREEN_HOR_RES * CONFIG_SCREEN_VER_RES)
+#define CONFIG_SCREEN_BUFFER_SIZE   (CONFIG_SCREEN_HOR_RES * CONFIG_SCREEN_VER_RES / 2)
 
 #define DISP_HOR_RES                CONFIG_SCREEN_HOR_RES
 #define DISP_VER_RES                CONFIG_SCREEN_VER_RES
@@ -37,6 +37,10 @@
 /* I2C */
 #define CONFIG_MCU_SDA_PIN          4
 #define CONFIG_MCU_SCL_PIN          5
+
+/* led */
+#define CONFIG_RGB_LED_NUM          4
+#define CONFIG_RGB_LED_PIN          1
 
 /* Debug USART */
 #define CONFIG_DEBUG_SERIAL         Serial
