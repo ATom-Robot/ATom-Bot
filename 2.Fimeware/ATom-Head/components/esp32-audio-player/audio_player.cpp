@@ -607,12 +607,12 @@ esp_err_t audio_player_new(audio_player_config_t config)
 
     instance.running = true;
     task_val = xTaskCreatePinnedToCore(
-                   (TaskFunction_t)        audio_task,
+                   (TaskFunction_t) audio_task,
                    "Audio Task",
                    4 * 1024,
                    &instance,
-                   (UBaseType_t)           instance.config.priority,
-                   (TaskHandle_t *const)  NULL,
+                   (UBaseType_t) instance.config.priority,
+                   (TaskHandle_t *const) NULL,
                    0);
 
     ESP_GOTO_ON_FALSE(pdPASS == task_val, ESP_ERR_NO_MEM, cleanup,

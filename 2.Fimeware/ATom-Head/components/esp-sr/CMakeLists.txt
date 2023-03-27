@@ -158,11 +158,11 @@ elseif(${IDF_TARGET} STREQUAL "esp32s3")
         # case, spiffs is not encrypt so pass FALSE to the function.
 
         # 放开注释实现自动烧录模型文件 -- 一般烧录一次后注释掉节省烧录时间
-        # esptool_py_flash_target(model-flash "${main_args}" "${sub_args}" ALWAYS_PLAINTEXT)
-        # esptool_py_flash_to_partition(model-flash "model" "${image_file}")
-        # add_dependencies(model-flash spiffs_model_bin)
-        # esptool_py_flash_to_partition(flash "model" "${image_file}")
-        # add_dependencies(flash spiffs_model_bin)
+        esptool_py_flash_target(model-flash "${main_args}" "${sub_args}" ALWAYS_PLAINTEXT)
+        esptool_py_flash_to_partition(model-flash "model" "${image_file}")
+        add_dependencies(model-flash spiffs_model_bin)
+        esptool_py_flash_to_partition(flash "model" "${image_file}")
+        add_dependencies(flash spiffs_model_bin)
     else()
         set(message "Failed to create SPIFFS image for partition 'model'. "
                     "Check project configuration if using the correct partition table file.")

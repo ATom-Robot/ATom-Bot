@@ -85,38 +85,38 @@ extern "C" void app_main()
     SPI_FS_Init();
 
     // QueueHandle_t xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
-    // QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
+    QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    // AppSpeech_Init();
-    // // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
-    // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
-    // // register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
-    // AppLCD_Init(xQueueLCDFrame, NULL, true);
+    AppSpeech_Init();
+    // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
+    AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
+    // register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
+    AppLCD_Init(xQueueLCDFrame, NULL, true);
 
-    // AppCamera_run();
-    // AppLVGL_run();
-    // AppLCD_run();
-    // AppSpeech_run();
+    AppCamera_run();
+    AppLVGL_run();
+    AppLCD_run();
+    AppSpeech_run();
 
-    const char mp3_start[] = "/spiffs/404-41-4.mp3";
+    // const char mp3_start[] = "/spiffs/404-41-4.mp3";
 
-    FILE *fp = fopen(mp3_start, "rb");
-    if (!fp)
-    {
-        ESP_LOGE(TAG, "unable to open '%s'", mp3_start);
-        return;
-    }
+    // FILE *fp = fopen(mp3_start, "rb");
+    // if (!fp)
+    // {
+    //     ESP_LOGE(TAG, "unable to open '%s'", mp3_start);
+    //     return;
+    // }
 
-    speaker_init();
+    // speaker_init();
 
-    audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                     .clk_set_fn = audio_i2s_reconfig_clk,
-                                     .write_fn = audio_i2s_write,
-                                     .priority = 5
-                                   };
-    esp_err_t ret = audio_player_new(config);
+    // audio_player_config_t config = { .mute_fn = audio_mute_function,
+    //                                  .clk_set_fn = audio_i2s_reconfig_clk,
+    //                                  .write_fn = audio_i2s_write,
+    //                                  .priority = 5
+    //                                };
+    // esp_err_t ret = audio_player_new(config);
 
-    audio_player_play(fp);
+    // audio_player_play(fp);
 
     APP_Shell_loop();
 }

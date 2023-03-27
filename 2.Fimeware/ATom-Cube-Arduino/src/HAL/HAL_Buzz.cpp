@@ -33,7 +33,7 @@ void HAL::Buzz_init()
     xTaskCreate(
         BuzzerThread,
         "BuzzerThread",
-        800,
+        1024,
         nullptr,
         1,
         &handleBuzzerThread);
