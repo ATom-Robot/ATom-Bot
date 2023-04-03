@@ -81,7 +81,7 @@ static void feed_Task(void *arg)
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
     int nch = afe_handle->get_channel_num(afe_data);
     int feed_channel = bsp_get_feed_channel();
-    int16_t *i2s_buff = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * feed_channel, MALLOC_CAP_SPIRAM);;
+    int16_t *i2s_buff = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * feed_channel, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     assert(i2s_buff);
     size_t bytes_read;
 
@@ -104,8 +104,11 @@ static void detect_Task(void *arg)
     esp_afe_sr_data_t *afe_data = arg;
     int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
     int nch = afe_handle->get_channel_num(afe_data);
-    int16_t *buff = (int16_t *)heap_caps_malloc(afe_chunksize * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    assert(buff);
+    int16_t *audio_buffer = (int16_t *)heap_caps_malloc(afe_chunksize * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (NULL == audio_buffer)
+    {
+        esp_system_abort("No mem for audio buffer");
+    }
 
     static const esp_mn_iface_t *multinet = &MULTINET_MODEL;
     model_iface_data_t *model_data = multinet->create((const model_coeff_getter_t *)&MULTINET_COEFF, 5760);
@@ -117,7 +120,7 @@ static void detect_Task(void *arg)
 
     while (task_flag)
     {
-        int res =  afe_handle->fetch(afe_data, buff);
+        int res =  afe_handle->fetch(afe_data, audio_buffer);
         if (res == AFE_FETCH_WWE_DETECTED)
         {
             ESP_LOGI(TAG, ">>> Say your command <<<");
@@ -127,7 +130,7 @@ static void detect_Task(void *arg)
 
         if (detect_flag)
         {
-            command = multinet->detect(model_data, buff);
+            command = multinet->detect(model_data, audio_buffer);
 
             if (command == COMMAND_NOT_DETECTED)
                 continue;

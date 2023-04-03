@@ -31,6 +31,10 @@
         "esp_console.h": "c",
         "esp_vfs_dev.h": "c",
         "uart.h": "c",
-        "i2s_types.h": "c"
+        "i2s_types.h": "c",
+        "sc031gs.h": "c",
+        "app_lcd.h": "c",
+        "display_conf.hpp": "c",
+        "lv_demos.h": "c"
     }
 }

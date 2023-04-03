@@ -59,10 +59,10 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
     config.ledc_channel = LEDC_CHANNEL_0;
     config.pixel_format = pixel_fromat;
     config.frame_size = frame_size;
-    config.jpeg_quality = 12;
+    config.jpeg_quality = 10;
     config.fb_count = fb_count;
     config.fb_location = CAMERA_FB_IN_PSRAM;
-    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+    config.grab_mode = CAMERA_GRAB_LATEST;
 
     // camera init
     esp_err_t err = esp_camera_init(&config);
@@ -72,9 +72,26 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
         return;
     }
 
+    // camera init
     sensor_t *s = esp_camera_sensor_get();
-    s->set_sharpness(s, 2);
-    s->set_awb_gain(s, 2);
+    //initial sensors are flipped vertically and colors are a bit saturated
+    if (s->id.PID == OV3660_PID)
+    {
+        s->set_saturation(s, -2);//lower the saturation
+    }
+
+    if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID)
+    {
+        s->set_vflip(s, 1); //flip it back
+    }
+    else if (s->id.PID == GC0308_PID)
+    {
+        s->set_hmirror(s, 0);
+    }
+    else if (s->id.PID == GC032A_PID)
+    {
+        s->set_vflip(s, 1);
+    }
 
     queue_output = queue_o;
 }

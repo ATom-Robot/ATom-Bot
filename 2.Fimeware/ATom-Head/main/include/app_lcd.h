@@ -3,12 +3,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "st7789.h"
+#include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "Display_conf.hpp"
 
 #define LV_HOR_RES_MAX 240
 #define LV_VER_RES_MAX 135
-#define DISP_BUF_SIZE (LV_VER_RES_MAX * LV_HOR_RES_MAX / 4)
+#define DISP_BUF_SIZE (LV_VER_RES_MAX * LV_HOR_RES_MAX)
+
+typedef LGFX_Emma SCREEN_CLASS;
+extern SCREEN_CLASS screen;
 
 #ifdef __cplusplus
 extern "C"
