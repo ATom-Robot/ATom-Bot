@@ -33,7 +33,7 @@
  *=========================*/
 
 /*Enable and configure the built-in memory manager*/
-#define LV_USE_BUILTIN_MALLOC 1
+#define LV_USE_BUILTIN_MALLOC 0
 #if LV_USE_BUILTIN_MALLOC
     /*Size of the memory available for `lv_malloc()` in bytes (>= 2kB)*/
     #define LV_MEM_SIZE (128U * 1024U)          /*[bytes]*/

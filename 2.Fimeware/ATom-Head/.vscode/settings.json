@@ -35,6 +35,11 @@
         "sc031gs.h": "c",
         "app_lcd.h": "c",
         "display_conf.hpp": "c",
-        "lv_demos.h": "c"
+        "lv_demos.h": "c",
+        "settings.h": "c",
+        "file_manager.h": "c",
+        "app_player.h": "c",
+        "esp_http_server.h": "c",
+        "img_converters.h": "c"
     }
 }

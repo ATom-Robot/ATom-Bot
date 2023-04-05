@@ -18,8 +18,8 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-        .dma_buf_count = 8,
-        .dma_buf_len = 64,
+        .dma_buf_count = 6,
+        .dma_buf_len = 160,
         .use_apll = false
     };
 

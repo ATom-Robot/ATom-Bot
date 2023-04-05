@@ -160,7 +160,7 @@ static void register_iram(void)
     const esp_console_cmd_t iram_cmd =
     {
         .command = "iram",
-        .help = "Get minimum size of free heap memory that was available during program execution",
+        .help = "Get minimum size of iram heap memory",
         .hint = NULL,
         .func = &iram_size,
     };

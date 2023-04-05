@@ -15,12 +15,15 @@ static QueueHandle_t queue_output = NULL;
 static void camera_task(void *param)
 {
     ESP_LOGI(TAG, "Start");
-    while (1)
+
+    camera_fb_t *frame;
+
+    while (true)
     {
         if (queue_output == NULL)
             break;
 
-        camera_fb_t *frame = esp_camera_fb_get();
+        frame = esp_camera_fb_get();
         if (frame)
             xQueueSend(queue_output, &frame, portMAX_DELAY);
     }
@@ -62,7 +65,7 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
     config.jpeg_quality = 10;
     config.fb_count = fb_count;
     config.fb_location = CAMERA_FB_IN_PSRAM;
-    config.grab_mode = CAMERA_GRAB_LATEST;
+    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
     // camera init
     esp_err_t err = esp_camera_init(&config);

@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 void app_wifi_main(void);
-void app_wifi_wait_connected(void);
 
 #ifdef __cplusplus
 }

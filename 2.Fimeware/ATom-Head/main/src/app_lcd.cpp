@@ -8,11 +8,9 @@ static LGFX_Emma *_lgfxEmma = nullptr;
 
 static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
+static lv_obj_t *camera_obj;
 static bool gReturnFB = true;
 static bool lvgl_ready = false;
-
-//
-static lv_obj_t *camera_obj;
 
 static void lv_set_cam_area(void)
 {
@@ -20,7 +18,6 @@ static void lv_set_cam_area(void)
 
     static lv_style_t style;
     lv_style_init(&style);
-
     /*Set a background*/
     lv_obj_add_style(camera_obj, &style, 0);
 
@@ -76,7 +73,7 @@ void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const
 {
     screen.init();
     screen.setRotation(1);// 1 3 5 7
-    screen.fillScreen(TFT_GREEN);
+    screen.fillScreen(TFT_BLACK);
     screen.setBrightness(100);
 
     xQueueFrameI = frame_i;
@@ -84,15 +81,8 @@ void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const
     gReturnFB = return_fb;
 }
 
-void AppLCD_run(void)
-{
-    BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
-    assert("Failed to create task" && result == (BaseType_t) 1);
-}
-
 IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p)
 {
-    // lcd_fill_array(&lcd_dev, area, color_map);
     /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
@@ -125,20 +115,23 @@ static void guiTask(void *pvParameter)
     disp_drv.ver_res = LV_VER_RES_MAX;
     lv_disp_drv_register(&disp_drv);
 
-    lv_camera_create();
     // lv_avi_create();
-    // lv_demo_benchmark();
-
-    static TickType_t tick;
-    tick = xTaskGetTickCount();
+    // lv_camera_create();
+    lv_demo_benchmark();
 
     lvgl_ready = true;
 
     while (1)
     {
-        vTaskDelayUntil(&tick, pdMS_TO_TICKS(30));
+        vTaskDelay(30 / portTICK_PERIOD_MS);
         lv_timer_handler();
     }
+}
+
+void AppLCD_run(void)
+{
+    BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
+    assert("Failed to create task" && result == (BaseType_t) 1);
 }
 
 void AppLVGL_run(void)

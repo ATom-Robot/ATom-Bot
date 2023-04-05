@@ -27,7 +27,6 @@ static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
     esp_err_t ret_val = ESP_OK;
 
     i2s_config_t i2s_config = I2S_CONFIG_DEFAULT();
-
     i2s_pin_config_t pin_config =
     {
         .bck_io_num = GPIO_I2S_SCLK,
@@ -104,7 +103,7 @@ static void detect_Task(void *arg)
     esp_afe_sr_data_t *afe_data = arg;
     int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
     int nch = afe_handle->get_channel_num(afe_data);
-    int16_t *audio_buffer = (int16_t *)heap_caps_malloc(afe_chunksize * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    int16_t *audio_buffer = heap_caps_malloc(afe_chunksize * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (NULL == audio_buffer)
     {
         esp_system_abort("No mem for audio buffer");
@@ -195,6 +194,6 @@ void AppSpeech_run(void)
     BaseType_t result1 = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 3 * 1024, afe_data, 2, NULL, 0);
     assert("Failed to create task" && result1 == (BaseType_t) 1);
 
-    BaseType_t result2 = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 5 * 1024, afe_data, 2, NULL, 0);
+    BaseType_t result2 = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 6 * 1024, afe_data, 2, NULL, 0);
     assert("Failed to create task" && result2 == (BaseType_t) 1);
 }

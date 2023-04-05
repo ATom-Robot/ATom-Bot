@@ -51,7 +51,7 @@ extern "C"
 #define CAMERA_PIN_D6 17
 #define CAMERA_PIN_D7 16
 
-#define XCLK_FREQ_HZ 20000000
+#define XCLK_FREQ_HZ CONFIG_XCLK_CLK_FREQ
 
 void AppCamera_Init(const pixformat_t pixel_fromat,
                     const framesize_t frame_size,

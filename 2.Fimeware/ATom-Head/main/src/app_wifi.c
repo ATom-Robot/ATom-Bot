@@ -35,11 +35,11 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_ESP_WIFI_SSID "Rb_2.4G"
+#define EXAMPLE_ESP_WIFI_SSID ""
 #define EXAMPLE_ESP_WIFI_PASS "zhang123"
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5
-#define EXAMPLE_ESP_WIFI_AP_SSID "Rb wifi"
-#define EXAMPLE_ESP_WIFI_AP_PASS "zhang123"
+#define EXAMPLE_ESP_WIFI_AP_SSID "ATOM-BOT"
+#define EXAMPLE_ESP_WIFI_AP_PASS "zhangbingru"
 #define EXAMPLE_MAX_STA_CONN 1
 #define EXAMPLE_IP_ADDR "192.168.4.1"
 #define EXAMPLE_ESP_WIFI_AP_CHANNEL ""
@@ -63,8 +63,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (event_id == WIFI_EVENT_AP_STACONNECTED)
     {
         wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
-        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d",
+        ESP_LOGI(TAG, "AP "MACSTR" join, AID=%d",
                  MAC2STR(event->mac), event->aid);
+        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
     else if (event_id == WIFI_EVENT_AP_STADISCONNECTED)
     {
@@ -219,14 +220,14 @@ void app_wifi_main()
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
     ESP_LOGI(TAG, "wifi init finished.");
 
-    if (mode & WIFI_MODE_STA)
-    {
-        xEventGroupWaitBits(s_wifi_event_group,
-                            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                            pdFALSE,
-                            pdFALSE,
-                            portMAX_DELAY);
-    }
+    // if (mode & WIFI_MODE_STA)
+    // {
+    xEventGroupWaitBits(s_wifi_event_group,
+                        WIFI_CONNECTED_BIT,
+                        pdFALSE,
+                        pdTRUE,
+                        portMAX_DELAY);
+    // }
     vEventGroupDelete(s_wifi_event_group);
     s_wifi_event_group = NULL;
 }

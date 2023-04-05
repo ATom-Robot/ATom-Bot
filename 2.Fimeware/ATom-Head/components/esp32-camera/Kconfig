@@ -136,6 +136,11 @@ menu "Camera configuration"
         Increasing this value can reduce the initialization time of the sensor.
         Please refer to the relevant instructions of the sensor to adjust the value.
     
+    config XCLK_CLK_FREQ
+        int "xclk frequency(hz)"
+        default 18000000
+        range 16000000 20000000
+
     choice GC_SENSOR_WINDOW_MODE
         bool "GalaxyCore Sensor Window Mode"
         depends on (GC2145_SUPPORT || GC032A_SUPPORT || GC0308_SUPPORT)

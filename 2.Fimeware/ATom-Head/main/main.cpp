@@ -1,16 +1,19 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_spiffs.h"
+#include <dirent.h>
 
 #include "app_lcd.h"
+#include "app_wifi.h"
 #include "app_camera.h"
 #include "app_speech.h"
 #include "app_speaker.h"
 #include "app_face_detection.hpp"
 
+#include "app_player.h"
 #include "app_shell.h"
-#include "app_audio.h"
 #include "audio_player.h"
+#include "stream_server.h"
 
 static const char *TAG = "main";
 
@@ -82,41 +85,21 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
 
 extern "C" void app_main()
 {
-    SPI_FS_Init();
-
-    // QueueHandle_t xQueueAIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    AppSpeech_Init();
-    // AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueAIFrame);
-    AppCamera_Init(PIXFORMAT_RGB565, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
-    // register_human_face_detection(xQueueAIFrame, NULL, NULL, xQueueLCDFrame, false);
+    SPI_FS_Init();
+    AppCamera_Init(PIXFORMAT_GRAYSCALE, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
     AppLCD_Init(xQueueLCDFrame, NULL, true);
+    AppSpeech_Init();
+    speaker_init();
 
     AppCamera_run();
     AppLVGL_run();
-    AppLCD_run();
     AppSpeech_run();
+    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
+    app_wifi_main();
 
-    // const char mp3_start[] = "/spiffs/404-41-4.mp3";
-
-    // FILE *fp = fopen(mp3_start, "rb");
-    // if (!fp)
-    // {
-    //     ESP_LOGE(TAG, "unable to open '%s'", mp3_start);
-    //     return;
-    // }
-
-    // speaker_init();
-
-    // audio_player_config_t config = { .mute_fn = audio_mute_function,
-    //                                  .clk_set_fn = audio_i2s_reconfig_clk,
-    //                                  .write_fn = audio_i2s_write,
-    //                                  .priority = 5
-    //                                };
-    // esp_err_t ret = audio_player_new(config);
-
-    // audio_player_play(fp);
+    assert(start_stream_server(xQueueLCDFrame, true) == ESP_OK);
 
     APP_Shell_loop();
 }
