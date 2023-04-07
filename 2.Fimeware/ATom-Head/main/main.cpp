@@ -12,7 +12,7 @@
 
 #include "app_player.h"
 #include "app_shell.h"
-#include "audio_player.h"
+#include "app_rtsp.h"
 #include "stream_server.h"
 
 static const char *TAG = "main";
@@ -77,12 +77,6 @@ static void SPI_FS_Init(void)
     SPIFFS_Directory("/spiffs/");
 }
 
-static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
-{
-    ESP_LOGI(TAG, "mute setting %d", setting);
-    return ESP_OK;
-}
-
 extern "C" void app_main()
 {
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
@@ -99,6 +93,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
     app_wifi_main();
 
+    // rtsp_server();
     assert(start_stream_server(xQueueLCDFrame, true) == ESP_OK);
 
     APP_Shell_loop();

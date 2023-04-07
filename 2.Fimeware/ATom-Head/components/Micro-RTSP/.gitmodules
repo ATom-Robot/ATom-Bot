@@ -1,0 +1,4 @@
+[submodule "examples/esp-idf/components/esp32-camera"]
+	path = examples/esp-idf/components/esp32-camera
+	url = https://github.com/espressif/esp32-camera.git
+	branch = master
