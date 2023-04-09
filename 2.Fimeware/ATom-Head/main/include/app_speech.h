@@ -1,6 +1,18 @@
 #pragma once
 
+#include <stdbool.h>
+#include <sys/queue.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_err.h"
+#include "esp_afe_sr_models.h"
+// #include "esp_mn_models.h"
 #include "driver/gpio.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #define ADC_I2S_CHANNEL     (2)
 #define FUNC_I2S_EN         (1)
@@ -9,6 +21,9 @@
 #define GPIO_I2S_SCLK       (GPIO_NUM_1)
 #define GPIO_I2S_SDIN       (GPIO_NUM_2)
 #define GPIO_I2S_DOUT       (GPIO_NUM_NC)
+
+#define SR_CMD_STR_LEN_MAX 64
+#define SR_CMD_PHONEME_LEN_MAX 64
 
 #define I2S_CONFIG_DEFAULT() { \
     .mode                   = I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_TX, \
@@ -28,26 +43,48 @@
 
 typedef enum
 {
-    COMMAND_TIMEOUT = -2,
-    COMMAND_NOT_DETECTED = -1,
+    SR_LANG_EN,
+    SR_LANG_CN,
+    SR_LANG_MAX,
+} sr_language_t;
 
-    MENU_STOP_WORKING = 0,
-    MENU_DISPLAY_ONLY = 1,
-    MENU_FACE_RECOGNITION = 2,
-    MENU_MOTION_DETECTION = 3,
-
-    ACTION_ENROLL = 4,
-    ACTION_DELETE = 5,
-    ACTION_RECOGNIZE = 6
-} command_word_t;
-
-#ifdef __cplusplus
-extern "C"
+typedef enum
 {
-#endif
+    SR_CMD_SET_RED = 0,
+    SR_CMD_NEXT,
+    SR_CMD_PLAY,
+    SR_CMD_PAUSE,
+    SR_CMD_MAX,
+} sr_user_cmd_t;
+
+typedef enum
+{
+    ESP_MN_STATE_DETECTING = -1,     // detecting
+    ESP_MN_STATE_TIMEOUT = -2,       // time out
+} esp_mn_state_t;
+
+typedef struct sr_cmd_t
+{
+    sr_user_cmd_t cmd;
+    sr_language_t lang;
+    uint32_t id;
+    char str[SR_CMD_STR_LEN_MAX];
+    char phoneme[SR_CMD_PHONEME_LEN_MAX];
+    SLIST_ENTRY(sr_cmd_t) next;
+} sr_cmd_t;
+
+typedef struct
+{
+    afe_fetch_mode_t fetch_mode;
+    esp_mn_state_t state;
+    int command_id;
+} sr_result_t;
 
 void AppSpeech_Init();
-void AppSpeech_run();
+esp_err_t AppSpeech_run(void);
+esp_err_t app_sr_stop(void);
+const sr_cmd_t *app_sr_get_cmd_from_id(uint32_t id);
+esp_err_t app_sr_get_result(sr_result_t *result, TickType_t xTicksToWait);
 
 #ifdef __cplusplus
 }

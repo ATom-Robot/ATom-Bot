@@ -40,6 +40,20 @@
         "file_manager.h": "c",
         "app_player.h": "c",
         "esp_http_server.h": "c",
-        "img_converters.h": "c"
+        "img_converters.h": "c",
+        "time_util.h": "c",
+        "app_camera.h": "c",
+        "streambuf": "c",
+        "esp_afe_sr_iface.h": "c",
+        "event_groups.h": "c",
+        "task.h": "c",
+        "esp_check.h": "c",
+        "esp_afe_sr_models.h": "c",
+        "esp_wn_models.h": "c",
+        "esp_mn_models.h": "c",
+        "esp_mn_iface.h": "c",
+        "nvs_flash.h": "c",
+        "string.h": "c",
+        "app_sr_handler.h": "c"
     }
 }

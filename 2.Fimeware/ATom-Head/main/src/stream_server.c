@@ -104,7 +104,7 @@ esp_err_t start_stream_server(const QueueHandle_t frame_i, const bool return_fb)
     gReturnFB = return_fb;
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 5120;
+    // config.stack_size = 5120;
     httpd_uri_t stream_uri =
     {
         .uri = "/stream",

@@ -119,23 +119,25 @@ static void guiTask(void *pvParameter)
     // lv_camera_create();
     lv_demo_benchmark();
 
+    static TickType_t tick;
+    tick = xTaskGetTickCount();
     lvgl_ready = true;
 
     while (1)
     {
-        vTaskDelay(30 / portTICK_PERIOD_MS);
-        lv_timer_handler();
+        vTaskDelayUntil(&tick, pdMS_TO_TICKS(30));
+        lv_task_handler();
     }
 }
 
-void AppLCD_run(void)
-{
-    BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
-    assert("Failed to create task" && result == (BaseType_t) 1);
-}
+// void AppLCD_run(void)
+// {
+//     BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
+//     assert("Failed to create task" && result == (BaseType_t) 1);
+// }
 
 void AppLVGL_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, NULL, 1);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, configMAX_PRIORITIES - 3, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }

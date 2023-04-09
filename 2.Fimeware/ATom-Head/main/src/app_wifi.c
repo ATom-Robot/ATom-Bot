@@ -155,7 +155,7 @@ static void wifi_init_sta()
              EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 }
 
-void app_wifi_main()
+esp_err_t app_wifi_main(void)
 {
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -184,7 +184,7 @@ void app_wifi_main()
     if (mode == WIFI_MODE_NULL)
     {
         ESP_LOGW(TAG, "Neither AP or STA have been configured. WiFi will be off.");
-        return;
+        return -1; 
     }
 
     ESP_ERROR_CHECK(esp_netif_init());
@@ -220,14 +220,14 @@ void app_wifi_main()
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
     ESP_LOGI(TAG, "wifi init finished.");
 
-    // if (mode & WIFI_MODE_STA)
-    // {
     xEventGroupWaitBits(s_wifi_event_group,
                         WIFI_CONNECTED_BIT,
                         pdFALSE,
                         pdTRUE,
                         portMAX_DELAY);
-    // }
+
     vEventGroupDelete(s_wifi_event_group);
     s_wifi_event_group = NULL;
+
+    return ESP_OK;
 }

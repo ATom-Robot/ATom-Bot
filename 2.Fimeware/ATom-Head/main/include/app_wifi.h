@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-void app_wifi_main(void);
+esp_err_t app_wifi_main(void);
 
 #ifdef __cplusplus
 }
