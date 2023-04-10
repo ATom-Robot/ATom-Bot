@@ -85,7 +85,8 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
 
     if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID)
     {
-        s->set_vflip(s, 1); //flip it back
+        // s->set_vflip(s, 1); //flip it back
+        s->set_hmirror(s, 0);
     }
     else if (s->id.PID == GC0308_PID)
     {

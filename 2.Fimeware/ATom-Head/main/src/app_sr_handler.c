@@ -14,7 +14,6 @@
 #include "app_player.h"
 #include "driver/i2s.h"
 #include "app_sr_handler.h"
-#include "settings.h"
 
 static const char *TAG = "APP/sr_handler";
 
@@ -138,7 +137,6 @@ void sr_handler_task(void *pvParam)
         // Detected
         if (AFE_FETCH_WWE_DETECTED == result.fetch_mode)
         {
-            sr_anim_start();
             last_player_state = app_player_get_state();
             app_player_pause();
 
@@ -163,7 +161,6 @@ void sr_handler_task(void *pvParam)
             switch (cmd->cmd)
             {
             case SR_CMD_SET_RED:
-                app_pwm_led_set_all(128, 0, 0);
                 break;
             case SR_CMD_NEXT:
                 app_player_play_next();
