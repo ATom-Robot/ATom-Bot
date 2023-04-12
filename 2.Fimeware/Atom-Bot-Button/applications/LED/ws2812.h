@@ -30,6 +30,7 @@ void ws2812_write_rgb_to_node(ws2812_t pWs2812, uint8_t index, uint8_t R, uint8_
 void ws2812_write_rgb_to_all(ws2812_t ws2812, uint8_t r, uint8_t g, uint8_t b);
 void ws2812_send(ws2812_t ws2812);
 
+void ws281x_colorWipe(ws2812_t ws2812, uint32_t c, uint8_t wait);
 void ws281x_rainbow(ws2812_t ws2812, uint8_t wait);
 void ws281x_rainbowCycle(ws2812_t ws2812, uint8_t wait);
 void ws281x_theaterChase(ws2812_t ws2812, uint32_t c, uint8_t wait);

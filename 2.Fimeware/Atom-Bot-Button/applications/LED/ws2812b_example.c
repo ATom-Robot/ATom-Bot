@@ -1,14 +1,3 @@
-/**!
- *
- * @file           : /rt_ws2812b/example/ws2812b_example.c
- *
- * @date           : 2020-07-16 21:24:54
- *
- * @author         : maplerian
- *
- * @brief          : file content
- *
- */
 #include <ws2812.h>
 #include <drv_spi.h>
 
@@ -17,23 +6,16 @@
 #endif  //!WS2812B_EXAMPLE_SPI_NAME
 
 #ifndef WS2812B_EXAMPLE_NODE_LENGTH
-    #define WS2812B_EXAMPLE_NODE_LENGTH 1
+    #define WS2812B_EXAMPLE_NODE_LENGTH 2
 #endif // !WS2812B_EXAMPLE_NODE_LENGTH
 
-#ifdef BSP_SPI1_TX_USING_DMA || BSP_SPI2_TX_USING_DMA || BSP_SPI3_TX_USING_DMA || BSP_SPI4_TX_USING_DMA || BSP_SPI5_TX_USING_DMA || BSP_SPI6_TX_USING_DMA
-    #define ENABLE  1
-#else
-    #define ENABLE  0
-#endif // BSP_SPI1_TX_USING_DMA || BSP_SPI2_TX_USING_DMA || BSP_SPI3_TX_USING_DMA || BSP_SPI4_TX_USING_DMA || BSP_SPI5_TX_USING_DMA || BSP_SPI6_TX_USING_DMA
-
-#if ENABLE
 int ws2812b_test(int argc, char *argv[])
 {
-	rt_err_t result;
-	struct rt_spi_device *spi_device;
-	spi_device = (struct rt_spi_device *)rt_malloc(sizeof(struct rt_spi_device));
+    rt_err_t result;
+    struct rt_spi_device *spi_device;
+    spi_device = (struct rt_spi_device *)rt_malloc(sizeof(struct rt_spi_device));
     RT_ASSERT(spi_device != RT_NULL);
-	result = rt_spi_bus_attach_device(spi_device, WS2812B_EXAMPLE_SPI_NAME, "spi1", (void *)RT_NULL);
+    result = rt_spi_bus_attach_device(spi_device, WS2812B_EXAMPLE_SPI_NAME, "spi1", (void *)RT_NULL);
 
     if (result != RT_EOK)
     {
@@ -53,20 +35,10 @@ int ws2812b_test(int argc, char *argv[])
         return RT_ERROR;
     }
 
-    ws2812_clear_buff(ws2812);
-
-	ws281x_rainbowCycle(ws2812, 25);
-	ws2812_write_rgb_to_all(ws2812, 0, 0, 0);
-	rt_thread_mdelay(1000);
-
-	ws281x_theaterChaseRainbow(ws2812, 25);
-	ws2812_write_rgb_to_all(ws2812, 0, 0, 0);
-	rt_thread_mdelay(1000);
+    ws281x_rainbow(ws2812, 50);
+    ws281x_colorWipe(ws2812, 0x0000, 0);
 
     rt_free((void *)ws2812);
     return 1;
 }
 MSH_CMD_EXPORT(ws2812b_test, test ws2812b function);
-#else
-#error "SPI TX does not turn on DMA transfer."
-#endif

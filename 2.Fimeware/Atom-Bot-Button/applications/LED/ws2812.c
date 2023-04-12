@@ -1,11 +1,3 @@
-/*
- * @Author: maplerian
- * @Date: 2020-07-11 16:02:23
- * @LastEditors: maplerian
- * @LastEditTime: 2020-07-11 22:08:53
- * @Description: file content
- */
-
 #include "ws2812.h"
 
 uint16_t _rand16seed;
