@@ -82,6 +82,8 @@
 #define RT_USING_ADC
 #define RT_USING_PWM
 #define RT_USING_SPI
+#define RT_USING_SENSOR
+#define RT_USING_SENSOR_CMD
 #define RT_USING_PULSE_ENCODER
 
 /* Using USB */
@@ -145,7 +147,7 @@
 /* tools packages */
 
 #define PKG_USING_CPU_USAGE
-#define PKG_USING_CPU_USAGE_LATEST_VERSION
+#define PKG_USING_CPU_USAGE_V100
 
 /* system packages */
 
@@ -173,6 +175,9 @@
 #define PKG_USING_MPU6XXX_ACCE
 #define PKG_USING_MPU6XXX_GYRO
 #define PKG_USING_MPU6XXX_MAG
+#define PKG_USING_VL53L0X
+#define PKG_USING_VL53L0X_SAMPLE
+#define PKG_USING_VL53L0X_V100
 
 /* touch drivers */
 

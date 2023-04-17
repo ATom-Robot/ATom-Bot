@@ -34,11 +34,14 @@ int main(void)
     Motor_Init();
     Encoder_Init();
 
-	joint_i2s_init();
+    joint_i2s_init();
 
     rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
     rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
     rt_pin_write(VOLTAGE_ADC_EN, PIN_LOW);
+
+//  MOTOR_SetSpeed(1, 500);
+//  MOTOR_SetSpeed(2, 500);
 
     while (1)
     {

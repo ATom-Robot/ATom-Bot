@@ -262,7 +262,7 @@ void UpdateJointAngle_2(struct Joint_device*  _joint, float _angleSetPoint)
     _joint->config.angle = jAngle;
 }
 
-int set_id_to_joint()
+int set_id_to_joint(void)
 {
     joint[ANY].config.id = 0;
     joint[ANY].config.angleMin = 0;
@@ -272,13 +272,49 @@ int set_id_to_joint()
     joint[ANY].config.modelAngelMax = 90;
     SetJointId(&joint[ANY], 4);
 	
-	rt_thread_mdelay(1000);
+	rt_thread_mdelay(800);
 	joint[ANY].config.id = 2;
 	SetJointEnable(&joint[ANY], RT_TRUE);
 	
 	return RT_EOK;
 }
-MSH_CMD_EXPORT(set_id_to_joint, set_id_to_joint)
+MSH_CMD_EXPORT(set_id_to_joint, set id to joint)
+
+int set_kp_to_joint(int argc, const char*argv[])
+{
+	if (argc != 2)
+	{
+		LOG_E("ERROR Paramter");
+		return RT_ERROR;
+	}
+
+	float kp = atof(argv[1]);
+
+	SetJointKp(&joint[ANY], kp);
+	rt_thread_mdelay(800);
+	SetJointEnable(&joint[ANY], RT_TRUE);
+
+	return RT_EOK;
+}
+MSH_CMD_EXPORT(set_kp_to_joint, set kp to joint)
+
+int set_kd_to_joint(int argc, const char*argv[])
+{
+	if (argc != 2)
+	{
+		LOG_E("ERROR Paramter");
+		return RT_ERROR;
+	}
+
+	float kd = atof(argv[1]);
+
+	SetJointKd(&joint[ANY], kd);
+	rt_thread_mdelay(800);
+	SetJointEnable(&joint[ANY], RT_TRUE);
+
+	return RT_EOK;
+}
+MSH_CMD_EXPORT(set_kd_to_joint, set kd to joint)
 
 int joint_init(void)
 {
