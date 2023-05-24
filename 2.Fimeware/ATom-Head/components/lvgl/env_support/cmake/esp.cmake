@@ -11,10 +11,12 @@ if(LV_MICROPYTHON)
     ${LVGL_ROOT_DIR}/src
     ${LVGL_ROOT_DIR}/../
     REQUIRES
+    rlottie
     main)
 else()
   if(CONFIG_LV_BUILD_EXAMPLES)
     file(GLOB_RECURSE EXAMPLE_SOURCES ${LVGL_ROOT_DIR}/examples/*.c)
+    set_source_files_properties(${EXAMPLE_SOURCES} COMPILE_FLAGS "-Wno-unused-variable -Wno-format")
   endif()
 
   if(CONFIG_LV_USE_DEMO_WIDGETS)
@@ -36,11 +38,13 @@ else()
   if(CONFIG_LV_USE_DEMO_MUSIC)
     file(GLOB_RECURSE DEMO_MUSIC_SOURCES ${LVGL_ROOT_DIR}/demos/music/*.c)
     list(APPEND DEMO_SOURCES ${DEMO_MUSIC_SOURCES})
+    set_source_files_properties(${DEMO_MUSIC_SOURCES} COMPILE_FLAGS "-Wno-format")
   endif()
 
   idf_component_register(SRCS ${SOURCES} ${EXAMPLE_SOURCES} ${DEMO_SOURCES}
       INCLUDE_DIRS ${LVGL_ROOT_DIR} ${LVGL_ROOT_DIR}/src ${LVGL_ROOT_DIR}/../
-                   ${LVGL_ROOT_DIR}/examples ${LVGL_ROOT_DIR}/demos)
+                   ${LVGL_ROOT_DIR}/examples ${LVGL_ROOT_DIR}/demos
+      REQUIRES esp_timer)
 endif()
 
 target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_CONF_INCLUDE_SIMPLE")

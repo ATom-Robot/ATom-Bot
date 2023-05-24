@@ -54,6 +54,8 @@
         "esp_mn_iface.h": "c",
         "nvs_flash.h": "c",
         "string.h": "c",
-        "app_sr_handler.h": "c"
+        "app_sr_handler.h": "c",
+        "lv_rlottie.h": "c",
+        "rlottie_capi.h": "c"
     }
 }

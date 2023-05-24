@@ -22,9 +22,9 @@ extern "C" void app_main()
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
-    ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
+    ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
-    AppCamera_Init(PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 2, xQueueLCDFrame);
+    AppCamera_Init(PIXFORMAT_GRAYSCALE, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
     AppLCD_Init(xQueueLCDFrame, NULL, true);
     AppSpeech_Init();
     speaker_init();

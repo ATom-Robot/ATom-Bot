@@ -388,7 +388,7 @@ esp_err_t AppSpeech_run(void)
     afe_config.aec_init = false;
     afe_config.se_init = false;
     afe_config.vad_init = false;
-    afe_config.afe_ringbuf_size = 50;
+    afe_config.afe_ringbuf_size = 100;
     afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
     g_sr_data->afe_data = g_sr_data->afe_handle->create_from_config(&afe_config);
     g_sr_data->lang = SR_LANG_CN;

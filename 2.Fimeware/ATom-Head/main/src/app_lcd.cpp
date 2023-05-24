@@ -2,6 +2,7 @@
 #include <lvgl.h>
 #include "esp_camera.h"
 #include "benchmark/lv_demo_benchmark.h"
+#include "rlottie/lv_rlottie.h"
 
 SCREEN_CLASS screen;
 static LGFX_Emma *_lgfxEmma = nullptr;
@@ -94,6 +95,15 @@ IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_c
     lv_disp_flush_ready(drv);
 }
 
+void lv_example_gif_1(void)
+{
+    lv_obj_t * img;
+
+    img = lv_gif_create(lv_scr_act());
+    lv_gif_set_src(img, "/spiffs/eye.gif");
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+}
+
 static void guiTask(void *pvParameter)
 {
     static lv_disp_draw_buf_t disp_buf;
@@ -117,7 +127,8 @@ static void guiTask(void *pvParameter)
 
     // lv_avi_create();
     // lv_camera_create();
-    lv_demo_benchmark();
+    // lv_demo_benchmark();
+    lv_example_gif_1();
 
     static TickType_t tick;
     tick = xTaskGetTickCount();
@@ -138,6 +149,6 @@ static void guiTask(void *pvParameter)
 
 void AppLVGL_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, configMAX_PRIORITIES - 3, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 8 * 1024, NULL, configMAX_PRIORITIES - 3, NULL, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
 }
