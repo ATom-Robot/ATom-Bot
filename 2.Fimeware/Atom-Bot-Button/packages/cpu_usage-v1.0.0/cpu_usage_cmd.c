@@ -50,4 +50,5 @@ void cpu_usage_msh(int argc, char *argv[])
         rt_kprintf("%s\n", argv[0]);
     }
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cpu_usage_msh, __cmd_usage, cpu usage);
+//FINSH_FUNCTION_EXPORT_ALIAS(cpu_usage_msh, __cmd_usage, cpu usage);
+MSH_CMD_EXPORT(cpu_usage_msh, cpu usage)

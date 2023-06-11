@@ -34,7 +34,7 @@
 
 static struct rt_i2c_bus_device *i2c_bus_dev;/* i2c bus device */
 static rt_base_t xshutdown_pin = 0;/* shutdown control pin */
-static VL53L0X_Dev_t vl53l0x_dev = /* vl53l0x device */
+VL53L0X_Dev_t vl53l0x_dev = /* vl53l0x device */
 {
 	.comms_type = 1,
 	.comms_speed_khz = 400,
@@ -136,20 +136,20 @@ VL53L0X_Error vl53l0x_single_ranging_mode(VL53L0X_Dev_t *pdev)
     if(Status == VL53L0X_ERROR_NONE)
     {
         /* no need to do this when we use VL53L0X_PerformSingleRangingMeasurement */
-        Status = VL53L0X_SetDeviceMode(pdev, VL53L0X_DEVICEMODE_SINGLE_RANGING); 
+        Status = VL53L0X_SetDeviceMode(pdev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING); 
     }
 
     /* Enable/Disable Sigma and Signal check */
     if (Status == VL53L0X_ERROR_NONE) 
-	{
-        Status = VL53L0X_SetLimitCheckEnable(pdev,
-        		VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
-    }
-    if (Status == VL53L0X_ERROR_NONE) 
-	{
-        Status = VL53L0X_SetLimitCheckEnable(pdev,
-        		VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
-    }
+//	{
+//        Status = VL53L0X_SetLimitCheckEnable(pdev,
+//        		VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
+//    }
+//    if (Status == VL53L0X_ERROR_NONE) 
+//	{
+//        Status = VL53L0X_SetLimitCheckEnable(pdev,
+//        		VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
+//    }
 
     if (Status == VL53L0X_ERROR_NONE) 
 	{
@@ -331,13 +331,22 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
 		LOG_I("vl53l0x info:\n      Name[%s]\n      Type[%s]\n      ProductId[%s]\r\n",
 			  vl53l0x_info.Name, vl53l0x_info.Type, vl53l0x_info.ProductId);
 	}	
-	
+
 	/* set single ranging mode */
 	if (VL53L0X_ERROR_NONE != vl53l0x_single_ranging_mode(&vl53l0x_dev))
 	{
 	  	LOG_E("vl53l0x single ranging init failed\r\n");
 		goto __exit;	
 	}
+	
+	FixPoint1616_t LowThreashHold = (20 * 65536.0);
+	FixPoint1616_t HighThreashHold = (100 * 65536.0);
+
+	VL53L0X_SetInterruptThresholds(
+			&vl53l0x_dev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, LowThreashHold,
+			HighThreashHold);
+	
+	VL53L0X_StartMeasurement(&vl53l0x_dev);
 
 	return RT_EOK;
 	

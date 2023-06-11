@@ -11,8 +11,19 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
+#include <board.h>
+
 #include "sensor.h"
 #include "vl53l0x.h"
+#include "vl53l0x_api.h"
+
+#define DBG_SECTION_NAME  "vl53l0"
+#define DBG_LEVEL         DBG_ERROR
+#include <rtdbg.h>
+
+#define INT_PIN GET_PIN(B, 1)
+
+static rt_sem_t vl53l0_sem = RT_NULL;
 
 static void read_distance_entry(void *parameter)
 {
@@ -36,31 +47,27 @@ static void read_distance_entry(void *parameter)
 	
     while (1)
     {
-		res = rt_device_read(temp_dev, 0, &temp_data, 1);
-        if (res == 0)
-        {
-            rt_kprintf("read data failed! result is %d\n", res);;
-			rt_device_close(temp_dev);
-            return;
-        }
-        else
-        {
-        	rt_kprintf("distance[%dmm],timestamp[%d]\r\n",temp_data.data.proximity,
-					   temp_data.timestamp);
-        }
+		rt_sem_take(vl53l0_sem, RT_WAITING_FOREVER);
 		
-		if (index++ >= 5)
-		{
-			rt_device_close(temp_dev);
-			break;
+		VL53L0X_RangingMeasurementData_t measure;
+		VL53L0X_GetRangingMeasurementData(&vl53l0x_dev, &measure);
+		if (measure.RangeStatus != 4) { // phase failures have incorrect data
+		  LOG_D("Distance (mm): %d\n", measure.RangeMilliMeter);
 		}
-        rt_thread_delay(100);
+		VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
     }
 }
 
 static int read_distance_sample(void)
 {
     rt_thread_t distance_thread;
+
+	vl53l0_sem = rt_sem_create("vlx", 0, RT_IPC_FLAG_PRIO);
+    if (vl53l0_sem == RT_NULL)
+    {
+        LOG_E("create dynamic semaphore failed.\n");
+        return -1;
+    }
 
     distance_thread = rt_thread_create("tof_r",
                                      read_distance_entry,
@@ -77,14 +84,23 @@ static int read_distance_sample(void)
 }
 INIT_APP_EXPORT(read_distance_sample);
 
+void int_callback(void *args)
+{
+	rt_sem_release(vl53l0_sem);
+}
+
 static int rt_hw_vl53l0x_port(void)
 {
     struct rt_sensor_config cfg;
     	
 	cfg.intf.dev_name = "i2c2"; 		/* i2c bus */
     cfg.intf.user_data = (void *)0x29;	/* i2c slave addr */
-    rt_hw_vl53l0x_init("vl53l0x", &cfg, 57);/* xshutdown ctrl pin */
-
+    rt_hw_vl53l0x_init("vl53l0x", &cfg, RT_NULL);/* xshutdown ctrl pin */
+	
+	rt_pin_mode(INT_PIN, PIN_MODE_INPUT_PULLUP);
+	rt_pin_attach_irq(INT_PIN, PIN_IRQ_MODE_FALLING, int_callback, RT_NULL);
+	rt_pin_irq_enable(INT_PIN, PIN_IRQ_ENABLE);
+	
     return RT_EOK;
 }
 INIT_COMPONENT_EXPORT(rt_hw_vl53l0x_port);
