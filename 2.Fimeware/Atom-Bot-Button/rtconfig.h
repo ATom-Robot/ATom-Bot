@@ -185,8 +185,6 @@
 /* Kendryte SDK */
 
 #define PKG_USING_I2C_TOOLS
-#define I2C_TOOLS_USE_SW_I2C
-#define I2C_TOOLS_SW_ACK_TIMEOUT 100
 #define PKG_USING_I2C_TOOLS_LATEST_VERSION
 
 /* AI packages */
@@ -208,7 +206,7 @@
 /* Arduino libraries */
 
 
-/* Projects */
+/* Projects and Demos */
 
 
 /* Sensors */
@@ -262,6 +260,9 @@
 #define BSP_USING_SPI
 #define BSP_USING_SPI1
 #define BSP_SPI1_TX_USING_DMA
+#define BSP_USING_I2C1
+#define BSP_I2C1_SCL_PIN 2
+#define BSP_I2C1_SDA_PIN 3
 #define BSP_USING_I2C2
 #define BSP_I2C2_SCL_PIN 26
 #define BSP_I2C2_SDA_PIN 27

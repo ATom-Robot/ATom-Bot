@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define ANY 0
-#define JOINT_SIZE 1
+#define JOINT_SIZE 3
 
 struct Joint_config
 {

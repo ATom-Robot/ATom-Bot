@@ -14,13 +14,13 @@ static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uin
     rt_int8_t res = 0;
     struct rt_i2c_msg msgs;
     uint8_t buf[5] = {0};
-	rt_memcpy((uint8_t *)buf, (uint8_t *)pData, len);
+    rt_memcpy((uint8_t *)buf, (uint8_t *)pData, len);
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)
     {
-        msgs.addr  = dev->config.id;		/* slave address */
-        msgs.flags = RT_I2C_IGNORE_NACK;	/* write flag */
-        msgs.buf   = buf;					/* Send data pointer */
+        msgs.addr  = dev->config.id;        /* slave address */
+        msgs.flags = RT_I2C_IGNORE_NACK;    /* write flag */
+        msgs.buf   = buf;                   /* Send data pointer */
         msgs.len   = len;
 
         if (rt_i2c_transfer((struct rt_i2c_bus_device *)dev->bus, &msgs, 1) == 1)
@@ -44,9 +44,9 @@ static rt_err_t joint_read_regs(struct Joint_device *dev, rt_uint8_t len, rt_uin
     if (dev->bus->type == RT_Device_Class_I2CBUS)
     {
         msgs.addr  = dev->config.id;    /* Slave address */
-        msgs.flags = RT_I2C_RD;			/* Read flag */
-        msgs.buf   = buf;				/* Read data pointer */
-        msgs.len   = len;				/* Number of bytes read */
+        msgs.flags = RT_I2C_RD;         /* Read flag */
+        msgs.buf   = buf;               /* Read data pointer */
+        msgs.len   = len;               /* Number of bytes read */
 
         if (rt_i2c_transfer((struct rt_i2c_bus_device *)dev->bus, &msgs, 1) == 1)
         {
@@ -61,7 +61,7 @@ static rt_err_t joint_read_regs(struct Joint_device *dev, rt_uint8_t len, rt_uin
     return res;
 }
 
-void UpdateServoAngle_2(struct Joint_device*  _joint, float _angleSetPoint)
+void UpdateServoAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
 {
     if (_angleSetPoint >= _joint->config.angleMin && _angleSetPoint <= _joint->config.angleMax)
     {
@@ -77,7 +77,7 @@ void UpdateServoAngle_2(struct Joint_device*  _joint, float _angleSetPoint)
     }
 }
 
-void UpdateServoAngle_1(struct Joint_device*  _joint)
+void UpdateServoAngle_1(struct Joint_device  *_joint)
 {
     uint8_t *b = (unsigned char *) & (_joint->config.angle);
 
@@ -88,7 +88,7 @@ void UpdateServoAngle_1(struct Joint_device*  _joint)
     _joint->config.angle = *(float *)(i2cRxData + 1);
 }
 
-void SetJointEnable(struct Joint_device*  _joint, rt_bool_t _enable)
+void SetJointEnable(struct Joint_device  *_joint, rt_bool_t _enable)
 {
     i2cTxData[0] = 0xff;
     i2cTxData[1] = _enable ? 1 : 0;
@@ -98,16 +98,16 @@ void SetJointEnable(struct Joint_device*  _joint, rt_bool_t _enable)
     _joint->config.angle = *(float *)(i2cRxData + 1);
 }
 
-void TransmitAndReceiveI2cPacket(struct Joint_device* _joint)
+void TransmitAndReceiveI2cPacket(struct Joint_device *_joint)
 {
     rt_err_t state = -RT_ERROR;
 
-	state = joint_write_reg(_joint, i2cTxData, 5);
+    state = joint_write_reg(_joint, i2cTxData, 5);
 
-	state = joint_read_regs(_joint, 5, i2cRxData);
+    state = joint_read_regs(_joint, 5, i2cRxData);
 }
 
-void SetJointTorqueLimit(struct Joint_device*  _joint, float _percent)
+void SetJointTorqueLimit(struct Joint_device  *_joint, float _percent)
 {
     if (_percent >= 0 && _percent <= 1)
     {
@@ -125,7 +125,7 @@ void SetJointTorqueLimit(struct Joint_device*  _joint, float _percent)
     }
 }
 
-void SetJointId(struct Joint_device*  _joint, uint8_t _id)
+void SetJointId(struct Joint_device  *_joint, uint8_t _id)
 {
     i2cTxData[0] = 0x21;
     i2cTxData[1] = _id;
@@ -137,7 +137,7 @@ void SetJointId(struct Joint_device*  _joint, uint8_t _id)
     rt_thread_mdelay(500); // wait servo reset
 }
 
-void SetJointInitAngle(struct Joint_device*  _joint, float _angle)
+void SetJointInitAngle(struct Joint_device  *_joint, float _angle)
 {
     float sAngle = _joint->config.inverted ?
                    (_angle - _joint->config.modelAngelMin) /
@@ -164,7 +164,7 @@ void SetJointInitAngle(struct Joint_device*  _joint, float _angle)
     }
 }
 
-void SetJointKp(struct Joint_device*  _joint, float _value)
+void SetJointKp(struct Joint_device  *_joint, float _value)
 {
     uint8_t *b = (unsigned char *)(&_value);
 
@@ -179,7 +179,7 @@ void SetJointKp(struct Joint_device*  _joint, float _value)
     rt_thread_mdelay(500); // wait servo reset
 }
 
-void SetJointKi(struct Joint_device*  _joint, float _value)
+void SetJointKi(struct Joint_device  *_joint, float _value)
 {
     uint8_t *b = (unsigned char *)(&_value);
 
@@ -194,7 +194,7 @@ void SetJointKi(struct Joint_device*  _joint, float _value)
     rt_thread_mdelay(500); // wait servo reset
 }
 
-void SetJointKv(struct Joint_device*  _joint, float _value)
+void SetJointKv(struct Joint_device  *_joint, float _value)
 {
     uint8_t *b = (unsigned char *)(&_value);
 
@@ -209,7 +209,7 @@ void SetJointKv(struct Joint_device*  _joint, float _value)
     rt_thread_mdelay(500); // wait servo reset
 }
 
-void SetJointKd(struct Joint_device*  _joint, float _value)
+void SetJointKd(struct Joint_device  *_joint, float _value)
 {
     uint8_t *b = (unsigned char *)(&_value);
 
@@ -224,7 +224,7 @@ void SetJointKd(struct Joint_device*  _joint, float _value)
     rt_thread_mdelay(500); // wait servo reset
 }
 
-void UpdateJointAngle_1(struct Joint_device*  _joint)
+void UpdateJointAngle_1(struct Joint_device  *_joint)
 {
     UpdateServoAngle_1(_joint);
 
@@ -239,7 +239,7 @@ void UpdateJointAngle_1(struct Joint_device*  _joint)
     _joint->config.angle = jAngle;
 }
 
-void UpdateJointAngle_2(struct Joint_device*  _joint, float _angleSetPoint)
+void UpdateJointAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
 {
     float sAngle = _joint->config.inverted ?
                    (_angleSetPoint - _joint->config.modelAngelMin) /
@@ -262,112 +262,160 @@ void UpdateJointAngle_2(struct Joint_device*  _joint, float _angleSetPoint)
     _joint->config.angle = jAngle;
 }
 
-int set_id_to_joint(void)
+int set_id_to_joint(int argc, const char *argv[])
 {
+    if (argc != 2)
+    {
+        LOG_E("ERROR Paramter");
+        return RT_ERROR;
+    }
+	uint8_t id = atoi(argv[1]);
+    SetJointId(&joint[ANY], id);
+
+    rt_thread_mdelay(800);
+    joint[ANY].config.id = id;
+    SetJointEnable(&joint[ANY], RT_TRUE);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(set_id_to_joint, set id to joint)
+
+int set_kp_to_joint(int argc, const char *argv[])
+{
+    if (argc != 2)
+    {
+        LOG_E("ERROR Paramter");
+        return RT_ERROR;
+    }
+
+    float kp = atof(argv[1]);
+
+    SetJointKp(&joint[ANY], kp);
+    rt_thread_mdelay(800);
+    SetJointEnable(&joint[ANY], RT_TRUE);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(set_kp_to_joint, set kp to joint)
+
+int set_kd_to_joint(int argc, const char *argv[])
+{
+    if (argc != 2)
+    {
+        LOG_E("ERROR Paramter");
+        return RT_ERROR;
+    }
+
+    float kd = atof(argv[1]);
+
+    SetJointKd(&joint[ANY], kd);
+    rt_thread_mdelay(800);
+    SetJointEnable(&joint[ANY], RT_TRUE);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(set_kd_to_joint, set kd to joint)
+
+int set_torque_to_joint(int argc, const char *argv[])
+{
+    if (argc != 2)
+    {
+        LOG_E("ERROR Paramter");
+        return RT_ERROR;
+    }
+
+    float kd = atof(argv[1]);
+	rt_kprintf("%f\n", kd);
+
+    SetJointTorqueLimit(&joint[ANY], kd);
+    rt_thread_mdelay(800);
+    SetJointEnable(&joint[ANY], RT_TRUE);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(set_torque_to_joint, set torque to joint)
+
+int joint_angele_test(int argc, const char *argv[])
+{
+    if (argc != 2)
+    {
+        LOG_E("ERROR Paramter");
+        return RT_ERROR;
+    }
+
+    float angle = atof(argv[1]);
+
+//	SetJointEnable(&joint[0], RT_TRUE);
+	SetJointEnable(&joint[1], RT_TRUE);
+	SetJointEnable(&joint[2], RT_TRUE);
+
+//	UpdateJointAngle_2(&joint[0], angle);
+    UpdateJointAngle_2(&joint[1], angle);
+    UpdateJointAngle_2(&joint[2], angle);
+
+    LOG_I("set angle:%f | target angle:%f", angle, joint[1].config.angle);
+    LOG_I("set angle:%f | target angle:%f", angle, joint[2].config.angle);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(joint_angele_test, joint test: -180 - 180)
+
+int joint_init(void)
+{
+    // Left arm
     joint[ANY].config.id = 0;
     joint[ANY].config.angleMin = 0;
     joint[ANY].config.angleMax = 180;
     joint[ANY].config.angle = 0;
     joint[ANY].config.modelAngelMin = -90;
     joint[ANY].config.modelAngelMax = 90;
-    SetJointId(&joint[ANY], 4);
-	
-	rt_thread_mdelay(800);
-	joint[ANY].config.id = 2;
-	SetJointEnable(&joint[ANY], RT_TRUE);
-	
-	return RT_EOK;
-}
-MSH_CMD_EXPORT(set_id_to_joint, set id to joint)
+    joint[ANY].config.inverted = RT_FALSE;
 
-int set_kp_to_joint(int argc, const char*argv[])
-{
-	if (argc != 2)
-	{
-		LOG_E("ERROR Paramter");
-		return RT_ERROR;
-	}
+    joint[1].config.id = 2;
+    joint[1].config.angleMin = 0;
+    joint[1].config.angleMax = 180;
+    joint[1].config.angle = 0;
+    joint[1].config.modelAngelMin = -90;
+    joint[1].config.modelAngelMax = 90;
+    joint[1].config.inverted = RT_FALSE;
 
-	float kp = atof(argv[1]);
+    joint[2].config.id = 1;
+    joint[2].config.angleMin = 0;
+    joint[2].config.angleMax = 180;
+    joint[2].config.angle = 0;
+    joint[2].config.modelAngelMin = -90;
+    joint[2].config.modelAngelMax = 90;
+    joint[2].config.inverted = RT_FALSE;
 
-	SetJointKp(&joint[ANY], kp);
-	rt_thread_mdelay(800);
-	SetJointEnable(&joint[ANY], RT_TRUE);
+//    SetJointEnable(&joint[ANY], RT_TRUE);
+    SetJointEnable(&joint[1], RT_TRUE);
+    SetJointEnable(&joint[2], RT_TRUE);
 
-	return RT_EOK;
-}
-MSH_CMD_EXPORT(set_kp_to_joint, set kp to joint)
+//    UpdateJointAngle_2(&joint[ANY], 0);
+    UpdateJointAngle_2(&joint[1], 0);
+    UpdateJointAngle_2(&joint[2], 0);
 
-int set_kd_to_joint(int argc, const char*argv[])
-{
-	if (argc != 2)
-	{
-		LOG_E("ERROR Paramter");
-		return RT_ERROR;
-	}
-
-	float kd = atof(argv[1]);
-
-	SetJointKd(&joint[ANY], kd);
-	rt_thread_mdelay(800);
-	SetJointEnable(&joint[ANY], RT_TRUE);
-
-	return RT_EOK;
-}
-MSH_CMD_EXPORT(set_kd_to_joint, set kd to joint)
-
-int joint_init(void)
-{
-	// Left arm
-	joint[ANY].config.id = 2;
-	joint[ANY].config.angleMin = 0;
-	joint[ANY].config.angleMax = 180;
-	joint[ANY].config.angle = 0;
-	joint[ANY].config.modelAngelMin = -90;
-	joint[ANY].config.modelAngelMax = 90;
-	joint[ANY].config.inverted = RT_FALSE;
-
-	UpdateJointAngle_2(&joint[ANY], 0);
-	SetJointEnable(&joint[ANY], RT_TRUE);
-
-	return RT_EOK;
+    return RT_EOK;
 }
 
-int joint_angele_test(int argc, const char*argv[])
-{
-	if (argc != 2)
-	{
-		LOG_E("ERROR Paramter");
-		return RT_ERROR;
-	}
-
-	float angle = atof(argv[1]);
-
-	UpdateJointAngle_2(&joint[ANY], angle);
-	LOG_I("set angle:%f | target angle:%f", angle, joint[ANY].config.angle);	
-
-	return RT_EOK;
-}
-MSH_CMD_EXPORT(joint_angele_test, joint test:-180-180)
-
-int joint_i2s_init(void)
+int joint_i2c_init(void)
 {
     rt_uint8_t res = RT_EOK;
 
-	for (int i = 0; i < JOINT_SIZE; i++)
-	{
-		joint[i].bus = rt_device_find("i2c2");
-		if (joint[i].bus == RT_NULL)
-		{
-			LOG_I("Can't find device:'%s'", "i2c2");
-			res = -RT_ERROR;
-			break;
-		}
-	}
-	
-	rt_thread_mdelay(1000);
+    for (int i = 0; i < JOINT_SIZE; i++)
+    {
+        joint[i].bus = rt_device_find("i2c2");
+        if (joint[i].bus == RT_NULL)
+        {
+            LOG_I("Can't find device:'%s'", "i2c2");
+            res = -RT_ERROR;
+            break;
+        }
+    }
 
-	joint_init();
+    rt_thread_mdelay(1000);
 
-	return res;
+    joint_init();
+
+    return res;
 }

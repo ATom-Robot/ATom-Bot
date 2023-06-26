@@ -22,7 +22,8 @@ int main(void)
 {
     rt_kprintf("Hello Atom-Bot!!\n");
 
-    rt_kprintf("SCL:%d,SDA:%d\n", GET_PIN(B, 10), GET_PIN(B, 11));
+    rt_kprintf("SCL1:%d,SDA1:%d\n", GET_PIN(A, 3), GET_PIN(B, 1));
+    rt_kprintf("SCL2:%d,SDA2:%d\n", GET_PIN(B, 10), GET_PIN(B, 11));
 
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 0), GET_PIN(A, 1));
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));
@@ -34,7 +35,7 @@ int main(void)
     Motor_Init();
     Encoder_Init();
 
-    joint_i2s_init();
+    joint_i2c_init();
 
     rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
     rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
