@@ -1,63 +1,127 @@
 /*
-    Copyright 2022 Fan Ziqi
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
-#include "main.h"
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-07-09     Rbb666        First version
+ */
 #include "bsp_pid.h"
+#include "bsp_motor.h"
 
 #define DBG_SECTION_NAME  "PID"
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-#define PID_SCALE  0.01f		//PID缩放系数
-#define PID_INTEGRAL_UP 1000	//积分上限
+struct pid_uint pid_wheel_Left;
+struct pid_uint pid_wheel_Right;
 
-int16_t motor_kp = 10;	//电机转速PID-P
-int16_t motor_ki = 0;	//电机转速PID-I
-int16_t motor_kd = 0;	//电机转速PID-D
-
-int16_t PID_Motor_Control(int8_t Motor_Num, int16_t speed_target, int16_t speed_current)
+void reset_PID(struct pid_uint *p)
 {
-    static int16_t motor_pwm_out[2];
-    static int32_t bias[2], bias_last[2], bias_integral[2] = {0};
+    p->U_kk = 0;
+    p->ekk = 0;
+    p->ekkk = 0;
+    p->Adjust = 0;
+    p->speedNow = 0;
+    p->speedSet = 0;
+}
 
-    //获得偏差值
-    bias[Motor_Num - 1] = speed_target - speed_current;
+void reset_Uk(struct pid_uint *p)
+{
+    p->U_kk = 0;
+    p->ekk = 0;
+    p->ekkk = 0;
+}
 
-    //计算偏差累加值
-    bias_integral[Motor_Num - 1] += bias[Motor_Num - 1];
+void PID_Init(void)
+{
+    // left wheel pid
+    pid_wheel_Left.Kp = 1024 * PID_KP_DEF_L;
+    pid_wheel_Left.Ki = 1024 * PID_KI_DEF_L;
+    pid_wheel_Left.Kd = 1024 * PID_KD_DEF_L;
+    pid_wheel_Left.Ur = 1024 * MOTOR_MAX_PULSE * 2;
+    pid_wheel_Left.Adjust = 0;
+    pid_wheel_Left.En = 1;
+    pid_wheel_Left.speedSet = 0;
+    pid_wheel_Left.speedNow = 0;
+    reset_Uk(&pid_wheel_Left);
 
-    //抗积分饱和
-    if (bias_integral[Motor_Num - 1] >  PID_INTEGRAL_UP) bias_integral[Motor_Num - 1] =  PID_INTEGRAL_UP;
-    if (bias_integral[Motor_Num - 1] < -PID_INTEGRAL_UP) bias_integral[Motor_Num - 1] = -PID_INTEGRAL_UP;
+    // right wheel pid
+    pid_wheel_Right.Kp = 1024 * PID_KP_DEF_R;
+    pid_wheel_Right.Ki = 1024 * PID_KI_DEF_R;
+    pid_wheel_Right.Kd = 1024 * PID_KD_DEF_R;
+    pid_wheel_Right.Ur = 1024 * MOTOR_MAX_PULSE * 2;
+    pid_wheel_Right.Adjust = 0;
+    pid_wheel_Right.En = 1;
+    pid_wheel_Right.speedSet = 0;
+    pid_wheel_Right.speedNow = 0;
+    reset_Uk(&pid_wheel_Right);
+}
 
-    //PID计算电机输出PWM值
-    motor_pwm_out[Motor_Num - 1] += motor_kp * bias[Motor_Num - 1] * PID_SCALE          \
-                                    + motor_kd * (bias[Motor_Num - 1]                   \
-									- bias_last[Motor_Num - 1]) * PID_SCALE + motor_ki  \
-                                    * bias_integral[Motor_Num - 1] * PID_SCALE;
+int32_t PID_common(int set, int jiance, struct pid_uint *p)
+{
+    int ek = 0, U_k = 0;
 
-    //记录上次偏差
-    bias_last[Motor_Num - 1] = bias[Motor_Num - 1];
+    ek = jiance - set;
 
-    //限制最大输出
-    if (motor_pwm_out[Motor_Num - 1] > 2000)
-        motor_pwm_out[Motor_Num - 1] = 2000;
-    if (motor_pwm_out[Motor_Num - 1] < -2000)
-        motor_pwm_out[Motor_Num - 1] = -2000;
+    U_k = p->U_kk + p->Kp * (ek - p->ekk) + p->Ki * ek + p->Kd * (ek - 2 * p->ekk + p->ekkk);
 
-    //返回PWM控制值
-    return motor_pwm_out[Motor_Num - 1];
+    p->U_kk = U_k;
+    p->ekkk = p->ekk;
+    p->ekk = ek;
+
+    if (U_k > (p->Ur))
+        U_k = p->Ur;
+    if (U_k < -(p->Ur))
+        U_k = -(p->Ur);
+
+    return U_k >> 10;
+}
+
+void Pid_Which(struct pid_uint *pl, struct pid_uint *pr, float yaw)
+{
+    // left wheel speed pid
+    if (pl->En == 1)
+    {
+        pl->Adjust = -PID_common(pl->speedSet, pl->speedNow, pl);
+    }
+    else
+    {
+        pl->Adjust = 0;
+        reset_Uk(pl);
+        pl->En = 2;
+    }
+
+    // right wheel speed pid
+    if (pr->En == 1)
+    {
+        pr->Adjust = -PID_common(pr->speedSet, pr->speedNow, pr);
+    }
+    else
+    {
+        pr->Adjust = 0;
+        reset_Uk(pr);
+        pr->En = 2;
+    }
+}
+
+// pid ctrl
+void Pid_Ctrl(int *leftMotor, int *rightMotor, float yaw)
+{
+    int temp_l = *leftMotor;
+    int temp_r = *rightMotor;
+
+    Pid_Which(&pid_wheel_Left, &pid_wheel_Right, yaw);
+
+    temp_l += pid_wheel_Left.Adjust;
+    temp_r += pid_wheel_Right.Adjust;
+
+    if (temp_l > MOTOR_MAX_PULSE)  temp_l = MOTOR_MAX_PULSE;
+    if (temp_l < -MOTOR_MAX_PULSE) temp_l = -MOTOR_MAX_PULSE;
+    if (temp_r > MOTOR_MAX_PULSE)  temp_r = MOTOR_MAX_PULSE;
+    if (temp_r < -MOTOR_MAX_PULSE) temp_r = -MOTOR_MAX_PULSE;
+
+    *leftMotor  = temp_l;
+    *rightMotor = temp_r;
 }

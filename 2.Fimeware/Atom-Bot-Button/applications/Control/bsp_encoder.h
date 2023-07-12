@@ -1,29 +1,26 @@
 /*
-    Copyright 2022 Fan Ziqi
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-07-09     Rbb666        First version
+ */
 #ifndef BSP_ENCODER_H
 #define BSP_ENCODER_H
 
 #include <rtthread.h>
 
-#define ENCODER_MID_VALUE 30000
+#define ENCODER_ID_A        3
+#define ENCODER_ID_B        2
+
+#define ENCODER_MID_VALUE   0x7fff
 
 void Encoder_Init(void);
 void Encoder_Set_Counter(int8_t Motor_Num, int16_t count);
-uint16_t Encoder_Get_Counter(int8_t Motor_Num);
-uint16_t Encoder_Get_Dir(int8_t Motor_Num);
+
+int Encoder_Get_Count_Now(uint8_t Encoder_id);
+void Encoder_Update_Count(uint8_t Encoder_id);
 
 #endif

@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author        Notes
- * 2023-02-26     Rbb66         First version
+ * 2023-02-26     Rbb666        First version
  */
 #include <rtthread.h>
 #include <rtdevice.h>
@@ -15,8 +15,8 @@
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
 
-#define POWER_SW GET_PIN(C, 6)
-#define VOLTAGE_ADC_EN GET_PIN(B, 12)
+#define POWER_SW		GET_PIN(C, 6)
+#define VOLTAGE_ADC_EN	GET_PIN(B, 12)
 
 int main(void)
 {

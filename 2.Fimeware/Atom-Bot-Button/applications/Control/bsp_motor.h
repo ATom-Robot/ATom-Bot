@@ -1,19 +1,12 @@
 /*
-	Copyright 2022 Fan Ziqi
-
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-		http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
-*/
-
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-07-09     Rbb666        First version
+ */
 #ifndef BSP_MOTOR_H
 #define BSP_MOTOR_H
 
@@ -25,10 +18,21 @@
 #define PWMB1   TIM4->CCR3
 #define PWMB2   TIM4->CCR4
 
-#define Dead_Zone	3300
+#define MOTOR_ID_1     1
+#define MOTOR_ID_2     2
+
+#define Dead_Zone           3300
+#define MOTOR_MAX_PULSE     3600
+
+// 金属输出轴编码器电机：
+// 电机转一圈单相输出7个脉冲，1:150减速比，电机输出轴转一圈最大输出(150*7*4) 4200个计数
+// AB相输出脉冲信号相位差为90°，可检测电机转动方向
+#define ENCODER_CNT_PER_ROUND       (4200.0)
+#define WHEEL_CIRCUMFERENCE_CM      (6.40)
+#define ENCODER_CNT_10MS_2_SPD_MM_S (100.0 * WHEEL_CIRCUMFERENCE_CM * 10 / ENCODER_CNT_PER_ROUND)
 
 void Motor_Init(void);
-void MOTOR_SetSpeed(int8_t Motor_Num, int16_t speed);
+void Get_Motor_Speed(int *leftSpeed, int *rightSpeed);
 
 #endif
 

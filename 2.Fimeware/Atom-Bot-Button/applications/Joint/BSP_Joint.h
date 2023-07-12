@@ -4,9 +4,6 @@
 #include <rtthread.h>
 #include <stdint.h>
 
-#define ANY 0
-#define JOINT_SIZE 3
-
 struct Joint_config
 {
 	uint8_t id;
@@ -51,6 +48,6 @@ void UpdateJointAngle_2(struct Joint_device* _joint, float _angleSetPoint);
 
 void TransmitAndReceiveI2cPacket(struct Joint_device* _joint);
 
-int joint_i2s_init(void);
+int joint_i2c_init(void);
 
 #endif //ELECTRONBOT_FW_ROBOT_H

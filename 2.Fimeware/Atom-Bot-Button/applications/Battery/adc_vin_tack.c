@@ -81,7 +81,7 @@ int ADC_Battery_Detection()
     rt_thread_t tid;
 
     tid = rt_thread_create("voltage", vin_task, RT_NULL,
-                           1024, 20, 15);
+                           1024, 25, 15);
     RT_ASSERT(tid != RT_NULL);
 
     rt_thread_startup(tid);

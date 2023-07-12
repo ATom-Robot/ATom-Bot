@@ -1,9 +1,21 @@
+/*
+ * Copyright (c) 2006-2023, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author        Notes
+ * 2023-07-09     Rbb666        First version
+ */
 #include "BSP_Joint.h"
 #include <rtdevice.h>
 
 #define DBG_SECTION_NAME  "JOINT"
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
+
+#define ANY 0
+#define JOINT_SIZE 3
 
 static uint8_t i2cRxData[8];
 static uint8_t i2cTxData[8];
@@ -262,14 +274,14 @@ void UpdateJointAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
     _joint->config.angle = jAngle;
 }
 
-int set_id_to_joint(int argc, const char *argv[])
+static int set_id_to_joint(int argc, const char *argv[])
 {
     if (argc != 2)
     {
-        LOG_E("ERROR Paramter");
+        LOG_E("error paramter");
         return RT_ERROR;
     }
-	uint8_t id = atoi(argv[1]);
+    uint8_t id = atoi(argv[1]);
     SetJointId(&joint[ANY], id);
 
     rt_thread_mdelay(800);
@@ -280,11 +292,11 @@ int set_id_to_joint(int argc, const char *argv[])
 }
 MSH_CMD_EXPORT(set_id_to_joint, set id to joint)
 
-int set_kp_to_joint(int argc, const char *argv[])
+static int set_kp_to_joint(int argc, const char *argv[])
 {
     if (argc != 2)
     {
-        LOG_E("ERROR Paramter");
+        LOG_E("error paramter");
         return RT_ERROR;
     }
 
@@ -298,11 +310,29 @@ int set_kp_to_joint(int argc, const char *argv[])
 }
 MSH_CMD_EXPORT(set_kp_to_joint, set kp to joint)
 
-int set_kd_to_joint(int argc, const char *argv[])
+static int set_ki_to_joint(int argc, const char *argv[])
 {
     if (argc != 2)
     {
-        LOG_E("ERROR Paramter");
+        LOG_E("error paramter");
+        return RT_ERROR;
+    }
+
+    float kp = atof(argv[1]);
+
+    SetJointKi(&joint[ANY], kp);
+    rt_thread_mdelay(800);
+    SetJointEnable(&joint[ANY], RT_TRUE);
+
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(set_ki_to_joint, set ki to joint)
+
+static int set_kd_to_joint(int argc, const char *argv[])
+{
+    if (argc != 2)
+    {
+        LOG_E("error paramter");
         return RT_ERROR;
     }
 
@@ -316,16 +346,16 @@ int set_kd_to_joint(int argc, const char *argv[])
 }
 MSH_CMD_EXPORT(set_kd_to_joint, set kd to joint)
 
-int set_torque_to_joint(int argc, const char *argv[])
+static int set_torque_to_joint(int argc, const char *argv[])
 {
     if (argc != 2)
     {
-        LOG_E("ERROR Paramter");
+        LOG_E("error paramter");
         return RT_ERROR;
     }
 
     float kd = atof(argv[1]);
-	rt_kprintf("%f\n", kd);
+    LOG_D("%f\n", kd);
 
     SetJointTorqueLimit(&joint[ANY], kd);
     rt_thread_mdelay(800);
@@ -339,28 +369,26 @@ int joint_angele_test(int argc, const char *argv[])
 {
     if (argc != 2)
     {
-        LOG_E("ERROR Paramter");
+        LOG_E("error paramter");
         return RT_ERROR;
     }
 
     float angle = atof(argv[1]);
 
-//	SetJointEnable(&joint[0], RT_TRUE);
-	SetJointEnable(&joint[1], RT_TRUE);
-	SetJointEnable(&joint[2], RT_TRUE);
+    SetJointEnable(&joint[1], RT_TRUE);
+    SetJointEnable(&joint[2], RT_TRUE);
 
-//	UpdateJointAngle_2(&joint[0], angle);
     UpdateJointAngle_2(&joint[1], angle);
     UpdateJointAngle_2(&joint[2], angle);
 
-    LOG_I("set angle:%f | target angle:%f", angle, joint[1].config.angle);
-    LOG_I("set angle:%f | target angle:%f", angle, joint[2].config.angle);
+    LOG_D("set dev1 target angle:%f | current angle:%f", angle, joint[1].config.angle);
+    LOG_D("set dev2 target angle:%f | current angle:%f", angle, joint[2].config.angle);
 
     return RT_EOK;
 }
 MSH_CMD_EXPORT(joint_angele_test, joint test: -180 - 180)
 
-int joint_init(void)
+static int joint_init(void)
 {
     // Left arm
     joint[ANY].config.id = 0;
@@ -387,11 +415,11 @@ int joint_init(void)
     joint[2].config.modelAngelMax = 90;
     joint[2].config.inverted = RT_FALSE;
 
-//    SetJointEnable(&joint[ANY], RT_TRUE);
+    SetJointEnable(&joint[ANY], RT_TRUE);
     SetJointEnable(&joint[1], RT_TRUE);
     SetJointEnable(&joint[2], RT_TRUE);
 
-//    UpdateJointAngle_2(&joint[ANY], 0);
+    UpdateJointAngle_2(&joint[ANY], 0);
     UpdateJointAngle_2(&joint[1], 0);
     UpdateJointAngle_2(&joint[2], 0);
 
@@ -407,13 +435,13 @@ int joint_i2c_init(void)
         joint[i].bus = rt_device_find("i2c2");
         if (joint[i].bus == RT_NULL)
         {
-            LOG_I("Can't find device:'%s'", "i2c2");
+            LOG_D("Can't find device:'%s'", joint[i].bus);
             res = -RT_ERROR;
             break;
         }
     }
 
-    rt_thread_mdelay(1000);
+    rt_thread_mdelay(100);
 
     joint_init();
 

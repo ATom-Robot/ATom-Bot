@@ -16,12 +16,15 @@
 #include "vl53l0x_api.h"
 
 #define DBG_SECTION_NAME  "vl53l0"
-#define DBG_LEVEL         DBG_ERROR
+#define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-#define INT_PIN GET_PIN(B, 1)
+#define INT_PIN GET_PIN(A, 2)
 
 static rt_sem_t vl53l0_sem = RT_NULL;
+static uint16_t *dis_sensor_data;
+
+static uint16_t distence_sensor_get(void);
 
 static void read_distance_entry(void *parameter)
 {
@@ -47,13 +50,7 @@ static void read_distance_entry(void *parameter)
     {
         rt_sem_take(vl53l0_sem, RT_WAITING_FOREVER);
 
-        VL53L0X_RangingMeasurementData_t measure;
-        VL53L0X_GetRangingMeasurementData(&vl53l0x_dev, &measure);
-        if (measure.RangeStatus != 4)   // phase failures have incorrect data
-        {
-            LOG_D("Distance (mm): %d\n", measure.RangeMilliMeter);
-        }
-        VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
+        distence_sensor_get();
     }
 }
 
@@ -87,21 +84,46 @@ static void vl_int_callback(void *args)
     rt_sem_release(vl53l0_sem);
 }
 
+static int get_distence_sensor_data(void)
+{
+    LOG_D("Distance (mm): %d\n", *dis_sensor_data);
+
+    return 0;
+}
+MSH_CMD_EXPORT(get_distence_sensor_data, Get distence sensor data)
+
+static uint16_t distence_sensor_get(void)
+{
+    VL53L0X_RangingMeasurementData_t measure;
+    VL53L0X_GetRangingMeasurementData(&vl53l0x_dev, &measure);
+    VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
+
+    dis_sensor_data = &measure.RangeMilliMeter;
+
+    return *dis_sensor_data;
+}
+
 static int rt_hw_vl53l0x_port(void)
 {
     struct rt_sensor_config cfg;
+    static rt_err_t init_flag;
 
     cfg.intf.dev_name = "i2c1";         /* i2c bus */
     cfg.intf.user_data = (void *)0x29;  /* i2c slave addr */
-    rt_hw_vl53l0x_init("vl53l0x", &cfg, RT_NULL);/* xshutdown ctrl pin */
+    init_flag = rt_hw_vl53l0x_init("vl53l0x", &cfg, RT_NULL);/* xshutdown ctrl pin */
+    if (init_flag != RT_EOK)
+    {
+        LOG_E("Distence sensor init fail!\n");
+        return -RT_ERROR;
+    }
+	LOG_D("Distence sensor init success\n");
 
     rt_pin_mode(INT_PIN, PIN_MODE_INPUT_PULLUP);
     rt_pin_attach_irq(INT_PIN, PIN_IRQ_MODE_FALLING, vl_int_callback, RT_NULL);
     rt_pin_irq_enable(INT_PIN, PIN_IRQ_ENABLE);
 
-	read_distance_sample();
+    read_distance_sample();
 
     return RT_EOK;
 }
-//INIT_DEVICE_EXPORT(rt_hw_vl53l0x_port);
-MSH_CMD_EXPORT(rt_hw_vl53l0x_port, VL5310 init)
+INIT_DEVICE_EXPORT(rt_hw_vl53l0x_port);
