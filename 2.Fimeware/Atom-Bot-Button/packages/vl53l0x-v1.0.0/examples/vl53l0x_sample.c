@@ -21,7 +21,7 @@
 
 #define INT_PIN GET_PIN(A, 2)
 
-static rt_sem_t vl53l0_sem = RT_NULL;
+static struct rt_completion vl53l0_sem;
 static uint16_t *dis_sensor_data;
 
 static uint16_t distence_sensor_get(void);
@@ -48,7 +48,7 @@ static void read_distance_entry(void *parameter)
 
     while (1)
     {
-        rt_sem_take(vl53l0_sem, RT_WAITING_FOREVER);
+        rt_completion_wait(&vl53l0_sem, RT_WAITING_FOREVER);
 
         distence_sensor_get();
     }
@@ -58,19 +58,14 @@ static int read_distance_sample(void)
 {
     rt_thread_t distance_thread;
 
-    vl53l0_sem = rt_sem_create("vlx", 0, RT_IPC_FLAG_PRIO);
-    if (vl53l0_sem == RT_NULL)
-    {
-        LOG_E("create dynamic semaphore failed.\n");
-        return -1;
-    }
+    rt_completion_init(&vl53l0_sem);
 
     distance_thread = rt_thread_create("tof_r",
                                        read_distance_entry,
                                        RT_NULL,
                                        1024,
-                                       RT_THREAD_PRIORITY_MAX / 2,
-                                       20);
+                                       25,
+                                       10);
     if (distance_thread != RT_NULL)
     {
         rt_thread_startup(distance_thread);
@@ -81,7 +76,13 @@ static int read_distance_sample(void)
 
 static void vl_int_callback(void *args)
 {
-    rt_sem_release(vl53l0_sem);
+	/* enter interrupt */
+    rt_interrupt_enter();
+
+    rt_completion_done(&vl53l0_sem);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
 }
 
 static int get_distence_sensor_data(void)
@@ -126,4 +127,4 @@ static int rt_hw_vl53l0x_port(void)
 
     return RT_EOK;
 }
-INIT_DEVICE_EXPORT(rt_hw_vl53l0x_port);
+INIT_APP_EXPORT(rt_hw_vl53l0x_port);
