@@ -15,8 +15,8 @@
 #include "drv_config.h"
 #include <drivers/rt_drv_pwm.h>
 
-//#define DRV_DEBUG
-#define LOG_TAG             "drv.pwm"
+// #define DRV_DEBUG
+#define LOG_TAG "drv.pwm"
 #include <drv_log.h>
 
 #define MAX_PERIOD 65535
@@ -83,79 +83,79 @@ enum
 struct stm32_pwm
 {
     struct rt_device_pwm pwm_device;
-    TIM_HandleTypeDef    tim_handle;
+    TIM_HandleTypeDef tim_handle;
     rt_uint8_t channel;
     char *name;
 };
 
 static struct stm32_pwm stm32_pwm_obj[] =
-{
+    {
 #ifdef BSP_USING_PWM1
-    PWM1_CONFIG,
+        PWM1_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM2
-    PWM2_CONFIG,
+        PWM2_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM3
-    PWM3_CONFIG,
+        PWM3_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM4
-    PWM4_CONFIG,
+        PWM4_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM5
-    PWM5_CONFIG,
+        PWM5_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM6
-    PWM6_CONFIG,
+        PWM6_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM7
-    PWM7_CONFIG,
+        PWM7_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM8
-    PWM8_CONFIG,
+        PWM8_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM9
-    PWM9_CONFIG,
+        PWM9_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM10
-    PWM10_CONFIG,
+        PWM10_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM11
-    PWM11_CONFIG,
+        PWM11_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM12
-    PWM12_CONFIG,
+        PWM12_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM13
-    PWM13_CONFIG,
+        PWM13_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM14
-    PWM14_CONFIG,
+        PWM14_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM15
-    PWM15_CONFIG,
+        PWM15_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM16
-    PWM16_CONFIG,
+        PWM16_CONFIG,
 #endif
 
 #ifdef BSP_USING_PWM17
-    PWM17_CONFIG,
+        PWM17_CONFIG,
 #endif
 };
 
@@ -180,17 +180,17 @@ static void pclkx_doubler_get(rt_uint32_t *pclk1_doubler, rt_uint32_t *pclk2_dou
     }
     if (RCC_ClkInitStruct.APB2_Div != RCC_APB2_DIV1)
     {
-       *pclk2_doubler = 2;
+        *pclk2_doubler = 2;
     }
 #else
     if (RCC_ClkInitStruct.APB1CLKDivider != RCC_HCLK_DIV1)
     {
-         *pclk1_doubler = 2;
+        *pclk1_doubler = 2;
     }
 #if !defined(SOC_SERIES_STM32F0) && !defined(SOC_SERIES_STM32G0)
     if (RCC_ClkInitStruct.APB2CLKDivider != RCC_HCLK_DIV1)
     {
-         *pclk2_doubler = 2;
+        *pclk2_doubler = 2;
     }
 #endif
 #endif
@@ -205,7 +205,7 @@ static rt_uint64_t tim_clock_get(TIM_HandleTypeDef *htim)
 
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
     if (htim->Instance == TIM9 || htim->Instance == TIM10 || htim->Instance == TIM11)
-#elif defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32H7)|| defined(SOC_SERIES_STM32F3)
+#elif defined(SOC_SERIES_STM32L4) || defined(SOC_SERIES_STM32H7) || defined(SOC_SERIES_STM32F3)
     if (htim->Instance == TIM15 || htim->Instance == TIM16 || htim->Instance == TIM17)
 #elif defined(SOC_SERIES_STM32MP1)
     if (htim->Instance == TIM4)
@@ -227,9 +227,8 @@ static rt_uint64_t tim_clock_get(TIM_HandleTypeDef *htim)
 
 static rt_err_t drv_pwm_control(struct rt_device_pwm *device, int cmd, void *arg);
 static struct rt_pwm_ops drv_ops =
-{
-    drv_pwm_control
-};
+    {
+        drv_pwm_control};
 
 static rt_err_t drv_pwm_enable(TIM_HandleTypeDef *htim, struct rt_pwm_configuration *configuration, rt_bool_t enable)
 {
@@ -296,7 +295,7 @@ static rt_err_t drv_pwm_set(TIM_HandleTypeDef *htim, struct rt_pwm_configuration
     tim_clock = tim_clock_get(htim);
     /* Convert nanosecond to frequency and duty cycle. 1s = 1 * 1000 * 1000 * 1000 ns */
     tim_clock /= 1000000UL;
-    period = (rt_uint64_t)configuration->period * tim_clock / 1000ULL ;
+    period = (rt_uint64_t)configuration->period * tim_clock / 1000ULL;
     psc = period / MAX_PERIOD + 1;
     period = period / psc;
     __HAL_TIM_SET_PRESCALER(htim, psc - 1);
@@ -322,7 +321,7 @@ static rt_err_t drv_pwm_set(TIM_HandleTypeDef *htim, struct rt_pwm_configuration
     please uncommon the following code, but it will cause the last PWM cycle not complete. */
     //__HAL_TIM_SET_COUNTER(htim, 0);
 
-    //HAL_TIM_GenerateEvent(htim, TIM_EVENTSOURCE_UPDATE); /* Update frequency value */
+    // HAL_TIM_GenerateEvent(htim, TIM_EVENTSOURCE_UPDATE); /* Update frequency value */
 
     return RT_EOK;
 }
@@ -335,7 +334,7 @@ static rt_err_t drv_pwm_set_period(TIM_HandleTypeDef *htim, struct rt_pwm_config
     tim_clock = tim_clock_get(htim);
     /* Convert nanosecond to frequency and duty cycle. 1s = 1 * 1000 * 1000 * 1000 ns */
     tim_clock /= 1000000UL;
-    period = (rt_uint64_t)configuration->period * tim_clock / 1000ULL ;
+    period = (rt_uint64_t)configuration->period * tim_clock / 1000ULL;
     psc = period / MAX_PERIOD + 1;
     period = period / psc;
     __HAL_TIM_SET_PRESCALER(htim, psc - 1);
@@ -460,7 +459,7 @@ static rt_err_t stm32_hw_pwm_init(struct stm32_pwm *device)
     oc_config.OCPolarity = TIM_OCPOLARITY_HIGH;
     oc_config.OCFastMode = TIM_OCFAST_DISABLE;
     oc_config.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    oc_config.OCIdleState  = TIM_OCIDLESTATE_RESET;
+    oc_config.OCIdleState = TIM_OCIDLESTATE_RESET;
 
     /* config pwm channel */
     if (device->channel & 0x01)

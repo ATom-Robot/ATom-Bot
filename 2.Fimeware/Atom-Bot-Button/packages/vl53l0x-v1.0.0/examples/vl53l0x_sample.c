@@ -22,35 +22,38 @@
 #define INT_PIN GET_PIN(A, 2)
 
 static struct rt_completion vl53l0_sem;
-static uint16_t *dis_sensor_data;
+static rt_int32_t *dis_sensor_data;
+static rt_device_t temp_dev = RT_NULL;
+static struct rt_sensor_data temp_data;
 
-static uint16_t distence_sensor_get(void);
+static rt_int32_t distence_sensor_get(void);
 
 static void read_distance_entry(void *parameter)
 {
-    rt_device_t temp_dev = RT_NULL;
-    struct rt_sensor_data temp_data;
     rt_size_t res = 0;
     rt_uint32_t index = 0;
 
     temp_dev = rt_device_find("tof_vl53l0x");
     if (temp_dev == RT_NULL)
     {
-        rt_kprintf("not found tof_vl53l0x device\r\n");
+        LOG_E("not found tof_vl53l0x device");
         return;
     }
 
     if (rt_device_open(temp_dev, RT_DEVICE_FLAG_RDONLY) != RT_EOK)
     {
-        rt_kprintf("open tof_vl53l0x failed\r\n");
+        LOG_E("open tof_vl53l0x failed");
         return;
     }
 
     while (1)
     {
+#if VL53L0X_USING_INT
         rt_completion_wait(&vl53l0_sem, RT_WAITING_FOREVER);
-
+#endif
         distence_sensor_get();
+
+        rt_thread_delay(100);
     }
 }
 
@@ -74,9 +77,10 @@ static int read_distance_sample(void)
     return RT_EOK;
 }
 
+#if VL53L0X_USING_INT
 static void vl_int_callback(void *args)
 {
-	/* enter interrupt */
+    /* enter interrupt */
     rt_interrupt_enter();
 
     rt_completion_done(&vl53l0_sem);
@@ -84,6 +88,7 @@ static void vl_int_callback(void *args)
     /* leave interrupt */
     rt_interrupt_leave();
 }
+#endif
 
 static int get_distence_sensor_data(void)
 {
@@ -93,13 +98,22 @@ static int get_distence_sensor_data(void)
 }
 MSH_CMD_EXPORT(get_distence_sensor_data, Get distence sensor data)
 
-static uint16_t distence_sensor_get(void)
+static rt_int32_t distence_sensor_get(void)
 {
+#if VL53L0X_USING_INT
     VL53L0X_RangingMeasurementData_t measure;
     VL53L0X_GetRangingMeasurementData(&vl53l0x_dev, &measure);
     VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
 
     dis_sensor_data = &measure.RangeMilliMeter;
+#endif
+    rt_size_t res = 0;
+    res = rt_device_read(temp_dev, 0, &temp_data, 1);
+    if (res == 0)
+    {
+        rt_kprintf("read data failed! result is %d\n", res);
+    }
+    dis_sensor_data = &temp_data.data.proximity;
 
     return *dis_sensor_data;
 }
@@ -117,11 +131,13 @@ static int rt_hw_vl53l0x_port(void)
         LOG_E("Distence sensor init fail!\n");
         return -RT_ERROR;
     }
-	LOG_D("Distence sensor init success\n");
+    LOG_D("Distence sensor init success\n");
 
+#if VL53L0X_USING_INT
     rt_pin_mode(INT_PIN, PIN_MODE_INPUT_PULLUP);
     rt_pin_attach_irq(INT_PIN, PIN_IRQ_MODE_FALLING, vl_int_callback, RT_NULL);
     rt_pin_irq_enable(INT_PIN, PIN_IRQ_ENABLE);
+#endif
 
     read_distance_sample();
 

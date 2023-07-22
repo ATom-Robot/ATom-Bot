@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+#define	VL53L0X_USING_INT		(0)
 
 #if TRACE_UART
 #define trace_printf uart_printf

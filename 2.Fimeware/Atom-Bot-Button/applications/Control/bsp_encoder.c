@@ -19,30 +19,26 @@
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
-static int g_Encoder_A_Now = 0;
-static int g_Encoder_B_Now = 0;
-
 void Encoder_Init(void)
 {
     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
-    Encoder_Set_Counter(1, ENCODER_MID_VALUE);
-    Encoder_Set_Counter(2, ENCODER_MID_VALUE);
+    Encoder_Set_Counter(ENCODER_ID_A, 0);
+    Encoder_Set_Counter(ENCODER_ID_B, 0);
 
     LOG_I("Encoder Init Success\r\n");
 }
-
 
 void Encoder_Set_Counter(int8_t Motor_Num, int16_t count)
 {
     switch (Motor_Num)
     {
-    case 1:
-        __HAL_TIM_SET_COUNTER(&htim3, count);
+    case ENCODER_ID_A:
+        TIM3->CNT = count;
         break;
-    case 2:
-        __HAL_TIM_SET_COUNTER(&htim2, count);
+    case ENCODER_ID_B:
+        TIM2->CNT = count;
         break;
     default:
     {
@@ -52,19 +48,19 @@ void Encoder_Set_Counter(int8_t Motor_Num, int16_t count)
     }
 }
 
-static uint16_t Encoder_Get_Counter(uint8_t Motor_Num)
+int32_t Encoder_Get_Counter(uint8_t Motor_Num)
 {
-    uint16_t counter = 0;
+    int32_t counter = 0;
 
     switch (Motor_Num)
     {
     case ENCODER_ID_A:
-        counter = 0x7fff - (short)__HAL_TIM_GetCounter(&htim3);
-        __HAL_TIM_SetCounter(&htim3, 0x7fff);
+        counter = (short)TIM3->CNT;
+        TIM3->CNT = 0;
         break;
     case ENCODER_ID_B:
-        counter = 0x7fff - (short)__HAL_TIM_GetCounter(&htim2);
-        __HAL_TIM_SetCounter(&htim2, 0x7fff);
+        counter = (short)TIM2->CNT;
+        TIM2->CNT = 0;
         break;
     default:
     {
@@ -74,38 +70,6 @@ static uint16_t Encoder_Get_Counter(uint8_t Motor_Num)
     }
     }
     return counter;
-}
-
-int Encoder_Get_Count_Now(uint8_t Motor_Num)
-{
-    if (Motor_Num == ENCODER_ID_A)
-        return g_Encoder_A_Now;
-
-    if (Motor_Num == ENCODER_ID_B)
-        return g_Encoder_B_Now;
-
-    return 0;
-}
-
-void Encoder_Update_Count(uint8_t Encoder_id)
-{
-    switch (Encoder_id)
-    {
-    case ENCODER_ID_A:
-    {
-        g_Encoder_A_Now -= Encoder_Get_Counter(ENCODER_ID_A);
-        break;
-    }
-
-    case ENCODER_ID_B:
-    {
-        g_Encoder_B_Now += Encoder_Get_Counter(ENCODER_ID_B);
-        break;
-    }
-
-    default:
-        break;
-    }
 }
 
 uint16_t Encoder_Get_Dir(uint8_t Motor_Num)
@@ -129,6 +93,37 @@ uint16_t Encoder_Get_Dir(uint8_t Motor_Num)
     return direction;
 }
 
+/**************************************************************************
+功    能: 计算实际转速
+输    入: encoder_cnt：脉冲数；ppr：码盘数；ratio：减速比；cnt_time：计数时间(ms)
+返回  值: 车轮转速 rpm
+**************************************************************************/
+float Motor_Speed(int encoder_cnt, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
+{
+    encoder_cnt = abs(encoder_cnt);
+    return (encoder_cnt / 4 / ppr / ratio) * (1000 / cnt_time) * 60; /* 4倍频 */
+}
+
+/**************************************************************************
+功    能: 计算转数对应编码器脉冲数
+输    入: num：转数；ppr：码盘数；ratio：减速比
+返 回 值: 电机脉冲数
+**************************************************************************/
+long Num_Encoder_Cnt(float num, uint16_t ppr, uint16_t ratio)
+{
+    return (num * ratio * ppr * 4); /* 4倍频 */
+}
+
+/**************************************************************************
+功    能: 计算转速对应编码器脉冲数
+输    入: rpm：转速；ppr：码盘数；ratio：减速比；cnt_time：计数时间(ms)
+返 回 值: 电机脉冲数
+**************************************************************************/
+long Rpm_Encoder_Cnt(float rpm, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
+{
+    return (rpm * ratio * ppr * 4) / (60 * 1000 / cnt_time); /* 4倍频 */
+}
+
 static rt_err_t ReadEncoder_cmd(int argc, const char *argv[])
 {
     rt_err_t res = RT_EOK;
@@ -141,13 +136,13 @@ static rt_err_t ReadEncoder_cmd(int argc, const char *argv[])
 
     int Motor_Num = atoi(argv[1]);
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 50; i++)
     {
-        uint16_t enc = Encoder_Get_Counter(Motor_Num);
+        int enc = Encoder_Get_Counter(Motor_Num);
         LOG_D("motor[%d] ec count:%d", Motor_Num, enc);
         rt_thread_mdelay(100);
     }
 
     return res;
 }
-MSH_CMD_EXPORT(ReadEncoder_cmd, input: num(2/3) read encoder count);
+MSH_CMD_EXPORT(ReadEncoder_cmd, input: num(2 / 3) read encoder count);

@@ -29,7 +29,7 @@
 
 /* vl53l0x for RT-Thread sensor device */
 #define VL53L0X_DIST_RANGE_MAX  (2000)  /* 1mm */
-#define VL53L0X_DIST_RANGE_MIN  (0)     /* 1mm */
+#define VL53L0X_DIST_RANGE_MIN  (10)     /* 1mm */
 #define VL53L0X_DIST_PEROID     (100)   /* 1ms */
 
 static struct rt_i2c_bus_device *i2c_bus_dev;/* i2c bus device */
@@ -105,7 +105,6 @@ static rt_err_t vl53l0x_set_power(rt_sensor_t psensor, rt_uint8_t power)
     {
         return -RT_ERROR;
     }
-
 }
 
 VL53L0X_Error vl53l0x_single_ranging_mode(VL53L0X_Dev_t *pdev)
@@ -136,7 +135,7 @@ VL53L0X_Error vl53l0x_single_ranging_mode(VL53L0X_Dev_t *pdev)
     if (Status == VL53L0X_ERROR_NONE)
     {
         /* no need to do this when we use VL53L0X_PerformSingleRangingMeasurement */
-        Status = VL53L0X_SetDeviceMode(pdev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+        Status = VL53L0X_SetDeviceMode(pdev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
     }
 
     /* Enable/Disable Sigma and Signal check */
@@ -160,8 +159,8 @@ VL53L0X_Error vl53l0x_single_ranging_mode(VL53L0X_Dev_t *pdev)
     if (Status == VL53L0X_ERROR_NONE)
     {
         Status = VL53L0X_SetLimitCheckValue(pdev,
-                                            VL53L0X_CHECKENABLE_RANGE_IGNORE_THRESHOLD,
-                                            (FixPoint1616_t)(32 * 65536));
+                                            VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE,
+                                            (FixPoint1616_t)(18 * 65536));
     }
 
     if (Status == VL53L0X_ERROR_NONE)
@@ -169,6 +168,20 @@ VL53L0X_Error vl53l0x_single_ranging_mode(VL53L0X_Dev_t *pdev)
         Status = VL53L0X_SetLimitCheckValue(pdev,
                                             VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE,
                                             (FixPoint1616_t)(0.25 * 65536));
+    }
+
+    if (Status == VL53L0X_ERROR_NONE)
+    {
+        Status = VL53L0X_SetVcselPulsePeriod(pdev,
+                                             VL53L0X_VCSEL_PERIOD_PRE_RANGE,
+                                             14);
+    }
+
+    if (Status == VL53L0X_ERROR_NONE)
+    {
+        Status = VL53L0X_SetVcselPulsePeriod(pdev,
+                                             VL53L0X_VCSEL_PERIOD_FINAL_RANGE,
+                                             10);
     }
 
     return Status;
@@ -347,19 +360,20 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
         goto __exit;
     }
 
+    if (VL53L0X_ERROR_NONE != VL53L0X_SetMeasurementTimingBudgetMicroSeconds(&vl53l0x_dev, 33000))
+    {
+        LOG_E("vl53l0x Set measureme Timing failed\r\n");
+        goto __exit;
+    }
+
+#if VL53L0X_USING_INT
     if (VL53L0X_ERROR_NONE != VL53L0X_SetInterMeasurementPeriodMilliSeconds(&vl53l0x_dev, 33000))
     {
         LOG_E("vl53l0x Set Interrupt measureme failed\r\n");
         goto __exit;
     }
 
-    if (VL53L0X_ERROR_NONE != VL53L0X_SetMeasurementTimingBudgetMicroSeconds(&vl53l0x_dev, 33000))
-    {
-        LOG_E("vl53l0x Set measureme Timing failed\r\n");
-        goto __exit;
-    }
-	
-	VL53L0X_StopMeasurement(&vl53l0x_dev);
+    VL53L0X_StopMeasurement(&vl53l0x_dev);
 
     FixPoint1616_t LowThreashHold = (20 * 65536.0);
     FixPoint1616_t HighThreashHold = (100 * 65536.0);
@@ -373,8 +387,9 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
         VL53L0X_INTERRUPTPOLARITY_LOW);
 
     VL53L0X_StartMeasurement(&vl53l0x_dev);
-	
-	VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
+
+    VL53L0X_ClearInterruptMask(&vl53l0x_dev, 0);
+#endif
 
     return RT_EOK;
 

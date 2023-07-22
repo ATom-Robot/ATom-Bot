@@ -11,6 +11,7 @@
 #include "main.h"
 #include "AT_Math.h"
 
+#include "bsp_pid.h"
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
 
@@ -30,52 +31,71 @@ int rightWheelEncoderLast = 0;
 static double lSpd_mm_s = 0;
 static double rSpd_mm_s = 0;
 
+extern int motorLeft_pwm;
+extern int motorRight_pwm;
+
 void Motor_Init(void)
 {
     __HAL_TIM_ENABLE_IT(&htim4, TIM_IT_UPDATE);
 
-    HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_4);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 
     LOG_I("MOTOR Init Success\r\n");
 }
 
-static void Motor_m1_pwm(int speed)
+static void Motor_m1_pwm(int pwm)
 {
-    if (speed >= 0)
+	if (pwm == 0)
+	{
+		PWMA1 = PWMA2 = 0;
+		return;
+	}
+
+    if (pwm >= 0)
     {
-        PWMA1 = 0;
-        PWMA2 = speed;
+		pwm += Dead_Voltage;
+		pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
+
+        PWMA1 = 0; PWMA2 = pwm;
     }
     else
     {
-        PWMA1 = my_abs(speed);
-        PWMA2 = 0;
+		pwm = my_abs(pwm) + Dead_Voltage;
+		pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
+
+        PWMA1 = pwm; PWMA2 = 0;
     }
 }
 
-static void Motor_m2_pwm(int speed)
+static void Motor_m2_pwm(int pwm)
 {
-    if (speed >= 0)
+	if (pwm == 0)
+	{
+		PWMB1 = PWMB2 = 0;
+		return;
+	}
+
+    if (pwm >= 0)
     {
-        PWMB1 = speed;
-        PWMB2 = 0;
+		pwm += Dead_Voltage;
+		pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
+
+        PWMB1 = pwm; PWMB2 = 0;
     }
     else
     {
-        PWMB1 = 0;
-        PWMB2 = my_abs(speed);
+		pwm = my_abs(pwm) + Dead_Voltage;
+		pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
+
+        PWMB1 = 0; PWMB2 = pwm;
     }
 }
 
 void Motor_Set_Pwm(uint8_t id, int speed)
 {
-    // limit
-    if (speed > MOTOR_MAX_PULSE) speed = MOTOR_MAX_PULSE;
-    if (speed < -MOTOR_MAX_PULSE) speed = -MOTOR_MAX_PULSE;
-
     switch (id)
     {
     case MOTOR_ID_1:
@@ -111,9 +131,15 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     switch (Motor_Num)
     {
     case MOTOR_ID_1:
+	{
+        Motor_Set_Pwm(Motor_Num, Motor_speed);
+		break;
+	}
     case MOTOR_ID_2:
+	{
         Motor_Set_Pwm(Motor_Num, Motor_speed);
         break;
+	}
     default:
         LOG_E("Motor_Num[%d] ERROR\r\n", Motor_Num);
         res = -RT_ERROR;
@@ -121,23 +147,4 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     }
     return res;
 }
-MSH_CMD_EXPORT(SetSpeed_cmd, input: num(1: 2) | speed set motor speed)
-
-void Get_Motor_Speed(int *leftSpeed, int *rightSpeed)
-{
-    Encoder_Update_Count(ENCODER_ID_A);
-    leftWheelEncoderNow = Encoder_Get_Count_Now(ENCODER_ID_A);
-
-    Encoder_Update_Count(ENCODER_ID_B);
-    rightWheelEncoderNow = Encoder_Get_Count_Now(ENCODER_ID_B);
-
-    *leftSpeed = (leftWheelEncoderNow - leftWheelEncoderLast) * WHEEL_CIRCUMFERENCE_CM;
-    *rightSpeed = (rightWheelEncoderNow - rightWheelEncoderLast) * WHEEL_CIRCUMFERENCE_CM;
-
-    lSpd_mm_s = (double)(leftWheelEncoderNow - leftWheelEncoderLast) * ENCODER_CNT_10MS_2_SPD_MM_S;
-    rSpd_mm_s = (double)(rightWheelEncoderNow - rightWheelEncoderLast) * ENCODER_CNT_10MS_2_SPD_MM_S;
-
-    // record
-    leftWheelEncoderLast = leftWheelEncoderNow;
-    rightWheelEncoderLast = rightWheelEncoderNow;
-}
+MSH_CMD_EXPORT(SetSpeed_cmd, input: num(1:2) | speed set motor speed)

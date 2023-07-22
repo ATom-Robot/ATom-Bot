@@ -415,11 +415,9 @@ static int joint_init(void)
     joint[2].config.modelAngelMax = 90;
     joint[2].config.inverted = RT_FALSE;
 
-    SetJointEnable(&joint[ANY], RT_TRUE);
     SetJointEnable(&joint[1], RT_TRUE);
     SetJointEnable(&joint[2], RT_TRUE);
 
-    UpdateJointAngle_2(&joint[ANY], 0);
     UpdateJointAngle_2(&joint[1], 0);
     UpdateJointAngle_2(&joint[2], 0);
 

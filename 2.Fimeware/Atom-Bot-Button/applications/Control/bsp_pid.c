@@ -10,6 +10,8 @@
 #include "bsp_pid.h"
 #include "bsp_motor.h"
 
+#include <rtdevice.h>
+
 #define DBG_SECTION_NAME  "PID"
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
@@ -17,111 +19,97 @@
 struct pid_uint pid_wheel_Left;
 struct pid_uint pid_wheel_Right;
 
-void reset_PID(struct pid_uint *p)
-{
-    p->U_kk = 0;
-    p->ekk = 0;
-    p->ekkk = 0;
-    p->Adjust = 0;
-    p->speedNow = 0;
-    p->speedSet = 0;
-}
-
-void reset_Uk(struct pid_uint *p)
-{
-    p->U_kk = 0;
-    p->ekk = 0;
-    p->ekkk = 0;
-}
-
 void PID_Init(void)
 {
     // left wheel pid
-    pid_wheel_Left.Kp = 1024 * PID_KP_DEF_L;
-    pid_wheel_Left.Ki = 1024 * PID_KI_DEF_L;
-    pid_wheel_Left.Kd = 1024 * PID_KD_DEF_L;
-    pid_wheel_Left.Ur = 1024 * MOTOR_MAX_PULSE * 2;
-    pid_wheel_Left.Adjust = 0;
-    pid_wheel_Left.En = 1;
-    pid_wheel_Left.speedSet = 0;
-    pid_wheel_Left.speedNow = 0;
-    reset_Uk(&pid_wheel_Left);
+    pid_wheel_Left.Kp = PID_KP_DEF_L;
+    pid_wheel_Left.Ki = PID_KI_DEF_L;
+    pid_wheel_Left.Kd = PID_KD_DEF_L;
+	pid_wheel_Left.Bias = 0;
+	pid_wheel_Left.Integral_bias = 0;
+	pid_wheel_Left.Last_bias = 0;
+	pid_wheel_Left.Prev_bias = 0;
+    pid_wheel_Left.reality = 0;
+    pid_wheel_Left.target = 0;
 
     // right wheel pid
-    pid_wheel_Right.Kp = 1024 * PID_KP_DEF_R;
-    pid_wheel_Right.Ki = 1024 * PID_KI_DEF_R;
-    pid_wheel_Right.Kd = 1024 * PID_KD_DEF_R;
-    pid_wheel_Right.Ur = 1024 * MOTOR_MAX_PULSE * 2;
-    pid_wheel_Right.Adjust = 0;
-    pid_wheel_Right.En = 1;
-    pid_wheel_Right.speedSet = 0;
-    pid_wheel_Right.speedNow = 0;
-    reset_Uk(&pid_wheel_Right);
+    pid_wheel_Right.Kp = PID_KP_DEF_R;
+    pid_wheel_Right.Ki = PID_KI_DEF_R;
+    pid_wheel_Right.Kd = PID_KD_DEF_R;
+	pid_wheel_Right.Bias = 0;
+	pid_wheel_Right.Integral_bias = 0;
+	pid_wheel_Right.Last_bias = 0;
+	pid_wheel_Right.Prev_bias = 0;
+    pid_wheel_Right.reality = 0;
+    pid_wheel_Right.target = 0;
 }
 
-int32_t PID_common(int set, int jiance, struct pid_uint *p)
+/**************************************************************************
+函数功能：限幅
+入口参数：电机PWM值
+返回  值：限制后的值
+**************************************************************************/
+int limit_amplitude(int data, int max)
 {
-    int ek = 0, U_k = 0;
+    if (data < -max)
+        data = -max;
+    if (data > max)
+        data = max;
 
-    ek = jiance - set;
-
-    U_k = p->U_kk + p->Kp * (ek - p->ekk) + p->Ki * ek + p->Kd * (ek - 2 * p->ekk + p->ekkk);
-
-    p->U_kk = U_k;
-    p->ekkk = p->ekk;
-    p->ekk = ek;
-
-    if (U_k > (p->Ur))
-        U_k = p->Ur;
-    if (U_k < -(p->Ur))
-        U_k = -(p->Ur);
-
-    return U_k >> 10;
+    return data;
 }
 
-void Pid_Which(struct pid_uint *pl, struct pid_uint *pr, float yaw)
+/**************************************************************************
+函数功能：位置式PID控制器
+入口参数：实际位置，目标位置
+返回  值：电机PWM
+根据位置式离散PID公式
+pwm=Kp*e(k)+Ki*∑e(k)+Kd[e（k）-e(k-1)]
+e(k)代表本次偏差
+e(k-1)代表上一次的偏差
+∑e(k)代表e(k)以及之前的偏差的累积和;其中k为1,2,...,k;
+pwm代表输出
+**************************************************************************/
+int Position_PID(struct pid_uint *pid)
 {
-    // left wheel speed pid
-    if (pl->En == 1)
-    {
-        pl->Adjust = -PID_common(pl->speedSet, pl->speedNow, pl);
-    }
-    else
-    {
-        pl->Adjust = 0;
-        reset_Uk(pl);
-        pl->En = 2;
-    }
+    int32_t pwm;
 
-    // right wheel speed pid
-    if (pr->En == 1)
-    {
-        pr->Adjust = -PID_common(pr->speedSet, pr->speedNow, pr);
-    }
-    else
-    {
-        pr->Adjust = 0;
-        reset_Uk(pr);
-        pr->En = 2;
-    }
+    pid->Bias = pid->target - pid->reality;             /* 计算偏差 */
+    pid->Integral_bias += pid->Bias;                    /* 偏差累积 */
+
+    pid->Integral_bias = limit_amplitude(pid->Integral_bias, 5000);
+
+    pwm = (pid->Kp * pid->Bias)                         /* 比例环节 */
+          + (pid->Ki * pid->Integral_bias)              /* 积分环节 */
+          + (pid->Kd * (pid->Bias - pid->Last_bias));   /* 微分环节 */
+
+    pid->Last_bias = pid->Bias;                         /* 保存上次偏差 */
+
+    return pwm;                                         /* 输出结果 */
 }
 
-// pid ctrl
-void Pid_Ctrl(int *leftMotor, int *rightMotor, float yaw)
+/**************************************************************************
+函数功能：增量PID控制器
+入口参数：实际值，目标值
+返回  值：电机PWM
+根据增量式离散PID公式
+pwm+=Kp[e（k）-e(k-1)]+Ki*e(k)+Kd[e(k)-2e(k-1)+e(k-2)]
+e(k)代表本次偏差
+e(k-1)代表上一次的偏差  以此类推
+pwm代表增量输出
+**************************************************************************/
+int Incremental_PID(struct pid_uint *pid)
 {
-    int temp_l = *leftMotor;
-    int temp_r = *rightMotor;
+    int32_t pwm;
 
-    Pid_Which(&pid_wheel_Left, &pid_wheel_Right, yaw);
+    pid->Bias = pid->target - pid->reality;                         		/* 计算偏差 */
 
-    temp_l += pid_wheel_Left.Adjust;
-    temp_r += pid_wheel_Right.Adjust;
+    pwm += (pid->Kp * (pid->Bias - pid->Last_bias))                     	/* 比例环节 */
+           + (pid->Ki * pid->Bias)                                  		/* 积分环节 */
+           + (pid->Kd * (pid->Bias - 2 * pid->Last_bias + pid->Prev_bias)); /* 微分环节 */
 
-    if (temp_l > MOTOR_MAX_PULSE)  temp_l = MOTOR_MAX_PULSE;
-    if (temp_l < -MOTOR_MAX_PULSE) temp_l = -MOTOR_MAX_PULSE;
-    if (temp_r > MOTOR_MAX_PULSE)  temp_r = MOTOR_MAX_PULSE;
-    if (temp_r < -MOTOR_MAX_PULSE) temp_r = -MOTOR_MAX_PULSE;
+    pid->Prev_bias = pid->Last_bias;    									/* 保存上上次偏差 */
+    pid->Last_bias = pid->Bias;     										/* 保存上一次偏差 */
 
-    *leftMotor  = temp_l;
-    *rightMotor = temp_r;
+    return pwm;             												/* 输出结果 */
 }

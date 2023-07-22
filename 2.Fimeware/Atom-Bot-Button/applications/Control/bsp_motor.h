@@ -21,8 +21,9 @@
 #define MOTOR_ID_1     1
 #define MOTOR_ID_2     2
 
-#define Dead_Zone           3300
-#define MOTOR_MAX_PULSE     3600
+#define	MOTOR_MAX_PULSE	3550
+#define	Dead_Voltage	2070     /* 死区电压 */
+#define	Rpm_Max			250      /* 最大转速 */
 
 // 金属输出轴编码器电机：
 // 电机转一圈单相输出7个脉冲，1:150减速比，电机输出轴转一圈最大输出(150*7*4) 4200个计数
@@ -32,6 +33,7 @@
 #define ENCODER_CNT_10MS_2_SPD_MM_S (100.0 * WHEEL_CIRCUMFERENCE_CM * 10 / ENCODER_CNT_PER_ROUND)
 
 void Motor_Init(void);
+void Motor_Set_Pwm(uint8_t id, int speed);
 void Get_Motor_Speed(int *leftSpeed, int *rightSpeed);
 
 #endif

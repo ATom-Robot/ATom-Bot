@@ -14,9 +14,11 @@
 #include "BSP_Joint.h"
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
+#include "bsp_pid.h"
+#include "ano.h"
 
-#define POWER_SW		GET_PIN(C, 6)
-#define VOLTAGE_ADC_EN	GET_PIN(B, 12)
+#define POWER_SW        GET_PIN(C, 6)
+#define VOLTAGE_ADC_EN  GET_PIN(B, 12)
 
 int main(void)
 {
@@ -28,6 +30,10 @@ int main(void)
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 0), GET_PIN(A, 1));
     rt_kprintf("LEFT_ENCODER_PIN:%d  RIGHT_ENCODER_PIN:%d\n", GET_PIN(A, 6), GET_PIN(A, 7));
 
+    rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
+    rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
+    rt_pin_write(VOLTAGE_ADC_EN, PIN_LOW);
+
     MX_TIM4_Init();
     MX_TIM2_Init();
     MX_TIM3_Init();
@@ -35,14 +41,16 @@ int main(void)
     Motor_Init();
     Encoder_Init();
 
-    joint_i2c_init();
+//    joint_i2c_init();
 
-    rt_pin_mode(POWER_SW, PIN_MODE_OUTPUT);
-    rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
-    rt_pin_write(VOLTAGE_ADC_EN, PIN_LOW);
+    extern int hwtimer_sample(void);
+    hwtimer_sample();
 
-//  MOTOR_SetSpeed(1, 500);
-//  MOTOR_SetSpeed(2, 500);
+    PID_Init();
+    extern void app_motion_ctrl_init(void);
+    app_motion_ctrl_init();
+
+    ano_init("uart3");
 
     while (1)
     {
@@ -80,18 +88,4 @@ void TIM3_IRQHandler(void)
     /* USER CODE BEGIN TIM3_IRQn 1 */
     rt_interrupt_leave();
     /* USER CODE END TIM3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM4 global interrupt.
-  */
-void TIM4_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM4_IRQn 0 */
-    rt_interrupt_enter();
-    /* USER CODE END TIM4_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim4);
-    /* USER CODE BEGIN TIM4_IRQn 1 */
-    rt_interrupt_leave();
-    /* USER CODE END TIM4_IRQn 1 */
 }
