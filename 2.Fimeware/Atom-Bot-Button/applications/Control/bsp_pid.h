@@ -13,14 +13,22 @@
 #include <rtthread.h>
 
 // left wheel pid
-#define PID_KP_DEF_L             (0.2)
-#define PID_KI_DEF_L             (0.0)
-#define PID_KD_DEF_L             (0.0)
+#define PID_KP_POS_L             (0.001)
+#define PID_KI_POS_L             (0.0)
+#define PID_KD_POS_L             (0.0045)
+
+#define PID_KP_VEL_L             (0.02)
+#define PID_KI_VEL_L             (0.0)
+#define PID_KD_VEL_L             (0.0)
 
 // right wheel pid
-#define PID_KP_DEF_R             (0.1)
-#define PID_KI_DEF_R             (0.0)
-#define PID_KD_DEF_R             (0.0)
+#define PID_KP_POS_R             (0.0)
+#define PID_KI_POS_R             (0.0)
+#define PID_KD_POS_R             (0.0)
+
+#define PID_KP_VEL_R             (0.0)
+#define PID_KI_VEL_R             (0.0)
+#define PID_KD_VEL_R             (0.0)
 
 struct pid_uint
 {
@@ -37,8 +45,11 @@ struct pid_uint
     int16_t reality;		//当前速度
 };
 
-extern struct pid_uint pid_wheel_Left;
-extern struct pid_uint pid_wheel_Right;
+extern struct pid_uint pid_pos_Left;
+extern struct pid_uint pid_pos_Right;
+
+extern struct pid_uint pid_vel_Left;
+extern struct pid_uint pid_vel_Right;
 
 void PID_Init(void);
 int limit_amplitude(int data, int max);

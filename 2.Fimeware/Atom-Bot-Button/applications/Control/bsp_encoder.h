@@ -19,8 +19,7 @@ void Encoder_Init(void);
 void Encoder_Set_Counter(int8_t Motor_Num, int16_t count);
 
 int32_t Encoder_Get_Counter(uint8_t Motor_Num);
-long Num_Encoder_Cnt(float num, uint16_t ppr, uint16_t ratio);
-long Rpm_Encoder_Cnt(float rpm, uint16_t ppr, uint16_t ratio, uint16_t cnt_time);
-float Motor_Speed(int encoder_cnt, uint16_t ppr, uint16_t ratio, uint16_t cnt_time);
+int32_t Num_Encoder_Cnt(uint16_t num, uint16_t ppr, uint16_t ratio);
+int32_t Rpm_Encoder_Cnt(float rpm, uint16_t ppr, uint16_t ratio, uint16_t cnt_time);
 
 #endif

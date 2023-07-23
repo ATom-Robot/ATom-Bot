@@ -77,11 +77,11 @@ void MX_TIM2_Init(void)
     sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-    sConfig.IC1Filter = 0;
+    sConfig.IC1Filter = 6;
     sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
     sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-    sConfig.IC2Filter = 0;
+    sConfig.IC2Filter = 6;
     if (HAL_TIM_Encoder_Init(&htim2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -126,11 +126,11 @@ void MX_TIM3_Init(void)
     sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-    sConfig.IC1Filter = 0;
+    sConfig.IC1Filter = 6;
     sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
     sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-    sConfig.IC2Filter = 0;
+    sConfig.IC2Filter = 6;
     if (HAL_TIM_Encoder_Init(&htim3, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -207,7 +207,7 @@ void MX_TIM4_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN TIM4_Init 2 */
-
+	extern void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
     /* USER CODE END TIM4_Init 2 */
     HAL_TIM_MspPostInit(&htim4);
 }

@@ -35,8 +35,8 @@ struct velocity_dt
     int Target_Position;
     int Reality_Position;
 };
-struct velocity_dt left_velocity;
-struct velocity_dt right_velocity;
+struct velocity_dt left_wheel;
+struct velocity_dt right_wheel;
 
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
@@ -46,17 +46,48 @@ static void Motion_Set_PWM(int motor_Left, int motor_Right)
 
 static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
 {
-    if (left_velocity.Target_Velocity || right_velocity.Target_Velocity)
+    static int motor_left_pwm = 0;
+
+    left_wheel.Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_A);
+    right_wheel.Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_B);
+
+    left_wheel.Reality_Position += left_wheel.Reality_Velocity;
+    right_wheel.Reality_Position += right_wheel.Reality_Velocity;
+
+    pid_pos_Left.target = left_wheel.Target_Position;
+    pid_pos_Right.target = right_wheel.Target_Position;
+
+    pid_pos_Left.reality = left_wheel.Reality_Position;
+    pid_pos_Right.reality = right_wheel.Reality_Position;
+
+//    pid_vel_Left.target = left_wheel.Target_Velocity;
+//    pid_vel_Right.target = right_wheel.Target_Velocity;
+
+//    pid_vel_Left.reality = left_wheel.Reality_Velocity;
+//    pid_vel_Right.reality = right_wheel.Reality_Velocity;
+
+    /* 滤除部分干扰 */
+    if (abs(left_wheel.Reality_Position - left_wheel.Target_Position) < 4)
     {
-        left_velocity.Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_A);
-        right_velocity.Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_B);
+        /* 停止输出 */
+        Motion_Set_PWM(0, 0);
+    }
+//    if (left_wheel.Target_Velocity == 0  && (abs(left_wheel.Reality_Velocity) < 5))
+//    {
+//        /* 停止输出 */
+//        Motion_Set_PWM(0, 0);
+//    }
+    else
+    {
+        /* 位置PID控制器 */
+        motor_left_pwm = Position_PID(&pid_pos_Left);
+		/* 增量PID控制器 */
+//        motor_left_pwm = Incremental_PID(&pid_vel_Left);
 
-        left_velocity.Target_Position += left_velocity.Reality_Velocity;
-        right_velocity.Target_Position += right_velocity.Reality_Velocity;
-
+        Motion_Set_PWM(motor_left_pwm, 0);
     }
 
-    return 0;
+    return RT_EOK;
 }
 
 int hwtimer_sample(void)
@@ -107,7 +138,11 @@ static void Motion_Control_20ms(void *parameter)
 {
     while (1)
     {
-        left_velocity.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
+		left_wheel.Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm, 7, 100, 20);
+        left_wheel.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
+
+        ano_send_user_data(1, left_wheel.Target_Position, left_wheel.Reality_Position, PWMA1, PWMA2);
+//        ano_send_user_data(1, left_wheel.Target_Velocity, left_wheel.Reality_Velocity, PWMA1, PWMA2);
 
         rt_thread_mdelay(20);
     }

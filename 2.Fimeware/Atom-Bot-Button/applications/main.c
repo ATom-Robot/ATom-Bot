@@ -40,17 +40,18 @@ int main(void)
 
     Motor_Init();
     Encoder_Init();
+//	MPU6050_DMP_Init();
 
 //    joint_i2c_init();
 
     extern int hwtimer_sample(void);
     hwtimer_sample();
 
+    ano_init("uart3");
+
     PID_Init();
     extern void app_motion_ctrl_init(void);
     app_motion_ctrl_init();
-
-    ano_init("uart3");
 
     while (1)
     {

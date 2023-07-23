@@ -16,32 +16,59 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-struct pid_uint pid_wheel_Left;
-struct pid_uint pid_wheel_Right;
+struct pid_uint pid_pos_Left;
+struct pid_uint pid_pos_Right;
+
+struct pid_uint pid_vel_Left;
+struct pid_uint pid_vel_Right;
 
 void PID_Init(void)
 {
     // left wheel pid
-    pid_wheel_Left.Kp = PID_KP_DEF_L;
-    pid_wheel_Left.Ki = PID_KI_DEF_L;
-    pid_wheel_Left.Kd = PID_KD_DEF_L;
-	pid_wheel_Left.Bias = 0;
-	pid_wheel_Left.Integral_bias = 0;
-	pid_wheel_Left.Last_bias = 0;
-	pid_wheel_Left.Prev_bias = 0;
-    pid_wheel_Left.reality = 0;
-    pid_wheel_Left.target = 0;
+    pid_pos_Left.Kp = PID_KP_POS_L;
+    pid_pos_Left.Ki = PID_KI_POS_L;
+    pid_pos_Left.Kd = PID_KD_POS_L;
+
+	pid_pos_Left.Bias = 0;
+	pid_pos_Left.Integral_bias = 0;
+	pid_pos_Left.Last_bias = 0;
+	pid_pos_Left.Prev_bias = 0;
+    pid_pos_Left.reality = 0;
+    pid_pos_Left.target = 0;
+
+	pid_vel_Left.Kp = PID_KP_VEL_L;
+	pid_vel_Left.Ki = PID_KI_VEL_L;
+	pid_vel_Left.Kd = PID_KD_VEL_L;
+
+	pid_vel_Left.Bias = 0;
+	pid_vel_Left.Integral_bias = 0;
+	pid_vel_Left.Last_bias = 0;
+	pid_vel_Left.Prev_bias = 0;
+    pid_vel_Left.reality = 0;
+    pid_vel_Left.target = 0;
 
     // right wheel pid
-    pid_wheel_Right.Kp = PID_KP_DEF_R;
-    pid_wheel_Right.Ki = PID_KI_DEF_R;
-    pid_wheel_Right.Kd = PID_KD_DEF_R;
-	pid_wheel_Right.Bias = 0;
-	pid_wheel_Right.Integral_bias = 0;
-	pid_wheel_Right.Last_bias = 0;
-	pid_wheel_Right.Prev_bias = 0;
-    pid_wheel_Right.reality = 0;
-    pid_wheel_Right.target = 0;
+    pid_pos_Right.Kp = PID_KP_POS_R;
+    pid_pos_Right.Ki = PID_KI_POS_R;
+    pid_pos_Right.Kd = PID_KD_POS_R;
+
+	pid_pos_Right.Bias = 0;
+	pid_pos_Right.Integral_bias = 0;
+	pid_pos_Right.Last_bias = 0;
+	pid_pos_Right.Prev_bias = 0;
+    pid_pos_Right.reality = 0;
+    pid_pos_Right.target = 0;
+
+	pid_vel_Right.Kp = PID_KP_VEL_R;
+	pid_vel_Right.Ki = PID_KI_VEL_R;
+	pid_vel_Right.Kd = PID_KD_VEL_R;
+
+	pid_vel_Right.Bias = 0;
+	pid_vel_Right.Integral_bias = 0;
+	pid_vel_Right.Last_bias = 0;
+	pid_vel_Right.Prev_bias = 0;
+    pid_vel_Right.reality = 0;
+    pid_vel_Right.target = 0;
 }
 
 /**************************************************************************

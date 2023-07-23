@@ -24,6 +24,9 @@ void Encoder_Init(void)
     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
+	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim3);
+
     Encoder_Set_Counter(ENCODER_ID_A, 0);
     Encoder_Set_Counter(ENCODER_ID_B, 0);
 
@@ -95,7 +98,10 @@ uint16_t Encoder_Get_Dir(uint8_t Motor_Num)
 
 /**************************************************************************
 功    能: 计算实际转速
-输    入: encoder_cnt：脉冲数；ppr：码盘数；ratio：减速比；cnt_time：计数时间(ms)
+输    入: encoder_cnt：
+脉冲数；ppr：
+码盘数；ratio：
+减速比；cnt_time：计数时间(ms)
 返回  值: 车轮转速 rpm
 **************************************************************************/
 float Motor_Speed(int encoder_cnt, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
@@ -106,25 +112,30 @@ float Motor_Speed(int encoder_cnt, uint16_t ppr, uint16_t ratio, uint16_t cnt_ti
 
 /**************************************************************************
 功    能: 计算转数对应编码器脉冲数
-输    入: num：转数；ppr：码盘数；ratio：减速比
+num：转数；
+ppr：码盘数；
+ratio：减速比
 返 回 值: 电机脉冲数
 **************************************************************************/
-long Num_Encoder_Cnt(float num, uint16_t ppr, uint16_t ratio)
+int32_t Num_Encoder_Cnt(uint16_t num, uint16_t ppr, uint16_t ratio)
 {
     return (num * ratio * ppr * 4); /* 4倍频 */
 }
 
 /**************************************************************************
 功    能: 计算转速对应编码器脉冲数
-输    入: rpm：转速；ppr：码盘数；ratio：减速比；cnt_time：计数时间(ms)
+rpm：转速；
+ppr：码盘数
+ratio：减速比
+cnt_time：计数时间(ms)
 返 回 值: 电机脉冲数
 **************************************************************************/
-long Rpm_Encoder_Cnt(float rpm, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
+int32_t Rpm_Encoder_Cnt(float rpm, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
 {
     return (rpm * ratio * ppr * 4) / (60 * 1000 / cnt_time); /* 4倍频 */
 }
 
-static rt_err_t ReadEncoder_cmd(int argc, const char *argv[])
+static rt_err_t readencoder_cmd(int argc, const char *argv[])
 {
     rt_err_t res = RT_EOK;
 
@@ -145,4 +156,4 @@ static rt_err_t ReadEncoder_cmd(int argc, const char *argv[])
 
     return res;
 }
-MSH_CMD_EXPORT(ReadEncoder_cmd, input: num(2 / 3) read encoder count);
+MSH_CMD_EXPORT(readencoder_cmd, input: num(2 / 3) read encoder count);
