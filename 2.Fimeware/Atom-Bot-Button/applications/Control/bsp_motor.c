@@ -8,8 +8,8 @@
  * 2023-02-26     Rbb66         First version
  */
 #include <stdlib.h>
-#include "main.h"
 #include "AT_Math.h"
+#include "main.h"
 
 #include "bsp_pid.h"
 #include "bsp_motor.h"
@@ -56,16 +56,16 @@ static void Motor_m1_pwm(int pwm)
         pwm += Dead_Voltage;
         pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
 
-        PWMA1 = 0;
         PWMA2 = pwm;
+        PWMA1 = 0;
     }
     else
     {
         pwm = my_abs(pwm) + Dead_Voltage;
         pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
 
-        PWMA1 = pwm;
         PWMA2 = 0;
+        PWMA1 = pwm;
     }
 }
 
@@ -143,9 +143,23 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     }
     default:
         LOG_E("Motor_Num[%d] ERROR\r\n", Motor_Num);
+		Motor_Set_Pwm(MOTOR_ID_1, 0);
+		Motor_Set_Pwm(MOTOR_ID_2, 0);
         res = -RT_ERROR;
         break;
     }
     return res;
 }
 MSH_CMD_EXPORT(SetSpeed_cmd, input: num(1: 2) | speed set motor speed)
+
+static rt_err_t test(int argc, const char *argv[])
+{
+	while (1)
+	{
+		Motor_Set_Pwm(1, 1);
+		rt_thread_mdelay(20);
+	}
+	
+	return RT_EOK;
+}
+MSH_CMD_EXPORT(test, test: test)

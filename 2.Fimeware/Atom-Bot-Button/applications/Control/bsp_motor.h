@@ -21,11 +21,10 @@
 #define MOTOR_ID_1     1
 #define MOTOR_ID_2     2
 
-#define	MOTOR_MAX_PULSE	3550
-#define	Dead_Voltage	2000     /* 死区电压 */
-#define	Rpm_Max			300      /* 最大转速 */
+#define	MOTOR_MAX_PULSE	3560
+#define	Dead_Voltage	2080     /* 死区电压 */
+#define	RPM_MAX			150      /* 最大转速 */
 
-// 金属输出轴编码器电机：
 // 电机转一圈单相输出7个脉冲，1:100减速比，电机输出轴转一圈最大输出(100*7*4) 2800个计数
 // AB相输出脉冲信号相位差为90°，可检测电机转动方向
 #define ENCODER_CNT_PER_ROUND       (2800.0)

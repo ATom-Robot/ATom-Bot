@@ -117,7 +117,7 @@ ppr：码盘数；
 ratio：减速比
 返 回 值: 电机脉冲数
 **************************************************************************/
-int32_t Num_Encoder_Cnt(uint16_t num, uint16_t ppr, uint16_t ratio)
+int32_t Num_Encoder_Cnt(float num, uint16_t ppr, uint16_t ratio)
 {
     return (num * ratio * ppr * 4); /* 4倍频 */
 }

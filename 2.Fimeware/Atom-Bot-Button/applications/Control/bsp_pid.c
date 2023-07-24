@@ -17,58 +17,25 @@
 #include <rtdbg.h>
 
 struct pid_uint pid_pos_Left;
-struct pid_uint pid_pos_Right;
-
 struct pid_uint pid_vel_Left;
+
+struct pid_uint pid_pos_Right;
 struct pid_uint pid_vel_Right;
 
-void PID_Init(void)
+void PID_Init(struct pid_uint *pid, float Kp, float Ki, float Kd)
 {
     // left wheel pid
-    pid_pos_Left.Kp = PID_KP_POS_L;
-    pid_pos_Left.Ki = PID_KI_POS_L;
-    pid_pos_Left.Kd = PID_KD_POS_L;
+    pid->Kp = Kp;
+    pid->Ki = Ki;
+    pid->Kd = Kd;
 
-	pid_pos_Left.Bias = 0;
-	pid_pos_Left.Integral_bias = 0;
-	pid_pos_Left.Last_bias = 0;
-	pid_pos_Left.Prev_bias = 0;
-    pid_pos_Left.reality = 0;
-    pid_pos_Left.target = 0;
-
-	pid_vel_Left.Kp = PID_KP_VEL_L;
-	pid_vel_Left.Ki = PID_KI_VEL_L;
-	pid_vel_Left.Kd = PID_KD_VEL_L;
-
-	pid_vel_Left.Bias = 0;
-	pid_vel_Left.Integral_bias = 0;
-	pid_vel_Left.Last_bias = 0;
-	pid_vel_Left.Prev_bias = 0;
-    pid_vel_Left.reality = 0;
-    pid_vel_Left.target = 0;
-
-    // right wheel pid
-    pid_pos_Right.Kp = PID_KP_POS_R;
-    pid_pos_Right.Ki = PID_KI_POS_R;
-    pid_pos_Right.Kd = PID_KD_POS_R;
-
-	pid_pos_Right.Bias = 0;
-	pid_pos_Right.Integral_bias = 0;
-	pid_pos_Right.Last_bias = 0;
-	pid_pos_Right.Prev_bias = 0;
-    pid_pos_Right.reality = 0;
-    pid_pos_Right.target = 0;
-
-	pid_vel_Right.Kp = PID_KP_VEL_R;
-	pid_vel_Right.Ki = PID_KI_VEL_R;
-	pid_vel_Right.Kd = PID_KD_VEL_R;
-
-	pid_vel_Right.Bias = 0;
-	pid_vel_Right.Integral_bias = 0;
-	pid_vel_Right.Last_bias = 0;
-	pid_vel_Right.Prev_bias = 0;
-    pid_vel_Right.reality = 0;
-    pid_vel_Right.target = 0;
+    pid->Bias = 0;
+    pid->Integral_bias = 0;
+    pid->Last_bias = 0;
+    pid->Prev_bias = 0;
+    pid->reality = 0;
+    pid->target = 0;
+    pid->output = 0;
 }
 
 /**************************************************************************
@@ -97,22 +64,23 @@ e(k-1)代表上一次的偏差
 ∑e(k)代表e(k)以及之前的偏差的累积和;其中k为1,2,...,k;
 pwm代表输出
 **************************************************************************/
-int Position_PID(struct pid_uint *pid)
+int Position_PID(struct pid_uint *pid, float Target_Value, float Measured_Value)
 {
-    int32_t pwm;
+    pid->target = Target_Value;
+    pid->reality = Measured_Value;
 
     pid->Bias = pid->target - pid->reality;             /* 计算偏差 */
     pid->Integral_bias += pid->Bias;                    /* 偏差累积 */
 
     pid->Integral_bias = limit_amplitude(pid->Integral_bias, 5000);
 
-    pwm = (pid->Kp * pid->Bias)                         /* 比例环节 */
-          + (pid->Ki * pid->Integral_bias)              /* 积分环节 */
-          + (pid->Kd * (pid->Bias - pid->Last_bias));   /* 微分环节 */
+    pid->output = (pid->Kp * pid->Bias)                 /* 比例环节 */
+                  + (pid->Ki * pid->Integral_bias)              /* 积分环节 */
+                  + (pid->Kd * (pid->Bias - pid->Last_bias));   /* 微分环节 */
 
     pid->Last_bias = pid->Bias;                         /* 保存上次偏差 */
 
-    return pwm;                                         /* 输出结果 */
+    return pid->output;                                 /* 输出结果 */
 }
 
 /**************************************************************************
@@ -125,18 +93,34 @@ e(k)代表本次偏差
 e(k-1)代表上一次的偏差  以此类推
 pwm代表增量输出
 **************************************************************************/
-int Incremental_PID(struct pid_uint *pid)
+int Incremental_PID(struct pid_uint *pid, float Target_Value, float Measured_Value)
 {
-    int32_t pwm;
+    pid->target = Target_Value;
+    pid->reality = Measured_Value;
 
-    pid->Bias = pid->target - pid->reality;                         		/* 计算偏差 */
+    pid->Bias = pid->target - pid->reality;                                 /* 计算偏差 */
 
-    pwm += (pid->Kp * (pid->Bias - pid->Last_bias))                     	/* 比例环节 */
-           + (pid->Ki * pid->Bias)                                  		/* 积分环节 */
-           + (pid->Kd * (pid->Bias - 2 * pid->Last_bias + pid->Prev_bias)); /* 微分环节 */
+    if (pid->Bias < 3 && pid->Bias > -3) pid->Bias = 0;
 
-    pid->Prev_bias = pid->Last_bias;    									/* 保存上上次偏差 */
-    pid->Last_bias = pid->Bias;     										/* 保存上一次偏差 */
+    pid->output += (pid->Kp * (pid->Bias - pid->Last_bias))                 /* 比例环节 */
+                   + (pid->Ki * pid->Bias)                                          /* 积分环节 */
+                   + (pid->Kd * (pid->Bias - 2 * pid->Last_bias + pid->Prev_bias)); /* 微分环节 */
 
-    return pwm;             												/* 输出结果 */
+    pid->Prev_bias = pid->Last_bias;                                        /* 保存上上次偏差 */
+    pid->Last_bias = pid->Bias;                                             /* 保存上一次偏差 */
+
+    if (Target_Value >= 0)
+    {
+        if (pid->output < 0) pid->output = 0;
+        else if (pid->output > MOTOR_MAX_PULSE) pid->output = MOTOR_MAX_PULSE;
+    }
+    else if (Target_Value < 0)
+    {
+        if (pid->output < -MOTOR_MAX_PULSE) pid->output = -MOTOR_MAX_PULSE;
+        else if (pid->output > 0) pid->output = 0;
+    }
+
+    if (Target_Value == 0) pid->output = 0;
+
+    return pid->output;                                                     /* 输出结果 */
 }
