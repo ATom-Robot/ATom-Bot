@@ -1,0 +1,9 @@
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.c') + Glob('*.cpp')
+inc = [cwd]
+
+group = DefineGroup('AT-Debug', src, depend = [''], CPPPATH = inc)
+
+Return('group')

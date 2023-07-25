@@ -151,15 +151,3 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     return res;
 }
 MSH_CMD_EXPORT(SetSpeed_cmd, input: num(1: 2) | speed set motor speed)
-
-static rt_err_t test(int argc, const char *argv[])
-{
-	while (1)
-	{
-		Motor_Set_Pwm(1, 1);
-		rt_thread_mdelay(20);
-	}
-	
-	return RT_EOK;
-}
-MSH_CMD_EXPORT(test, test: test)

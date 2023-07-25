@@ -109,7 +109,7 @@ int Incremental_PID(struct pid_uint *pid, float Target_Value, float Measured_Val
     pid->Prev_bias = pid->Last_bias;                                        /* 保存上上次偏差 */
     pid->Last_bias = pid->Bias;                                             /* 保存上一次偏差 */
 
-    if (Target_Value >= 0)
+    if (Target_Value > 0)
     {
         if (pid->output < 0) pid->output = 0;
         else if (pid->output > MOTOR_MAX_PULSE) pid->output = MOTOR_MAX_PULSE;
