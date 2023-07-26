@@ -36,6 +36,8 @@ void PID_Init(struct pid_uint *pid, float Kp, float Ki, float Kd)
     pid->reality = 0;
     pid->target = 0;
     pid->output = 0;
+	pid->low_out = 0;
+	pid->low_out_last = 0;
 }
 
 /**************************************************************************
@@ -95,19 +97,22 @@ pwm代表增量输出
 **************************************************************************/
 int Incremental_PID(struct pid_uint *pid, float Target_Value, float Measured_Value)
 {
+	float a = 0.7;
+
     pid->target = Target_Value;
     pid->reality = Measured_Value;
 
     pid->Bias = pid->target - pid->reality;                                 /* 计算偏差 */
+	
+	pid->low_out = (1 - a) * pid->Bias + a * pid->low_out_last;
+	pid->low_out_last = pid->low_out;
 
-    if (pid->Bias < 3 && pid->Bias > -3) pid->Bias = 0;
-
-    pid->output += (pid->Kp * (pid->Bias - pid->Last_bias))                 /* 比例环节 */
-                   + (pid->Ki * pid->Bias)                                          /* 积分环节 */
-                   + (pid->Kd * (pid->Bias - 2 * pid->Last_bias + pid->Prev_bias)); /* 微分环节 */
+    pid->output += (pid->Kp * (pid->low_out - pid->Last_bias))                 /* 比例环节 */
+                   + (pid->Ki * pid->low_out)                                          /* 积分环节 */
+                   + (pid->Kd * (pid->low_out - 2 * pid->Last_bias + pid->Prev_bias)); /* 微分环节 */
 
     pid->Prev_bias = pid->Last_bias;                                        /* 保存上上次偏差 */
-    pid->Last_bias = pid->Bias;                                             /* 保存上一次偏差 */
+    pid->Last_bias = pid->low_out;                                             /* 保存上一次偏差 */
 
     if (Target_Value > 0)
     {

@@ -369,7 +369,7 @@ int ano_set_device(const char *device_name)
         return RT_ERROR;
     }
 
-    config.baud_rate = 500000;
+    config.baud_rate = BAUD_RATE_115200;
     rt_device_control(dev, RT_DEVICE_CTRL_CONFIG, &config);
 
     /* check whether it's a same device */

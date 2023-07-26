@@ -56,16 +56,16 @@ static void Motor_m1_pwm(int pwm)
         pwm += Dead_Voltage;
         pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
 
-        PWMA2 = pwm;
-        PWMA1 = 0;
+        PWMA2 = 0;
+        PWMA1 = pwm;
     }
     else
     {
         pwm = my_abs(pwm) + Dead_Voltage;
         pwm = limit_amplitude(pwm, MOTOR_MAX_PULSE);
 
-        PWMA2 = 0;
-        PWMA1 = pwm;
+        PWMA2 = pwm;
+        PWMA1 = 0;
     }
 }
 
