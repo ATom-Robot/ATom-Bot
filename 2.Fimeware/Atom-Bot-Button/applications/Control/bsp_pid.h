@@ -30,7 +30,7 @@
 #define PID_KI_VEL_R             (0.010f)
 #define PID_KD_VEL_R             (0.0f)
 
-struct pid_uint
+typedef struct
 {
     float Kp;               //比例
     float Ki;               //积分
@@ -47,17 +47,17 @@ struct pid_uint
 
     int32_t target;         //速度设置
     int32_t reality;        //当前速度
-};
+} pid_uint;
 
-extern struct pid_uint pid_pos_Left;
-extern struct pid_uint pid_pos_Right;
+extern pid_uint pid_pos_Left;
+extern pid_uint pid_pos_Right;
 
-extern struct pid_uint pid_vel_Left;
-extern struct pid_uint pid_vel_Right;
+extern pid_uint pid_vel_Left;
+extern pid_uint pid_vel_Right;
 
 int limit_amplitude(int data, int max);
-void PID_Init(struct pid_uint *pid, float Kp, float Ki, float Kd);
-int Position_PID(struct pid_uint *pid, float Target_Value, float Measured_Value);
-int Incremental_PID(struct pid_uint *pid, float Target_Value, float Measured_Value);
+void PID_Init(pid_uint *pid, float Kp, float Ki, float Kd);
+int Position_PID(pid_uint *pid, float Target_Value, float Measured_Value);
+int Incremental_PID(pid_uint *pid, float Target_Value, float Measured_Value);
 
 #endif

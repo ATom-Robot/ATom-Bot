@@ -20,6 +20,9 @@
 #define POWER_SW        GET_PIN(C, 6)
 #define VOLTAGE_ADC_EN  GET_PIN(B, 12)
 
+extern int control_hwtimer(void);
+extern void app_motion_ctrl_init(void);
+
 int main(void)
 {
     rt_kprintf("Hello Atom-Bot!!\n");
@@ -40,20 +43,18 @@ int main(void)
 
     Motor_Init();
     Encoder_Init();
-//	MPU6050_DMP_Init();
+	int MPU6050_Init(void);
+	MPU6050_Init();
 
 //    joint_i2c_init();
 
     PID_Init(&pid_pos_Left, PID_KP_POS_L, PID_KI_POS_L, PID_KD_POS_L);
-	PID_Init(&pid_pos_Right, PID_KP_POS_R, PID_KI_POS_R, PID_KD_POS_R);
+    PID_Init(&pid_pos_Right, PID_KP_POS_R, PID_KI_POS_R, PID_KD_POS_R);
 
-	PID_Init(&pid_vel_Left, PID_KP_VEL_L, PID_KI_VEL_L, PID_KD_VEL_L);
-	PID_Init(&pid_vel_Right, PID_KP_VEL_R, PID_KI_VEL_R, PID_KD_VEL_R);
+    PID_Init(&pid_vel_Left, PID_KP_VEL_L, PID_KI_VEL_L, PID_KD_VEL_L);
+    PID_Init(&pid_vel_Right, PID_KP_VEL_R, PID_KI_VEL_R, PID_KD_VEL_R);
 
-    extern int hwtimer_sample(void);
-    hwtimer_sample();
-
-    extern void app_motion_ctrl_init(void);
+    control_hwtimer();
     app_motion_ctrl_init();
 
     ano_init("uart3");

@@ -26,16 +26,16 @@
 static int32_t motorLeft_pwm = 0;
 static int32_t motorRight_pwm = 0;
 
-struct velocity_dt
+typedef struct
 {
     int32_t Target_Velocity;
     int32_t Reality_Velocity;
 
     int32_t Target_Position;
     int32_t Reality_Position;
-};
-static struct velocity_dt left_wheel;
-static struct velocity_dt right_wheel;
+} velocity_dt;
+static velocity_dt left_wheel;
+static velocity_dt right_wheel;
 
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
@@ -77,9 +77,6 @@ static void Motion_Control_20ms(void *parameter)
         left_wheel.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
         right_wheel.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
 
-//        ano_send_user_data(1, left_wheel.Target_Position, left_wheel.Reality_Position, PWMA1, PWMA2);
-//        ano_send_user_data(1, left_wheel.Target_Velocity, left_wheel.Reality_Velocity, PWMA1, PWMA2);
-//        ano_send_user_data(1, right_wheel.Target_Velocity, right_wheel.Reality_Velocity, PWMB1, PWMB2);
         ano_send_user_data(1, left_wheel.Target_Position, left_wheel.Reality_Position, left_wheel.Target_Velocity, left_wheel.Reality_Velocity);
 //        ano_send_user_data(2, PWMA1, PWMA2, 0, 0);
 
@@ -98,7 +95,7 @@ void app_motion_ctrl_init(void)
     rt_thread_startup(tid);
 }
 
-int hwtimer_sample(void)
+int control_hwtimer(void)
 {
     rt_err_t ret = RT_EOK;
     rt_hwtimerval_t timeout_s;

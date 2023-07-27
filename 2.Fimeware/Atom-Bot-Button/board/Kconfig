@@ -117,38 +117,47 @@ menu "On-chip Peripheral Drivers"
                 default n
         endif
 
-    menuconfig BSP_USING_I2C1
-        bool "Enable I2C1 BUS (software simulation)"
+    menuconfig BSP_USING_HW_I2C
+        bool "Enable Hardware I2C Bus"
         default n
         select RT_USING_I2C
-        select RT_USING_I2C_BITOPS
         select RT_USING_PIN
-        if BSP_USING_I2C1
-            config BSP_I2C1_SCL_PIN
-                int "i2c1 scl pin number"
-                range 1 63
-                default 15
-            config BSP_I2C1_SDA_PIN
-                int "I2C1 sda pin number"
-                range 1 63
-                default 16
+        if BSP_USING_HW_I2C
+            config BSP_USING_HW_I2C2
+                bool "Enable I2C2 Bus (HW I2C)"
+                default n
+                if BSP_USING_HW_I2C2
+                    config BSP_I2C2_SCL_PIN
+                        int "i2c2 SCL pin number"
+                        range 1 63
+                        default 26
+                    config BSP_I2C2_SDA_PIN
+                        int "i2c2 SDA pin number"
+                        range 1 63
+                        default 27
+                endif
         endif
 
-    menuconfig BSP_USING_I2C2
-        bool "Enable I2C2 BUS (software simulation)"
+    menuconfig BSP_USING_I2C
+        bool "Enable Software I2C Bus"
         default n
         select RT_USING_I2C
         select RT_USING_I2C_BITOPS
         select RT_USING_PIN
-        if BSP_USING_I2C2
-            config BSP_I2C2_SCL_PIN
-                int "i2c2 scl pin number"
-                range 1 63
-                default 26
-            config BSP_I2C2_SDA_PIN
-                int "I2C2 sda pin number"
-                range 1 63
-                default 27
+        if BSP_USING_I2C
+            config BSP_USING_I2C1
+                bool "Enable I2C1 Bus (User I2C)"
+                default n
+                if BSP_USING_I2C1
+                    config BSP_I2C1_SCL_PIN
+                        int "i2c1 SCL pin number"
+                        range 1 63
+                        default 3
+                    config BSP_I2C1_SDA_PIN
+                        int "i2c1 SDA pin number"
+                        range 1 63
+                        default 17
+                endif
         endif
 
     menuconfig BSP_USING_PWM
