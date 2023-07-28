@@ -53,7 +53,7 @@ static void read_distance_entry(void *parameter)
 #endif
         distence_sensor_get();
 
-        rt_thread_delay(100);
+        rt_thread_delay(20);
     }
 }
 
@@ -61,7 +61,7 @@ static int read_distance_sample(void)
 {
     rt_thread_t distance_thread;
 
-    distance_thread = rt_thread_create("tof_r",
+    distance_thread = rt_thread_create("tof",
                                        read_distance_entry,
                                        RT_NULL,
                                        1024,
@@ -135,8 +135,8 @@ static int rt_hw_vl53l0x_port(void)
     rt_pin_mode(INT_PIN, PIN_MODE_INPUT_PULLUP);
     rt_pin_attach_irq(INT_PIN, PIN_IRQ_MODE_FALLING, vl_int_callback, RT_NULL);
     rt_pin_irq_enable(INT_PIN, PIN_IRQ_ENABLE);
-	
-	rt_completion_init(&vl53l0_sem);
+
+    rt_completion_init(&vl53l0_sem);
 #endif
 
     read_distance_sample();

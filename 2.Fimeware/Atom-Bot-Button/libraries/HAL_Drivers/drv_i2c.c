@@ -29,8 +29,8 @@
 #define HAED_I2C_CONFIG(x)                  \
 {                                           \
     .bus_name = "i2c"#x,                    \
-    .scl_pin_name = BSP_I2C##x##_SCL_PIN,   \
-    .sda_pin_name = BSP_I2C##x##_SDA_PIN,   \
+    .scl_pin = BSP_I2C##x##_SCL_PIN,        \
+    .sda_pin = BSP_I2C##x##_SDA_PIN,        \
     .speed = BSP_I2C##x##_CLOCK,            \
     .pInitFunc = MX_I2C##x##_Init,          \
     .pHi2c = &hi2c##x,                      \
@@ -91,82 +91,6 @@ enum
 #endif /* BSP_USING_HW_I2C3 */
 };
 
-/* To parse I2C port and pin define */
-static int up_char(char *c)
-{
-    if ((*c >= 'a') && (*c <= 'z'))
-    {
-        *c = *c - 32;
-    }
-    return 0;
-}
-
-static void get_pin_by_name(const char *pin_name, GPIO_TypeDef **port, uint16_t *pin)
-{
-    int pin_num = atoi((char *) &pin_name[2]);
-    char port_name = pin_name[1];
-    up_char(&port_name);
-    up_char(&port_name);
-    *port = ((GPIO_TypeDef *)((uint32_t) GPIOA
-                              + (uint32_t)(port_name - 'A') * ((uint32_t) GPIOB - (uint32_t) GPIOA)));
-    *pin = (GPIO_PIN_0 << pin_num);
-}
-
-static rt_err_t hard_i2c_clk_enable(uint8_t busnum)
-{
-    /* uart clock enable */
-    switch (busnum)
-    {
-#ifdef BSP_USING_HW_I2C2
-    case 2:
-        __HAL_RCC_I2C2_CLK_ENABLE();
-        break;
-#endif /* BSP_USING_HW_I2C2 */
-
-#ifdef BSP_USING_HW_I2C3
-    case 3:
-        __HAL_RCC_I2C3_CLK_ENABLE();
-        break;
-#endif /* BSP_USING_HW_I2C3 */
-    default:
-        return -RT_ERROR;
-    }
-
-    return RT_EOK;
-}
-
-static rt_err_t hard_i2c_gpio_configure(struct stm32_hard_i2c_config *config)
-{
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    GPIO_TypeDef *scl_port;
-    GPIO_TypeDef *sda_port;
-    uint16_t scl_pin;
-    uint16_t sda_pin;
-    uint8_t i2c_num = config->bus_name[3] - '0';
-
-    /* get gpio port and pin address */
-    get_pin_by_name(config->scl_pin_name, &scl_port, &scl_pin);
-    get_pin_by_name(config->sda_pin_name, &sda_port, &sda_pin);
-
-    /* scl pin initialize */
-    GPIO_InitStruct.Pin = scl_pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(scl_port, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(scl_port, scl_pin, GPIO_PIN_SET);
-
-    /* sda pin initialize */
-    GPIO_InitStruct.Pin = sda_pin;
-    HAL_GPIO_Init(sda_port, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(sda_port, sda_pin, GPIO_PIN_SET);
-
-    /* i2c periphal clock enable */
-    hard_i2c_clk_enable(i2c_num);
-
-    return RT_EOK;
-}
-
 /**
  * I2C bus common interrupt process. This need add to I2C ISR.
  *
@@ -194,25 +118,19 @@ static rt_err_t hard_i2c_bus_unlock(struct stm32_hard_i2c_config *config)
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_TypeDef *scl_port;
     GPIO_TypeDef *sda_port;
-    uint16_t scl_pin;
-    uint16_t sda_pin;
 
-    /* get gpio port and pin address */
-    get_pin_by_name(config->scl_pin_name, &scl_port, &scl_pin);
-    get_pin_by_name(config->sda_pin_name, &sda_port, &sda_pin);
-
-    if (PIN_LOW == HAL_GPIO_ReadPin(sda_port, sda_pin))
+    if (PIN_LOW == rt_pin_read(config->sda_pin))
     {
         while (i++ < 9)
         {
-            HAL_GPIO_WritePin(scl_port, scl_pin, PIN_HIGH);
+            HAL_GPIO_WritePin(scl_port, config->scl_pin, PIN_HIGH);
             rt_hw_us_delay(100);
-            HAL_GPIO_WritePin(scl_port, scl_pin, PIN_LOW);
+            HAL_GPIO_WritePin(scl_port, config->scl_pin, PIN_LOW);
             rt_hw_us_delay(100);
         }
     }
 
-    if (PIN_LOW == HAL_GPIO_ReadPin(sda_port, sda_pin))
+    if (PIN_LOW == rt_pin_read(config->sda_pin))
     {
         return -RT_ERROR;
     }
@@ -348,7 +266,6 @@ static rt_size_t i2c_xfer(struct rt_i2c_bus_device *bus,
         }
     }
 
-
 __exit:
     if (xfer_len == num)
     {
@@ -368,7 +285,6 @@ int rt_hw_hardi2c_init(void)
     for (int i = 0; i < obj_num; i++)
     {
         /* Step 1: start to init i2c bus GPIO to OD mode */
-        hard_i2c_gpio_configure(&hard_i2c_config[i]);
 
         /* Step 2: To check SDA is or not pull-down, when is pull-down to send 9-clocks unlock bus */
         hard_i2c_bus_unlock(&hard_i2c_config[i]);

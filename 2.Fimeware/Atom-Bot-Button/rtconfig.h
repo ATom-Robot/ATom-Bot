@@ -186,7 +186,7 @@
 /* Kendryte SDK */
 
 #define PKG_USING_I2C_TOOLS
-#define PKG_USING_I2C_TOOLS_LATEST_VERSION
+#define PKG_USING_I2C_TOOLS_V100
 
 /* AI packages */
 

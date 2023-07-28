@@ -18,15 +18,15 @@
 
 #ifdef BSP_USING_HW_I2C
 
-#define BSP_I2C2_CLOCK	400000
+#define BSP_I2C2_CLOCK	300000
 
 /* stm32 config class */
 typedef void (*pI2CInit)(rt_uint32_t speed);
 struct stm32_hard_i2c_config
 {
     const char *bus_name;
-    const char *scl_pin_name;
-    const char *sda_pin_name;
+    const rt_base_t scl_pin;
+    const rt_base_t sda_pin;
     rt_uint32_t speed;
     pI2CInit   pInitFunc;
     I2C_HandleTypeDef *pHi2c;

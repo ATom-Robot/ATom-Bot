@@ -329,7 +329,7 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>3</v6Lang>
+            <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>__STDC_LIMIT_MACROS, STM32F103xE, USE_HAL_DRIVER, RT_USING_LIBC, printf=rt_kprintf, __CLK_TCK=RT_TICK_PER_SECOND, __RTTHREAD__, RT_USING_ARM_LIBC</Define>
               <Undefine></Undefine>
-              <IncludePath>applications\Battery;applications\APP;applications;applications\Control;applications\Debug;applications\Joint;applications\Kinematics;applications\LED;applications\Math;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\extension\fcntl\octal;rt-thread\components\libc\cplusplus;rt-thread\libcpu\arm\common;rt-thread\libcpu\arm\cortex-m3;packages\cpu_usage-v1.0.0;.;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\spi;rt-thread\components\drivers\include;applications\DMP_MPU6xx\eMPL;applications\DMP_MPU6xx;board;board\CubeMX_Config\Inc;libraries\HAL_Drivers;libraries\HAL_Drivers\config;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\finsh;packages\i2c-tools-latest;packages\i2c-tools-latest\src;.;rt-thread\include;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;packages\mpu6xxx-v1.1.1\inc;rt-thread\components\libc\posix\io\poll;rt-thread\components\libc\posix\io\stdio;rt-thread\components\libc\posix\ipc;rt-thread\components\drivers\sensors;rt-thread\components\drivers\include;packages\vl53l0x-v1.0.0\inc;packages\vl53l0x-v1.0.0\vl53l0x\core\inc;packages\vl53l0x-v1.0.0\vl53l0x\platform\inc</IncludePath>
+              <IncludePath>applications\Battery;applications\APP;applications;applications\Control;applications\Debug;applications\Joint;applications\Kinematics;applications\LED;applications\Math;rt-thread\components\libc\compilers\common\include;rt-thread\components\libc\compilers\common\extension;rt-thread\components\libc\compilers\common\extension\fcntl\octal;rt-thread\components\libc\cplusplus;rt-thread\libcpu\arm\common;rt-thread\libcpu\arm\cortex-m3;packages\cpu_usage-v1.0.0;.;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\include;rt-thread\components\drivers\spi;rt-thread\components\drivers\include;applications\DMP_MPU6xx\eMPL;applications\DMP_MPU6xx;board;board\CubeMX_Config\Inc;libraries\HAL_Drivers;libraries\HAL_Drivers\config;libraries\HAL_Drivers\CMSIS\Include;rt-thread\components\finsh;packages\i2c-tools-v1.0.0;packages\i2c-tools-v1.0.0\src;.;rt-thread\include;libraries\STM32F1xx_HAL\CMSIS\Device\ST\STM32F1xx\Include;libraries\STM32F1xx_HAL\STM32F1xx_HAL_Driver\Inc;packages\mpu6xxx-v1.1.1\inc;rt-thread\components\libc\posix\io\poll;rt-thread\components\libc\posix\io\stdio;rt-thread\components\libc\posix\ipc;rt-thread\components\drivers\sensors;rt-thread\components\drivers\include;packages\vl53l0x-v1.0.0\inc;packages\vl53l0x-v1.0.0\vl53l0x\core\inc;packages\vl53l0x-v1.0.0\vl53l0x\platform\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -420,11 +420,6 @@
           <GroupName>AT-Control</GroupName>
           <Files>
             <File>
-              <FileName>bsp_motor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\Control\bsp_motor.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_encoder.c</FilePath>
@@ -433,6 +428,11 @@
               <FileName>bsp_pid.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\Control\bsp_motor.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -545,24 +545,24 @@
               <FilePath>rt-thread\components\libc\cplusplus\cxx_crt.cpp</FilePath>
             </File>
             <File>
-              <FileName>cxx_Thread.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_Thread.cpp</FilePath>
-            </File>
-            <File>
               <FileName>cxx_crt_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>rt-thread\components\libc\cplusplus\cxx_crt_init.c</FilePath>
             </File>
             <File>
-              <FileName>cxx_Mutex.cpp</FileName>
+              <FileName>cxx_Thread.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_Mutex.cpp</FilePath>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_Thread.cpp</FilePath>
             </File>
             <File>
               <FileName>cxx_Semaphore.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>rt-thread\components\libc\cplusplus\cxx_Semaphore.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>cxx_Mutex.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_Mutex.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -600,14 +600,14 @@
           <GroupName>cpu_usage</GroupName>
           <Files>
             <File>
-              <FileName>cpu_usage.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage.c</FilePath>
-            </File>
-            <File>
               <FileName>cpu_usage_cmd.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\cpu_usage-v1.0.0\cpu_usage_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_usage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -815,14 +815,14 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_tools.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_tools.cpp</FilePath>
-            </File>
-            <File>
               <FileName>i2c_utils.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>packages\i2c-tools-latest\src\i2c_utils.cpp</FilePath>
+              <FilePath>packages\i2c-tools-v1.0.0\src\i2c_utils.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_tools.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>packages\i2c-tools-v1.0.0\src\i2c_tools.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -1045,6 +1045,16 @@
           <GroupName>vl53l0x</GroupName>
           <Files>
             <File>
+              <FileName>vl53l0x_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x_api_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_core.c</FilePath>
+            </File>
+            <File>
               <FileName>vl53l0x_api_strings.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_strings.c</FilePath>
@@ -1055,19 +1065,9 @@
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_ranging.c</FilePath>
             </File>
             <File>
-              <FileName>vl53l0x_sample.c</FileName>
+              <FileName>vl53l0x_App.c</FileName>
               <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\examples\vl53l0x_sample.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\src\vl53l0x.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x_api_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_core.c</FilePath>
+              <FilePath>packages\vl53l0x-v1.0.0\examples\vl53l0x_App.c</FilePath>
             </File>
             <File>
               <FileName>vl53l0x_platform.c</FileName>
@@ -1075,14 +1075,14 @@
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\platform\src\vl53l0x_platform.c</FilePath>
             </File>
             <File>
-              <FileName>vl53l0x_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api.c</FilePath>
-            </File>
-            <File>
               <FileName>vl53l0x_api_calibration.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_calibration.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\src\vl53l0x.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1095,5 +1095,14 @@
     <components/>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>project</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>
