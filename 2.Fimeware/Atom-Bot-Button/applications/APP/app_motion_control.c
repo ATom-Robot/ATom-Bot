@@ -23,9 +23,6 @@
 
 #define HWTIMER_DEV_NAME   "timer4"
 
-static int32_t motorLeft_pwm = 0;
-static int32_t motorRight_pwm = 0;
-
 typedef struct
 {
     int32_t Target_Velocity;
@@ -34,8 +31,8 @@ typedef struct
     int32_t Target_Position;
     int32_t Reality_Position;
 } velocity_dt;
-static velocity_dt left_wheel;
-static velocity_dt right_wheel;
+
+static velocity_dt wheel_dt[2];
 
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
@@ -45,24 +42,22 @@ static void Motion_Set_PWM(int motor_Left, int motor_Right)
 
 static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
 {
-    left_wheel.Reality_Velocity = -Encoder_Get_Counter(ENCODER_ID_A);
-    right_wheel.Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_B);
+    wheel_dt[LEFT].Reality_Velocity = -Encoder_Get_Counter(ENCODER_ID_A);
+    wheel_dt[RIGHT].Reality_Velocity = Encoder_Get_Counter(ENCODER_ID_B);
 
-    left_wheel.Reality_Position += left_wheel.Reality_Velocity;
-    right_wheel.Reality_Position += right_wheel.Reality_Velocity;
+    wheel_dt[LEFT].Reality_Position += wheel_dt[LEFT].Reality_Velocity;
+    wheel_dt[RIGHT].Reality_Position += wheel_dt[RIGHT].Reality_Velocity;
 
-    /* 位置PID控制器 */
-    motorLeft_pwm = Position_PID(&pid_pos_Left, left_wheel.Target_Position, left_wheel.Reality_Position);
-    motorRight_pwm = Position_PID(&pid_pos_Right, right_wheel.Target_Position, right_wheel.Reality_Position);
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        Position_PID(&pid_pos[i], wheel_dt[i].Target_Position, wheel_dt[i].Reality_Position);
 
-    motorLeft_pwm = limit_amplitude(motorLeft_pwm, left_wheel.Target_Velocity);
-    motorRight_pwm = limit_amplitude(motorRight_pwm, right_wheel.Target_Velocity);
+        pid_pos[i].output = limit_amplitude(pid_pos[i].output, wheel_dt[i].Target_Velocity);
 
-    /* 增量PID控制器 */
-    motorLeft_pwm = Incremental_PID(&pid_vel_Left, motorLeft_pwm, left_wheel.Reality_Velocity);
-    motorRight_pwm = Incremental_PID(&pid_vel_Right, motorRight_pwm, right_wheel.Reality_Velocity);
+        Incremental_PID(&pid_vel[i], pid_pos[i].output, wheel_dt[i].Reality_Velocity);
+    }
 
-    Motion_Set_PWM(motorLeft_pwm, motorRight_pwm);
+    Motion_Set_PWM(pid_pos[LEFT].output, pid_pos[RIGHT].output);
 
     return RT_EOK;
 }
@@ -71,14 +66,16 @@ static void Motion_Control_20ms(void *parameter)
 {
     while (1)
     {
-        left_wheel.Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm, 7, 100, 10);
-        right_wheel.Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm, 7, 100, 10);
+        for (uint8_t i = 0; i < 2; i++)
+        {
+            wheel_dt[i].Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm, 7, 100, 10);
+            wheel_dt[i].Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
+        }
 
-        left_wheel.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
-        right_wheel.Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
-
-        ano_send_user_data(1, left_wheel.Target_Position, left_wheel.Reality_Position, left_wheel.Target_Velocity, left_wheel.Reality_Velocity);
-//        ano_send_user_data(2, PWMA1, PWMA2, 0, 0);
+        ano_send_user_data(1, wheel_dt[LEFT].Target_Position,   \
+                           wheel_dt[LEFT].Reality_Position,     \
+                           wheel_dt[LEFT].Target_Velocity,      \
+                           wheel_dt[LEFT].Reality_Velocity);
 
         rt_thread_mdelay(10);
     }

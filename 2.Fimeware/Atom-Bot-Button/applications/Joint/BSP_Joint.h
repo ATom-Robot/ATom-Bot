@@ -6,13 +6,13 @@
 
 struct Joint_config
 {
-	uint8_t id;
-	float angleMin;
-	float angleMax;
-	float angle;
-	float modelAngelMin;
-	float modelAngelMax;
-	rt_bool_t inverted;
+    uint8_t id;
+    float angleMin;
+    float angleMax;
+    float angle;
+    float modelAngelMin;
+    float modelAngelMax;
+    rt_bool_t inverted;
 };
 
 /* mpu6xxx device structure */

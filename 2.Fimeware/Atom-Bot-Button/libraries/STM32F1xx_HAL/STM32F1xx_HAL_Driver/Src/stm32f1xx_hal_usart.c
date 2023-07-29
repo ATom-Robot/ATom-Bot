@@ -1008,14 +1008,14 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
         else
         {
           husart->Instance->DR = (uint8_t)(*ptxdata8bits & (uint8_t)0xFF);
-          ptxdata8bits++; 
+          ptxdata8bits++;
         }
 
         husart->TxXferCount--;
       }
 
       if (husart->RxXferCount > 0U)
-      {  
+      {
         /* Wait for RXNE Flag */
         if (USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_RXNE, RESET, tickstart, Timeout) != HAL_OK)
         {

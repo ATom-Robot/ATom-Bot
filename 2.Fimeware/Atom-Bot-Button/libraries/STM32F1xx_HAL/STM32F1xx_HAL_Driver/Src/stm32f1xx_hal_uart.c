@@ -3060,7 +3060,7 @@ static void UART_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
   /* Check current reception Mode :
      If Reception till IDLE event has been selected : use Rx Event callback */
   if (huart->ReceptionType == HAL_UART_RECEPTION_TOIDLE)
-  {  
+  {
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
     /*Call registered Rx Event callback*/
     huart->RxEventCallback(huart, huart->RxXferSize);
@@ -3633,7 +3633,7 @@ static HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart)
       else
       {
        /* Standard reception API called */
-#if (USE_HAL_UART_REGISTER_CALLBACKS == 1)		  
+#if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
        /*Call registered Rx complete callback*/
        huart->RxCpltCallback(huart);
 #else

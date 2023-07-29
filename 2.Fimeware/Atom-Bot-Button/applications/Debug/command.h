@@ -98,7 +98,7 @@ struct cmd_velocity
         float linear_y;
         float angular_z;
         float common;
-    } data; 
+    } data;
 };
 
 struct command_sender

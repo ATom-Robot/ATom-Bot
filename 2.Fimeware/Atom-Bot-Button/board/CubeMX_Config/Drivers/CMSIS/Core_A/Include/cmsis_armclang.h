@@ -335,7 +335,7 @@ __ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
  */
 __STATIC_FORCEINLINE uint32_t __get_mode(void)
 {
-	return (__get_CPSR() & 0x1FU);
+    return (__get_CPSR() & 0x1FU);
 }
 
 /** \brief  Set Mode

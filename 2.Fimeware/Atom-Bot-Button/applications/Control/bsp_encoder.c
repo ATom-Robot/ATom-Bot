@@ -24,8 +24,8 @@ void Encoder_Init(void)
     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
-	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_TIM_Base_Start_IT(&htim3);
+    HAL_TIM_Base_Start_IT(&htim2);
+    HAL_TIM_Base_Start_IT(&htim3);
 
     Encoder_Set_Counter(ENCODER_ID_A, 0);
     Encoder_Set_Counter(ENCODER_ID_B, 0);

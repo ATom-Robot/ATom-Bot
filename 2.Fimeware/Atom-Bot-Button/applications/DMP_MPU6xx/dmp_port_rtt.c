@@ -5,9 +5,10 @@
  *
  * Change Logs:
  * Date           Author        Notes
- * 2023-02-26     Rbb66			First version
+ * 2023-02-26     Rbb66         First version
  */
 
+#include <rthw.h>
 #include <rtdevice.h>
 #include <math.h>
 #include <AT_Math.h>
@@ -378,65 +379,65 @@ void MPU6050_DMP_GetData(struct imu_data *robot_imu_data)
 
 int MPU6050_DMP_Init(void)
 {
-	if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-		LOG_I("mpu设置传感器完成 ......");
-	else
-	{
-		LOG_E("mpu设置传感器失败");
-		return RT_ERROR;
-	}
-	if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
-		LOG_I("mpu配置FIFO完成 ......");
-	else
-	{
-		LOG_E("mpu配置FIFO失败");
-		return RT_ERROR;
-	}
-	if (!mpu_set_sample_rate(DEFAULT_MPU_HZ))
-		LOG_I("mpu设定的采样率完成 ......");
-	else
-	{
-		LOG_E("mpu设定的采样率失败");
-		return RT_ERROR;
-	}
-	if (!dmp_load_motion_driver_firmware())
-		LOG_I("DMP加载动作固件完成 ......");
-	else
-	{
-		LOG_E("DMP加载动作固件失败");
-		return RT_ERROR;
-	}
-	if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
-		LOG_I("DMP设置陀螺仪方向完成 ......");
-	else
-	{
-		LOG_E("mpu设置传感器失败");
-		return RT_ERROR;
-	}
-	if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
-							DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
-							DMP_FEATURE_GYRO_CAL))
-		LOG_I("DMP功能已使能 ......");
-	else
-	{
-		LOG_E("DMP使能失败");
-		return RT_ERROR;
-	}
-	if (!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
-		LOG_I("DMP设定FIFO速率完成 ......");
-	else
-	{
-		LOG_E("DMP设定FIFO速率失败");
-		return RT_ERROR;
-	}
-	run_self_test();
-	if (!mpu_set_dmp_state(1))
-		LOG_I("mpu设置DMP状态完成 ......");
-	else
-	{
-		LOG_E("mpu设置DMP状态失败");
-		return RT_ERROR;
-	}
+    if (!mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+        LOG_I("mpu设置传感器完成");
+    else
+    {
+        LOG_E("mpu设置传感器失败");
+        return RT_ERROR;
+    }
+    if (!mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL))
+        LOG_I("mpu配置FIFO完成");
+    else
+    {
+        LOG_E("mpu配置FIFO失败");
+        return RT_ERROR;
+    }
+    if (!mpu_set_sample_rate(DEFAULT_MPU_HZ))
+        LOG_I("mpu设定的采样率完成");
+    else
+    {
+        LOG_E("mpu设定的采样率失败");
+        return RT_ERROR;
+    }
+    if (!dmp_load_motion_driver_firmware())
+        LOG_I("DMP加载动作固件完成");
+    else
+    {
+        LOG_E("DMP加载动作固件失败");
+        return RT_ERROR;
+    }
+    if (!dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation)))
+        LOG_I("DMP设置陀螺仪方向完成");
+    else
+    {
+        LOG_E("mpu设置传感器失败");
+        return RT_ERROR;
+    }
+    if (!dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
+                            DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
+                            DMP_FEATURE_GYRO_CAL))
+        LOG_I("DMP功能已使能");
+    else
+    {
+        LOG_E("DMP使能失败");
+        return RT_ERROR;
+    }
+    if (!dmp_set_fifo_rate(DEFAULT_MPU_HZ))
+        LOG_I("DMP设定FIFO速率完成");
+    else
+    {
+        LOG_E("DMP设定FIFO速率失败");
+        return RT_ERROR;
+    }
+    run_self_test();
+    if (!mpu_set_dmp_state(1))
+        LOG_I("mpu设置DMP状态完成");
+    else
+    {
+        LOG_E("mpu设置DMP状态失败");
+        return RT_ERROR;
+    }
 
     return RT_EOK;
 }
@@ -448,14 +449,14 @@ int MPU6050_DMP_Init(void)
   */
 int MPU6050_Init(void)
 {
-	rt_err_t res = -RT_ERROR;
+    rt_err_t res = -RT_ERROR;
 
     i2c_bus = (struct mpu6xxx_device *)mpu6xxx_init(MPU6050_I2C_BUS_NAME, MPU6050_ADDR);
     RT_ASSERT(i2c_bus != RT_NULL);
 
     if (!mpu_init())
     {
-		res = MPU6050_DMP_Init();
+        res = MPU6050_DMP_Init();
     }
 
     return res;
@@ -489,3 +490,33 @@ rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
     return RT_EOK;
 }
 MSH_CMD_EXPORT(Read_mpu6xx_dmp, Read data mpu6050 from dmp);
+
+static void read_mpu6xxx_entry()
+{
+    struct imu_data robot_imu_dmp_data;
+
+    while (1)
+    {
+        MPU6050_DMP_GetData(&robot_imu_dmp_data);
+
+        rt_thread_mdelay(20);
+    }
+}
+
+int read_mpu6xxx_td(void)
+{
+    rt_thread_t distance_thread;
+
+    distance_thread = rt_thread_create("mpu",
+                                       read_mpu6xxx_entry,
+                                       RT_NULL,
+                                       1024,
+                                       24,
+                                       10);
+    if (distance_thread != RT_NULL)
+    {
+        rt_thread_startup(distance_thread);
+    }
+
+    return RT_EOK;
+}

@@ -19,16 +19,16 @@ extern ADC_HandleTypeDef hadc2;
 
 int battery_status = IS_FULL;
 
-#define VOLTAGE_DROP		0.13214f
-#define VOLTAGE_CHG			3.85f
-#define VOLTAGE_OFF			3.72f
+#define VOLTAGE_DROP        0.13214f
+#define VOLTAGE_CHG         3.85f
+#define VOLTAGE_OFF         3.72f
 
 float battery_voltage;
 
 //100ms
 void vin_task(void *argument)
 {
-	MX_ADC1_Init();
+    MX_ADC1_Init();
     VIN_Init();
 
     while (1)
@@ -85,15 +85,15 @@ int ADC_Battery_Detection()
     RT_ASSERT(tid != RT_NULL);
 
     rt_thread_startup(tid);
-	
-	return RT_EOK;
+
+    return RT_EOK;
 }
 INIT_APP_EXPORT(ADC_Battery_Detection);
 
 int Check_Voltage_Data(void)
 {
-	battery_voltage = get_battery_voltage() + VOLTAGE_DROP;
-	LOG_I("Battery currnet voltage:%f", battery_voltage );
-	return RT_EOK;
+    battery_voltage = get_battery_voltage() + VOLTAGE_DROP;
+    LOG_I("Battery currnet voltage:%f", battery_voltage );
+    return RT_EOK;
 }
 MSH_CMD_EXPORT(Check_Voltage_Data, To Check robot battery voltage);

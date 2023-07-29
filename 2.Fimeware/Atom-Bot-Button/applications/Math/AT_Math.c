@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author        Notes
- * 2023-02-26     Rbb66			First version
+ * 2023-02-26     Rbb66         First version
  */
 #include "AT_Math.h"
 

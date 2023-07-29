@@ -143,8 +143,8 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     }
     default:
         LOG_E("Motor_Num[%d] ERROR\r\n", Motor_Num);
-		Motor_Set_Pwm(MOTOR_ID_1, 0);
-		Motor_Set_Pwm(MOTOR_ID_2, 0);
+        Motor_Set_Pwm(MOTOR_ID_1, 0);
+        Motor_Set_Pwm(MOTOR_ID_2, 0);
         res = -RT_ERROR;
         break;
     }

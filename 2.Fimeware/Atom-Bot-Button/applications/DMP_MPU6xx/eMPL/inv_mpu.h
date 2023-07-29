@@ -23,7 +23,7 @@
 #define INV_XYZ_ACCEL   (0x08)
 #define INV_XYZ_COMPASS (0x01)
 
-//ÒÆÖ²¹Ù·½MSP430 DMPÇı¶¯
+//ç§»æ¤å®˜æ–¹MSP430 DMPé©±åŠ¨
 struct int_param_s {
 //#if defined EMPL_TARGET_MSP430 || defined MOTION_DRIVER_TARGET_MSP430
     void (*cb)(void);
@@ -119,7 +119,7 @@ int mpu_read_reg(unsigned char reg, unsigned char *data);
 int mpu_run_self_test(long *gyro, long *accel);
 int mpu_register_tap_cb(void (*func)(unsigned char, unsigned char));
 
-//×ÔĞĞÌí¼ÓµÄÒ»Ğ©º¯Êı
+//è‡ªè¡Œæ·»åŠ çš„ä¸€äº›å‡½æ•°
 void myget_ms(unsigned long *time);
 #endif  /* #ifndef _INV_MPU_H_ */
 

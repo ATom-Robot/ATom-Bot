@@ -4,7 +4,7 @@
  * @LastEditors: maplerian
  * @LastEditTime: 2020-07-11 16:53:52
  * @Description: file content
- */ 
+ */
 
 #ifndef __WS2812__H__
 #define __WS2812__H__

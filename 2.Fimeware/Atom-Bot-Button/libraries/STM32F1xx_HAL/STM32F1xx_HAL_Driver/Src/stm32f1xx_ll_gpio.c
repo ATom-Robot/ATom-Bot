@@ -193,10 +193,10 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
         /* Pull-up Pull-down resistor configuration*/
         LL_GPIO_SetPinPull(GPIOx, currentpin, GPIO_InitStruct->Pull);
       }
-      
+
       /* Check Pin Mode parameters */
       assert_param(IS_LL_GPIO_MODE(GPIO_InitStruct->Mode));
-      
+
       /* Pin Mode configuration */
       LL_GPIO_SetPinMode(GPIOx, currentpin, GPIO_InitStruct->Mode);
 

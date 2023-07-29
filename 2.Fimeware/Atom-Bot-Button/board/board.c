@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -155,7 +155,7 @@ void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 0 */
 
-	TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -208,7 +208,7 @@ void MX_TIM4_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN TIM4_Init 2 */
-	extern void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
+    extern void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
     /* USER CODE END TIM4_Init 2 */
     HAL_TIM_MspPostInit(&htim4);
 }

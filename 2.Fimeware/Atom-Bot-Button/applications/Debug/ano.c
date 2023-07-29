@@ -208,7 +208,7 @@ static int ano_receive_byte(uint8_t data)
     if (state == 0 && data == 0xAA)
     {
         _data_cnt = 0;
-		_data_len = 0;
+        _data_len = 0;
 
         state = 1;
         RxBuffer[0] = data;

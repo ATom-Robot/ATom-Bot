@@ -9,6 +9,7 @@
  */
 #include "bsp_pid.h"
 #include "bsp_motor.h"
+#include "AT_Math.h"
 
 #include <rtdevice.h>
 
@@ -16,28 +17,31 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-pid_uint pid_pos_Left;
-pid_uint pid_vel_Left;
+pid_uint pid_pos[2];
+pid_uint pid_vel[2];
+pid_uint pid_yaw;
 
-pid_uint pid_pos_Right;
-pid_uint pid_vel_Right;
-
-void PID_Init(pid_uint *pid, float Kp, float Ki, float Kd)
+void Loc_level_PID_Init(void)
 {
-    // wheel pid
-    pid->Kp = Kp;
-    pid->Ki = Ki;
-    pid->Kd = Kd;
+    pid_pos[LEFT].Kp = PID_KP_POS_L;
+    pid_pos[LEFT].Ki = PID_KI_POS_L;
+    pid_pos[LEFT].Kd = PID_KD_POS_L;
 
-    pid->Bias = 0;
-    pid->Integral_bias = 0;
-    pid->Last_bias = 0;
-    pid->Prev_bias = 0;
-    pid->reality = 0;
-    pid->target = 0;
-    pid->output = 0;
-    pid->low_out = 0;
-    pid->low_out_last = 0;
+    pid_pos[RIGHT].Kp = PID_KP_POS_R;
+    pid_pos[RIGHT].Ki = PID_KI_POS_R;
+    pid_pos[RIGHT].Kd = PID_KD_POS_R;
+
+    pid_vel[LEFT].Kp = PID_KP_VEL_L;
+    pid_vel[LEFT].Ki = PID_KI_VEL_L;
+    pid_vel[LEFT].Kd = PID_KD_VEL_L;
+
+    pid_vel[RIGHT].Kp = PID_KP_VEL_R;
+    pid_vel[RIGHT].Ki = PID_KI_VEL_R;
+    pid_vel[RIGHT].Kd = PID_KD_VEL_R;
+
+    pid_yaw.Kp = PID_KP_YAW;
+    pid_yaw.Ki = PID_KI_YAW;
+    pid_yaw.Kd = PID_KD_YAW;
 }
 
 /**************************************************************************
@@ -136,4 +140,35 @@ int Incremental_PID(pid_uint *pid, float Target_Value, float Measured_Value)
 
     /* 输出结果 */
     return (int)pid->output;
+}
+
+float PID_calculate(float dT_s,           // 周期（单位：秒）
+                    float expect,         // 期望值（设定值）
+                    float feedback,       // 反馈值
+                    pid_uint *pid_arg,
+                    _PID_val_st *pid_val,
+                    float inte_d_lim,     // 积分误差限幅
+                    float inte_lim        // integration limit，积分限幅
+                   )
+{
+    float differential, hz;
+
+    hz = safe_div(1.0f, dT_s, 0);
+
+    pid_val->exp_d = (expect - pid_val->exp_old) * hz;
+
+    differential = (pid_arg->Kd * pid_val->exp_d);
+
+    pid_val->err = (expect - feedback);
+
+    pid_val->err_i += pid_arg->Ki * LIMIT((pid_val->err), -inte_d_lim, inte_d_lim) * dT_s;
+
+    pid_val->err_i = LIMIT(pid_val->err_i, -inte_lim, inte_lim);
+
+    pid_val->out = pid_arg->Kp * pid_val->err + differential + pid_val->err_i;
+
+    pid_val->feedback_old = feedback;
+    pid_val->exp_old = expect;
+
+    return (pid_val->out);
 }

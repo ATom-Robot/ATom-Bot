@@ -5,7 +5,7 @@
  *
  * Change Logs:
  * Date           Author        Notes
- * 2023-02-26     Rbb66			First version
+ * 2023-02-26     Rbb66         First version
  */
 #include "main.h"
 #include "bsp_kinematics.h"
@@ -21,7 +21,7 @@ double pulse_per_meter = ENCODER_RESOLUTION / (WHEEL_DIAMETER * 3.1415926);
 double linear_correction_factor = 1.0;
 double angular_correction_factor = 1.0;
 
-int16_t robot_odom[6] = {0};	//里程计数据，绝对值和变化值，x y yaw dx dy dyaw
+int16_t robot_odom[6] = {0};    //里程计数据，绝对值和变化值，x y yaw dx dy dyaw
 extern int16_t robot_target_speed[3];
 
 int32_t encoder_sum_current[4] = {0};
@@ -119,9 +119,9 @@ void Kinematics_Forward(int16_t *input, int16_t *output)
     //要计算坐标所以变回来
     dv_w_times_dt[0] = -dv_w_times_dt[0];
     dv_w_times_dt[1] =  dv_w_times_dt[1];
-	 
-	// 0 1
-	// 2 3
+
+    // 0 1
+    // 2 3
     //计算底盘坐标系(base_link)下x轴、y轴变化距离m与Yaw轴朝向变化rad 一段时间内的变化量
     dv_t_times_dt[0] = (dv_w_times_dt[0] + dv_w_times_dt[1]) / 2.0;
     dv_t_times_dt[1] = 0.0f;

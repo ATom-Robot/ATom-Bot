@@ -22,6 +22,8 @@
 
 extern int control_hwtimer(void);
 extern void app_motion_ctrl_init(void);
+extern int MPU6050_Init(void);
+extern int read_mpu6xxx_td(void);
 
 int main(void)
 {
@@ -43,17 +45,13 @@ int main(void)
 
     Motor_Init();
     Encoder_Init();
-	int MPU6050_Init(void);
-	MPU6050_Init();
+    MPU6050_Init();
+    read_mpu6xxx_td();
 
 //    joint_i2c_init();
 
-    PID_Init(&pid_pos_Left, PID_KP_POS_L, PID_KI_POS_L, PID_KD_POS_L);
-    PID_Init(&pid_pos_Right, PID_KP_POS_R, PID_KI_POS_R, PID_KD_POS_R);
-
-    PID_Init(&pid_vel_Left, PID_KP_VEL_L, PID_KI_VEL_L, PID_KD_VEL_L);
-    PID_Init(&pid_vel_Right, PID_KP_VEL_R, PID_KI_VEL_R, PID_KD_VEL_R);
-
+    /* PID Init*/
+    Loc_level_PID_Init();
     control_hwtimer();
     app_motion_ctrl_init();
 

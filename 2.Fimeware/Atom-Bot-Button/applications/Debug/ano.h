@@ -9,7 +9,7 @@
  */
 
 #ifndef __ANO_H__
-#define	__ANO_H__
+#define __ANO_H__
 
 #include <rtthread.h>
 #include <rtdevice.h>
