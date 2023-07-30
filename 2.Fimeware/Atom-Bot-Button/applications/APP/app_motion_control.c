@@ -5,8 +5,8 @@
  * Change Logs:
  * Date           Author       Notes
  * 2023-06-11     Rbb666       the first version
+ * 2023-07-29     Rbb666       add angel pid
  */
-
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
@@ -15,6 +15,7 @@
 #include "bsp_pid.h"
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
+#include "dmp_port_rtt.h"
 #include "ano.h"
 
 #define DBG_SECTION_NAME  "app-control"
@@ -33,6 +34,10 @@ typedef struct
 } velocity_dt;
 
 static velocity_dt wheel_dt[2];
+static int32_t motor_pwm[2];
+
+_PID_val_st yaw_val;
+
 
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
@@ -52,12 +57,24 @@ static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
     {
         Position_PID(&pid_pos[i], wheel_dt[i].Target_Position, wheel_dt[i].Reality_Position);
 
-        pid_pos[i].output = limit_amplitude(pid_pos[i].output, wheel_dt[i].Target_Velocity);
+        motor_pwm[i] = limit_amplitude(pid_pos[i].output, wheel_dt[i].Target_Velocity);
 
-        Incremental_PID(&pid_vel[i], pid_pos[i].output, wheel_dt[i].Reality_Velocity);
+        motor_pwm[i] = Incremental_PID(&pid_vel[i], motor_pwm[i], wheel_dt[i].Reality_Velocity);
     }
 
-    Motion_Set_PWM(pid_pos[LEFT].output, pid_pos[RIGHT].output);
+    if (angel_control && (ABS(rec_target_yaw - (int)robot_imu_dmp_data.yaw) > 2))
+    {
+        /* 角度环 */
+        PID_calculate(10, rec_target_yaw, robot_imu_dmp_data.yaw, &pid_yaw, &yaw_val, 20, 100);
+        //rt_kprintf("%.2f %d\n", yaw_val.err, (int)yaw_val.out);
+    }
+	else
+	{
+		angel_control = RT_FALSE;
+		yaw_val.out = 0;
+	}
+
+    Motion_Set_PWM(motor_pwm[LEFT] + yaw_val.out, motor_pwm[RIGHT] - yaw_val.out);
 
     return RT_EOK;
 }

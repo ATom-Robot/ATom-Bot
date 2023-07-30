@@ -115,17 +115,14 @@ static inline void i2cx_error_isr(struct stm32_hard_i2c_config *config)
 static rt_err_t hard_i2c_bus_unlock(struct stm32_hard_i2c_config *config)
 {
     rt_int32_t i = 0;
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_TypeDef *scl_port;
-    GPIO_TypeDef *sda_port;
 
     if (PIN_LOW == rt_pin_read(config->sda_pin))
     {
         while (i++ < 9)
         {
-            HAL_GPIO_WritePin(scl_port, config->scl_pin, PIN_HIGH);
+            rt_pin_write(config->scl_pin, PIN_HIGH);
             rt_hw_us_delay(100);
-            HAL_GPIO_WritePin(scl_port, config->scl_pin, PIN_LOW);
+            rt_pin_write(config->scl_pin, PIN_LOW);
             rt_hw_us_delay(100);
         }
     }

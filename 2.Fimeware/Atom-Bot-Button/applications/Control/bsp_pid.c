@@ -142,14 +142,14 @@ int Incremental_PID(pid_uint *pid, float Target_Value, float Measured_Value)
     return (int)pid->output;
 }
 
-float PID_calculate(float dT_s,           // 周期（单位：秒）
-                    float expect,         // 期望值（设定值）
-                    float feedback,       // 反馈值
-                    pid_uint *pid_arg,
-                    _PID_val_st *pid_val,
-                    float inte_d_lim,     // 积分误差限幅
-                    float inte_lim        // integration limit，积分限幅
-                   )
+int PID_calculate(float dT_s,
+                  float expect,         // 期望值（设定值）
+				  float feedback,       // 反馈值
+                  pid_uint *pid_arg,
+                  _PID_val_st *pid_val,
+                  float inte_d_lim,     // 积分误差限幅
+                  float inte_lim        // integration limit，积分限幅
+                 )
 {
     float differential, hz;
 
@@ -167,7 +167,6 @@ float PID_calculate(float dT_s,           // 周期（单位：秒）
 
     pid_val->out = pid_arg->Kp * pid_val->err + differential + pid_val->err_i;
 
-    pid_val->feedback_old = feedback;
     pid_val->exp_old = expect;
 
     return (pid_val->out);

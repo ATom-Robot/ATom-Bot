@@ -15,8 +15,10 @@
 #include <rtdevice.h>
 #include "command.h"
 
+extern int rec_target_yaw;
 extern int rec_target_rpm;
 extern float rec_target_motor_num;
+extern rt_bool_t angel_control;
 
 int ano_init(void *param);
 int ano_set_device(const char *device_name);

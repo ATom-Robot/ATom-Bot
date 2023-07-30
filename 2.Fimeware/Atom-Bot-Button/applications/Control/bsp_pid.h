@@ -31,7 +31,7 @@
 #define PID_KD_VEL_R            (0.0f)
 
 // yaw pid
-#define PID_KP_YAW              (0.000f)
+#define PID_KP_YAW              (0.500f)
 #define PID_KI_YAW              (0.000f)
 #define PID_KD_YAW              (0.0f)
 
@@ -81,6 +81,6 @@ void Loc_level_PID_Init(void);
 int limit_amplitude(int data, int max);
 int Position_PID(pid_uint *pid, float Target_Value, float Measured_Value);
 int Incremental_PID(pid_uint *pid, float Target_Value, float Measured_Value);
-float PID_calculate(float dT_s, float expect, float feedback, pid_uint *pid_arg, _PID_val_st *pid_val, float inte_d_lim, float inte_lim);
+int PID_calculate(float dT_s, float expect, float feedback, pid_uint *pid_arg, _PID_val_st *pid_val, float inte_d_lim, float inte_lim);
 
 #endif

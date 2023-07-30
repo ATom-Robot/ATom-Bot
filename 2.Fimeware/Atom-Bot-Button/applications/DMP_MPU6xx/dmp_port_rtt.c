@@ -25,15 +25,23 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-static struct mpu6xxx_device *i2c_bus = RT_NULL;
+#define wrap_180(x) (x < -180 ? x+360 : (x > 180 ? x - 360: x))
 
-//陀螺仪方向设置
+/*
+	XYZ  010_001_000 Identity Matrix
+	XZY  001_010_000
+	YXZ  010_000_001
+	YZX  000_010_001
+	ZXY  001_000_010
+	ZYX  000_001_010
+*/
 static signed char gyro_orientation[9] = { 1, 0, 0,
                                            0, 1, 0,
                                            0, 0, 1
                                          };
 static short sensors;
-static float pitch, roll, yaw;
+static struct mpu6xxx_device *i2c_bus = RT_NULL;
+struct imu_data robot_imu_dmp_data;
 
 uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf)
 {
@@ -329,6 +337,7 @@ void MPU6050_GetAccelData(struct xyz_data *robot_accel_xyz_data)
 void MPU6050_DMP_GetData(struct imu_data *robot_imu_data)
 {
     float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;
+	float pitch, roll, yaw;
     unsigned long sensor_timestamp;
     short gyro[3], accel[3], sensors;
     unsigned char more;
@@ -371,9 +380,9 @@ void MPU6050_DMP_GetData(struct imu_data *robot_imu_data)
         roll  = fast_atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3f; // roll
         yaw   = fast_atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3f; //yaw
 
-        robot_imu_data->pitch = pitch * 100;
-        robot_imu_data->roll  = roll  * 100;
-        robot_imu_data->yaw   = yaw   * 100;
+        robot_imu_data->pitch = pitch;
+        robot_imu_data->roll  = roll;
+        robot_imu_data->yaw   = -yaw;
     }
 }
 
@@ -465,8 +474,6 @@ MSH_CMD_EXPORT(MPU6050_Init, MPU6050 DMP Init);
 
 rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
 {
-    struct imu_data robot_imu_dmp_data;
-
     if (argc != 2)
     {
         LOG_E("ERROR Paramter!");
@@ -479,10 +486,10 @@ rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
     {
         //读取DMP数据 251 2.51
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
-        LOG_I("%d.%d %d.%d %d.%d \r\n",
-              robot_imu_dmp_data.pitch / 100, abs(robot_imu_dmp_data.pitch / 10 % 10),
-              robot_imu_dmp_data.roll / 100, abs(robot_imu_dmp_data.roll / 10 % 10),
-              robot_imu_dmp_data.yaw / 100, abs(robot_imu_dmp_data.yaw / 10 % 10));
+        LOG_I("%.2f %.2f %.2f\r\n",
+              robot_imu_dmp_data.pitch,
+              robot_imu_dmp_data.roll,
+              robot_imu_dmp_data.yaw);
 
         rt_thread_mdelay(50);
     }
@@ -493,8 +500,6 @@ MSH_CMD_EXPORT(Read_mpu6xx_dmp, Read data mpu6050 from dmp);
 
 static void read_mpu6xxx_entry()
 {
-    struct imu_data robot_imu_dmp_data;
-
     while (1)
     {
         MPU6050_DMP_GetData(&robot_imu_dmp_data);

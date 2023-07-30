@@ -31,8 +31,11 @@ static rt_thread_t tid_ano = RT_NULL;
 static rt_device_t dev_ano = RT_NULL;
 static rt_sem_t rx_sem = RT_NULL;
 
+int rec_target_yaw = 0;
 int rec_target_rpm = 0;
 float rec_target_motor_num = 0;
+/* angel pid will be open or close*/
+rt_bool_t angel_control = RT_FALSE;
 
 static rt_err_t ano_sender_send(rt_uint16_t cmd, void *param, rt_uint16_t size)
 {
@@ -192,6 +195,14 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         {
             rec_target_motor_num = (float) * (int *)(&buffer[6]) / 10;
             LOG_D("recv motor pos target num:%f", rec_target_motor_num);
+            break;
+        }
+        /* 位置 */
+        case 3:
+        {
+			angel_control = RT_TRUE;
+            rec_target_yaw = *(int *)(&buffer[6]);
+            LOG_D("recv yaw angle target:%d", rec_target_yaw);
             break;
         }
         }

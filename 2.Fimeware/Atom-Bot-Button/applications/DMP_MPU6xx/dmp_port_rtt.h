@@ -79,10 +79,13 @@ struct imu_data
 {
     struct xyz_data gyro;
     struct xyz_data accel;
-    int16_t pitch;
-    int16_t roll;
-    int16_t yaw;
+
+    float pitch;
+    float roll;
+    float yaw;
 };
+
+extern struct imu_data robot_imu_dmp_data;
 
 uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf);
 uint8_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf);
