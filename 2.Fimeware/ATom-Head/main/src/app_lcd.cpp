@@ -75,7 +75,7 @@ void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const
     screen.init();
     screen.setRotation(1);// 1 3 5 7
     screen.fillScreen(TFT_BLACK);
-    screen.setBrightness(100);
+    screen.setBrightness(80);
 
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;

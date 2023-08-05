@@ -57,5 +57,11 @@
         "app_sr_handler.h": "c",
         "lv_rlottie.h": "c",
         "rlottie_capi.h": "c"
-    }
+    },
+    "idf.openOcdConfigs": [
+        "interface/ftdi/esp32_devkitj_v1.cfg",
+        "target/esp32s3.cfg"
+    ],
+    "idf.portWin": "COM22",
+    "idf.flashType": "UART"
 }
