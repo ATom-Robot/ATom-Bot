@@ -24,13 +24,13 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
-    AppCamera_Init(PIXFORMAT_GRAYSCALE, FRAMESIZE_HQVGA, 2, xQueueLCDFrame);
+    AppCamera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2, xQueueLCDFrame);
     AppLCD_Init(xQueueLCDFrame, NULL, true);
     AppSpeech_Init();
     speaker_init();
 
-    AppCamera_run();
     AppLVGL_run();
+    AppCamera_run();
     ESP_ERROR_CHECK(AppSpeech_run());
     ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
     ESP_ERROR_CHECK(app_wifi_main());

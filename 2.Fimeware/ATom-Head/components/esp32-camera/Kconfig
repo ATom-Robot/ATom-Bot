@@ -138,8 +138,8 @@ menu "Camera configuration"
     
     config XCLK_CLK_FREQ
         int "xclk frequency(hz)"
-        default 18000000
-        range 16000000 20000000
+        default 10000000
+        range 0 20000000
 
     choice GC_SENSOR_WINDOW_MODE
         bool "GalaxyCore Sensor Window Mode"

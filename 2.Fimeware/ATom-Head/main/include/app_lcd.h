@@ -19,9 +19,9 @@ extern "C"
 {
 #endif
 
-void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
-void AppLCD_run(void);
-void AppLVGL_run(void);
+    void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
+    void AppLCD_run(void);
+    void AppLVGL_run(void);
 
 #ifdef __cplusplus
 }

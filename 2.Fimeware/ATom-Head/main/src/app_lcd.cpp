@@ -13,6 +13,19 @@ static lv_obj_t *camera_obj;
 static bool gReturnFB = true;
 static bool lvgl_ready = false;
 
+LV_IMG_DECLARE(gif_normal);
+
+typedef struct
+{
+    const void *gif;
+    uint16_t time;
+} emoji_list;
+
+emoji_list em_list[10] =
+{
+    {&gif_normal, 5000},
+};
+
 static void lv_set_cam_area(void)
 {
     camera_obj = lv_img_create(lv_scr_act());
@@ -97,11 +110,9 @@ IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_c
 
 void lv_example_gif_1(void)
 {
-    LV_IMG_DECLARE(gif_normal);
-
-    lv_obj_t * img;
+    lv_obj_t *img;
     img = lv_gif_create(lv_scr_act());
-    lv_gif_set_src(img, &gif_normal);
+    lv_gif_set_src(img, em_list[0].gif);
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 }
 
@@ -141,12 +152,6 @@ static void guiTask(void *pvParameter)
         lv_task_handler();
     }
 }
-
-// void AppLCD_run(void)
-// {
-//     BaseType_t result = xTaskCreatePinnedToCore(lcd_task, "lcd", 2 * 1024, NULL, 2, NULL, 0);
-//     assert("Failed to create task" && result == (BaseType_t) 1);
-// }
 
 void AppLVGL_run(void)
 {
