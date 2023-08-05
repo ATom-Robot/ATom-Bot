@@ -107,7 +107,7 @@ uint16_t Encoder_Get_Dir(uint8_t Motor_Num)
 float Motor_Speed(int encoder_cnt, uint16_t ppr, uint16_t ratio, uint16_t cnt_time)
 {
     encoder_cnt = abs(encoder_cnt);
-    return (encoder_cnt / 4 / ppr / ratio) * (1000 / cnt_time) * 60; /* 4倍频 */
+    return ((float)encoder_cnt / 4 / ppr / ratio) * (1000 / cnt_time) * 60; /* 4倍频 */
 }
 
 /**************************************************************************

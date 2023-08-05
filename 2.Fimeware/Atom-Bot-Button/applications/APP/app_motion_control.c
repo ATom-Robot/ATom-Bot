@@ -38,12 +38,13 @@ static int32_t motor_pwm[2];
 
 _PID_val_st yaw_val;
 
-
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
     Motor_Set_Pwm(MOTOR_ID_1, motor_Left);
     Motor_Set_Pwm(MOTOR_ID_2, motor_Right);
 }
+
+int leftSpeedNow = 0;
 
 static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
 {
@@ -52,6 +53,9 @@ static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
 
     wheel_dt[LEFT].Reality_Position += wheel_dt[LEFT].Reality_Velocity;
     wheel_dt[RIGHT].Reality_Position += wheel_dt[RIGHT].Reality_Velocity;
+
+//	float left_speed1, left_speed2;
+//	left_speed1 = Motor_Speed(wheel_dt[LEFT].Reality_Velocity, 7, 100, 10);
 
     for (uint8_t i = 0; i < 2; i++)
     {

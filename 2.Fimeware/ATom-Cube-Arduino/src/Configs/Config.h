@@ -30,7 +30,7 @@
 #define DISP_BUF_SIZE               CONFIG_SCREEN_BUFFER_SIZE
 
 /* Buzzer */
-#define CONFIG_BUZZ_PIN             46
+#define CONFIG_BUZZ_PIN             9
 #define CONFIG_BUZZ_CHANNEL         1
 #define CONFIG_SOUND_ENABLE_DEFAULT false
 

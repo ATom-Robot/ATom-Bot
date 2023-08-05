@@ -13,7 +13,7 @@
 #include <rtthread.h>
 
 // left wheel pid
-#define PID_KP_POS_L            (0.0051f)
+#define PID_KP_POS_L            (0.005f)
 #define PID_KI_POS_L            (0.0f)
 #define PID_KD_POS_L            (0.070f)
 
@@ -22,7 +22,7 @@
 #define PID_KD_VEL_L            (0.0f)
 
 // right wheel pid
-#define PID_KP_POS_R            (0.0051f)
+#define PID_KP_POS_R            (0.005f)
 #define PID_KI_POS_R            (0.0f)
 #define PID_KD_POS_R            (0.070f)
 

@@ -17,9 +17,9 @@ void Main()
         boardConfig = BoardConfig_t
         {
             .configStatus = CONFIG_OK,
-            .nodeId = 2, // 7bit address, has to be even number
+            .nodeId = 4, // 7bit address, has to be even number
             .initPos = 90,
-            .toqueLimit =  0.5,
+            .toqueLimit =  0.95,
             .velocityLimit = 0,
             .adcValAtAngleMin = 250,
             .adcValAtAngleMax = 3000,

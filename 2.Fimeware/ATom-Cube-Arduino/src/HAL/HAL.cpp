@@ -30,7 +30,7 @@ void HAL::Init()
 
 void HAL::Update()
 {
-    HAL::Audio_Update();
+    // HAL::Audio_Update();
     HAL::IMU_Update();
     HAL::led_rainbow();
 }

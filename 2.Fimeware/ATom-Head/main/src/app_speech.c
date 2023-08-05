@@ -236,7 +236,7 @@ static void detect_Task(void *pvParam)
                 };
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
-
+                detect_flag = false;
                 continue;
             }
         }
