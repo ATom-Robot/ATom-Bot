@@ -1,8 +1,13 @@
 #include "app_lcd.h"
+#include "esp_log.h"
 #include <lvgl.h>
 #include "esp_camera.h"
 #include "benchmark/lv_demo_benchmark.h"
-#include "rlottie/lv_rlottie.h"
+// #include "rlottie/lv_rlottie.h"
+
+#define EMOJI_NUMBER 4
+
+static const char *TAG = "lcd";
 
 SCREEN_CLASS screen;
 static LGFX_Emma *_lgfxEmma = nullptr;
@@ -13,17 +18,24 @@ static lv_obj_t *camera_obj;
 static bool gReturnFB = true;
 static bool lvgl_ready = false;
 
-LV_IMG_DECLARE(gif_normal);
+LV_IMG_DECLARE(normal_gif);
+LV_IMG_DECLARE(happy_gif);
+LV_IMG_DECLARE(sad_gif);
+LV_IMG_DECLARE(wakeup_gif);
 
 typedef struct
 {
     const void *gif;
     uint16_t time;
+    uint8_t repeat;
 } emoji_list;
 
-emoji_list em_list[10] =
+emoji_list em_list[EMOJI_NUMBER] =
 {
-    {&gif_normal, 5000},
+    {&normal_gif, 5000, 1},
+    {&happy_gif, 5000, 1},
+    {&sad_gif, 5000, 1},
+    {&wakeup_gif, 5000, 1},
 };
 
 static void lv_set_cam_area(void)
@@ -108,12 +120,33 @@ IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_c
     lv_disp_flush_ready(drv);
 }
 
+static lv_obj_t *gif_anim;
+static uint8_t cnt = 0;
+
+void next_frame_task_cb(lv_event_t *event)
+{
+    lv_event_code_t code = lv_event_get_code(event);
+
+    if (code == LV_EVENT_READY)
+    {
+        ESP_LOGI(TAG, "-------------------");
+        ESP_LOGI(TAG, "gif play finsh");
+        // lv_timer_resume(((lv_gif_t *)gif_anim)->timer);
+        cnt >= EMOJI_NUMBER - 1 ? cnt = 0 : cnt++;
+        lv_gif_set_src(gif_anim, em_list[cnt].gif);
+        ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
+    }
+}
+
 void lv_example_gif_1(void)
 {
-    lv_obj_t *img;
-    img = lv_gif_create(lv_scr_act());
-    lv_gif_set_src(img, em_list[0].gif);
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+    gif_anim = lv_gif_create(lv_scr_act());
+    lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_READY, NULL);
+
+    lv_gif_set_src(gif_anim, em_list[cnt].gif);
+    lv_obj_align(gif_anim, LV_ALIGN_CENTER, 0, 0);
+
+    ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
 }
 
 static void guiTask(void *pvParameter)

@@ -139,9 +139,9 @@ static void next_frame_task_cb(lv_timer_t * t)
 
     int has_next = gd_get_frame(gifobj->gif);
     if(has_next == 0) {
+        lv_timer_pause(t);
         /*It was the last repeat*/
         lv_res_t res = lv_event_send(obj, LV_EVENT_READY, NULL);
-        lv_timer_pause(t);
         if(res != LV_FS_RES_OK) return;
     }
 

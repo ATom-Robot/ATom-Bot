@@ -56,7 +56,10 @@
         "string.h": "c",
         "app_sr_handler.h": "c",
         "lv_rlottie.h": "c",
-        "rlottie_capi.h": "c"
+        "rlottie_capi.h": "c",
+        "lv_indev.h": "c",
+        "*.inc": "cpp",
+        "system_error": "cpp"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",
