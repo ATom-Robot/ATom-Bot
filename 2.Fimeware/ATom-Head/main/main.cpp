@@ -13,6 +13,8 @@
 #include "app_player.h"
 #include "app_shell.h"
 #include "app_rtsp.h"
+#include "app_joint.h"
+#include "app_uart.h"
 #include "stream_server.h"
 
 static const char *TAG = "main";
@@ -20,21 +22,29 @@ static const char *TAG = "main";
 extern "C" void app_main()
 {
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
+    // 仅调试阶段使用
+    // AppShell_Init();
 
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
+    ESP_ERROR_CHECK(joint_i2c_init());
     AppCamera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2, xQueueLCDFrame);
     AppLCD_Init(xQueueLCDFrame, NULL, true);
     AppSpeech_Init();
-    speaker_init();
+    AppSpeaker_Init();
 
     AppLVGL_run();
     AppCamera_run();
+    APPUart_Init();
+
     ESP_ERROR_CHECK(AppSpeech_run());
-    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
-    ESP_ERROR_CHECK(app_wifi_main());
-    ESP_ERROR_CHECK(start_stream_server(xQueueLCDFrame, true));
+    // ESP_ERROR_CHECK(app_wifi_main());
+    // ESP_ERROR_CHECK(start_stream_server(xQueueLCDFrame, true));
     // // rtsp_server();
-    APP_Shell_loop();
+    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    app_player_play();
+    vTaskDelay(4000 / portTICK_PERIOD_MS);
+    app_player_pause();
 }

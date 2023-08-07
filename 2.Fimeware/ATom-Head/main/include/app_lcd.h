@@ -23,6 +23,9 @@ extern "C"
     void AppLCD_run(void);
     void AppLVGL_run(void);
 
+    void ui_acquire(void);
+    void ui_release(void);
+
 #ifdef __cplusplus
 }
 #endif

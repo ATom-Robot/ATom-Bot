@@ -63,7 +63,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
-            NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
+        NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
     {
         ESP_LOGE(TAG, "Header of wav format error");
         return ESP_FAIL;
@@ -96,9 +96,9 @@ void sr_handler_task(void *pvParam)
     FILE *fp;
     // const sys_param_t *param = settings_get_parameter();
     const char *files[1][3] =
-    {
-        {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
-    };
+        {
+            {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
+        };
     char audio_file[48] = {0};
     for (size_t i = 0; i < AUDIO_MAX; i++)
     {
@@ -108,7 +108,7 @@ void sr_handler_task(void *pvParam)
         size_t file_size = fm_get_file_size(audio_file);
         g_audio_data[i].len = file_size;
         g_audio_data[i].audio_buffer = heap_caps_calloc(1, file_size, MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
-        ESP_GOTO_ON_FALSE(NULL != g_audio_data[i].audio_buffer, ESP_ERR_NO_MEM, err, TAG,  "No mem for sr echo buffer");
+        ESP_GOTO_ON_FALSE(NULL != g_audio_data[i].audio_buffer, ESP_ERR_NO_MEM, err, TAG, "No mem for sr echo buffer");
         fread(g_audio_data[i].audio_buffer, 1, file_size, fp);
         fclose(fp);
     }

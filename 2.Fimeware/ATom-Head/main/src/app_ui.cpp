@@ -1,16 +1,28 @@
+#include <lvgl.h>
 #include "app_lcd.h"
 #include "esp_log.h"
-#include <lvgl.h>
+#include "freertos/semphr.h"
 #include "esp_camera.h"
 #include "benchmark/lv_demo_benchmark.h"
 // #include "rlottie/lv_rlottie.h"
 
-#define EMOJI_NUMBER 4
-
 static const char *TAG = "lcd";
+
+/*********************
+ *      DEFINES
+ *********************/
+#define EMOJI_NUMBER 4
+#define LV_TICK_PERIOD_MS 1
+
+LV_IMG_DECLARE(normal_gif);
+LV_IMG_DECLARE(happy_gif);
+LV_IMG_DECLARE(sad_gif);
+LV_IMG_DECLARE(wakeup_gif);
 
 SCREEN_CLASS screen;
 static LGFX_Emma *_lgfxEmma = nullptr;
+static SemaphoreHandle_t xGuiSemaphore;
+static TaskHandle_t g_lvgl_task_handle;
 
 static QueueHandle_t xQueueFrameI = NULL;
 static QueueHandle_t xQueueFrameO = NULL;
@@ -18,10 +30,10 @@ static lv_obj_t *camera_obj;
 static bool gReturnFB = true;
 static bool lvgl_ready = false;
 
-LV_IMG_DECLARE(normal_gif);
-LV_IMG_DECLARE(happy_gif);
-LV_IMG_DECLARE(sad_gif);
-LV_IMG_DECLARE(wakeup_gif);
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+static void lv_tick_task(void *arg);
 
 typedef struct
 {
@@ -129,8 +141,8 @@ void next_frame_task_cb(lv_event_t *event)
 
     if (code == LV_EVENT_READY)
     {
-        ESP_LOGI(TAG, "-------------------");
-        ESP_LOGI(TAG, "gif play finsh");
+        // ESP_LOGI(TAG, "-------------------");
+        // ESP_LOGI(TAG, "gif play finsh");
         // lv_timer_resume(((lv_gif_t *)gif_anim)->timer);
         cnt >= EMOJI_NUMBER - 1 ? cnt = 0 : cnt++;
         lv_gif_set_src(gif_anim, em_list[cnt].gif);
@@ -138,7 +150,7 @@ void next_frame_task_cb(lv_event_t *event)
     }
 }
 
-void lv_example_gif_1(void)
+void lv_emoji_create(void)
 {
     gif_anim = lv_gif_create(lv_scr_act());
     lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_READY, NULL);
@@ -151,6 +163,9 @@ void lv_example_gif_1(void)
 
 static void guiTask(void *pvParameter)
 {
+    (void) pvParameter;
+    xGuiSemaphore = xSemaphoreCreateMutex();
+
     static lv_disp_draw_buf_t disp_buf;
 
     _lgfxEmma = &screen;
@@ -170,10 +185,17 @@ static void guiTask(void *pvParameter)
     disp_drv.ver_res = LV_VER_RES_MAX;
     lv_disp_drv_register(&disp_drv);
 
-    // lv_avi_create();
-    // lv_camera_create();
-    // lv_demo_benchmark();
-    lv_example_gif_1();
+    lv_emoji_create();
+
+    /* Create and start a periodic timer interrupt to call lv_tick_inc */
+    const esp_timer_create_args_t periodic_timer_args =
+    {
+        .callback = &lv_tick_task,
+        .name = "periodic_gui"
+    };
+    esp_timer_handle_t periodic_timer;
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
     static TickType_t tick;
     tick = xTaskGetTickCount();
@@ -182,12 +204,42 @@ static void guiTask(void *pvParameter)
     while (1)
     {
         vTaskDelayUntil(&tick, pdMS_TO_TICKS(30));
-        lv_task_handler();
+        /* Try to take the semaphore, call lvgl related function on success */
+        if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+        {
+            lv_task_handler();
+            xSemaphoreGive(xGuiSemaphore);
+        }
     }
 }
 
 void AppLVGL_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, &g_lvgl_task_handle, 0);
     assert("Failed to create task" && result == (BaseType_t) 1);
+}
+
+void ui_acquire(void)
+{
+    TaskHandle_t task = xTaskGetCurrentTaskHandle();
+    if (g_lvgl_task_handle != task)
+    {
+        xSemaphoreTake(xGuiSemaphore, portMAX_DELAY);
+    }
+}
+
+void ui_release(void)
+{
+    TaskHandle_t task = xTaskGetCurrentTaskHandle();
+    if (g_lvgl_task_handle != task)
+    {
+        xSemaphoreGive(xGuiSemaphore);
+    }
+}
+
+static void lv_tick_task(void *arg)
+{
+    (void) arg;
+
+    lv_tick_inc(LV_TICK_PERIOD_MS);
 }

@@ -17,7 +17,7 @@ extern "C"
 {
 #endif
 
-void speaker_init(void);
+void AppSpeaker_Init(void);
 size_t speaker_write(char *data, int numData);
 void speaker_uninstall(void);
 

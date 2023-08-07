@@ -59,7 +59,17 @@
         "rlottie_capi.h": "c",
         "lv_indev.h": "c",
         "*.inc": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "array": "c",
+        "deque": "c",
+        "list": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "functional": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

@@ -39,7 +39,8 @@ typedef struct
     esp_afe_sr_data_t *afe_data;
     int16_t *afe_in_buffer;
     int16_t *afe_out_buffer;
-    SLIST_HEAD(sr_cmd_list_t, sr_cmd_t) cmd_list;
+    SLIST_HEAD(sr_cmd_list_t, sr_cmd_t)
+    cmd_list;
     uint8_t cmd_num;
     TaskHandle_t feed_task;
     TaskHandle_t detect_task;
@@ -62,13 +63,13 @@ static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
 
     i2s_config_t i2s_config = I2S_CONFIG_DEFAULT();
     i2s_pin_config_t pin_config =
-    {
-        .bck_io_num = GPIO_I2S_SCLK,
-        .ws_io_num = GPIO_I2S_LRCK,
-        .data_out_num = GPIO_I2S_DOUT,
-        .data_in_num = GPIO_I2S_SDIN,
-        .mck_io_num = GPIO_I2S_MCLK,
-    };
+        {
+            .bck_io_num = GPIO_I2S_SCLK,
+            .ws_io_num = GPIO_I2S_LRCK,
+            .data_out_num = GPIO_I2S_DOUT,
+            .data_in_num = GPIO_I2S_SDIN,
+            .mck_io_num = GPIO_I2S_MCLK,
+        };
 
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
@@ -112,18 +113,18 @@ int bsp_get_feed_channel(void)
  * @brief all default commands
  */
 static const sr_cmd_t g_default_cmd_info[] =
-{
-    {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
-    {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
+    {
+        {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
+        {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
+        {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
+        {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
+        {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
 };
 
 static void feed_Task(void *pvParam)
 {
     const esp_afe_sr_iface_t *afe_handle = g_sr_data->afe_handle;
-    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
+    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParam;
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
     int feed_channel = bsp_get_feed_channel();
     ESP_LOGI(TAG, "audio_chunksize=%d, feed_channel=%d", audio_chunksize, feed_channel);
@@ -157,7 +158,7 @@ static void feed_Task(void *pvParam)
 static void detect_Task(void *pvParam)
 {
     bool detect_flag = false;
-    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
+    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParam;
 
     /* Allocate buffer for detection */
     size_t afe_chunk_size = g_sr_data->afe_handle->get_fetch_chunksize(afe_data);
@@ -196,11 +197,11 @@ static void detect_Task(void *pvParam)
             g_sr_data->afe_handle->disable_wakenet(afe_data);
 
             sr_result_t result =
-            {
-                .fetch_mode = ret_val,
-                .state = ESP_MN_STATE_DETECTING,
-                .command_id = 0,
-            };
+                {
+                    .fetch_mode = ret_val,
+                    .state = ESP_MN_STATE_DETECTING,
+                    .command_id = 0,
+                };
             xQueueSend(g_sr_data->result_que, &result, 0);
         }
 
@@ -215,11 +216,11 @@ static void detect_Task(void *pvParam)
             {
                 ESP_LOGW(TAG, "Time out");
                 sr_result_t result =
-                {
-                    .fetch_mode = ret_val,
-                    .state = mn_state,
-                    .command_id = 0,
-                };
+                    {
+                        .fetch_mode = ret_val,
+                        .state = mn_state,
+                        .command_id = 0,
+                    };
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
@@ -328,7 +329,7 @@ esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
         }
         SLIST_INSERT_AFTER(last, item, next);
     }
-#else  // insert head
+#else // insert head
     SLIST_INSERT_HEAD(&g_sr_data->cmd_list, it, next);
 #endif
     g_sr_data->cmd_num++;
@@ -342,7 +343,7 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
         g_sr_data->multinet->destroy(g_sr_data->model_data);
     }
     g_sr_data->multinet = &MULTINET_MODEL;
-    g_sr_data->model_data = g_sr_data->multinet->create((const model_coeff_getter_t *) &MULTINET_COEFF, 5760);
+    g_sr_data->model_data = g_sr_data->multinet->create((const model_coeff_getter_t *)&MULTINET_COEFF, 5760);
 
     // remove all command
     sr_cmd_t *it;
@@ -361,7 +362,7 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
         app_sr_add_cmd(&g_default_cmd_info[i]);
     }
     ESP_LOGI(TAG, "cmd_number=%d", cmd_number);
-    return app_sr_update_cmds();/* Reset command list */
+    return app_sr_update_cmds(); /* Reset command list */
 }
 
 esp_err_t AppSpeech_run(void)
@@ -388,18 +389,17 @@ esp_err_t AppSpeech_run(void)
     afe_config.aec_init = false;
     afe_config.se_init = false;
     afe_config.vad_init = false;
-    afe_config.afe_ringbuf_size = 100;
     afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
     g_sr_data->afe_data = g_sr_data->afe_handle->create_from_config(&afe_config);
     g_sr_data->lang = SR_LANG_CN;
     ret = app_sr_set_language(g_sr_data->lang);
-    ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG,  "Failed to set language");
+    ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG, "Failed to set language");
 
     BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, g_sr_data->afe_data, 5, &g_sr_data->feed_task, 1);
-    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio feed task");
+    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio feed task");
 
     ret_val = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 6 * 1024, g_sr_data->afe_data, 5, &g_sr_data->detect_task, 1);
-    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio detect task");
+    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio detect task");
 
     return ESP_OK;
 err:

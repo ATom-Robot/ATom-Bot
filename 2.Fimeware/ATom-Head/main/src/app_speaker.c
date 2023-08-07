@@ -15,11 +15,11 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
         .sample_rate = ADUIO_SAMPLE_RATE,
         .bits_per_sample = BPS,
-        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+        .channel_format = I2S_CHANNEL_FMT_ALL_LEFT,
         .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-        .dma_buf_count = 6,
-        .dma_buf_len = 160,
+        .dma_buf_count = 4,
+        .dma_buf_len = 128,
         .use_apll = false
     };
 
@@ -53,7 +53,7 @@ size_t speaker_write(char *data, int numData)
     return sendSize;
 }
 
-void speaker_init(void)
+void AppSpeaker_Init(void)
 {
     speaker_initOutput(I2S_BITS_PER_SAMPLE_16BIT, I2S_BCLK, I2S_LRC, I2S_DOUT);
 }

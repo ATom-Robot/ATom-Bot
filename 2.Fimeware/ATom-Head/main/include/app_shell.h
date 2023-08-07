@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-void APP_Shell_loop(void);
+void AppShell_Init(void);
 
 #ifdef __cplusplus
 }
