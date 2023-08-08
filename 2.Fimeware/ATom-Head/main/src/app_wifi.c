@@ -184,7 +184,7 @@ esp_err_t app_wifi_main(void)
     if (mode == WIFI_MODE_NULL)
     {
         ESP_LOGW(TAG, "Neither AP or STA have been configured. WiFi will be off.");
-        return -1; 
+        return -1;
     }
 
     ESP_ERROR_CHECK(esp_netif_init());

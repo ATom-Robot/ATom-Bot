@@ -15,6 +15,9 @@
 #include "driver/i2s.h"
 #include "app_sr_handler.h"
 
+#define SR_RUN_TEST 1
+#define SR_CONTINUE_DET 0
+
 static const char *TAG = "APP/sr_handler";
 
 static bool b_audio_playing = false;
@@ -63,7 +66,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
-        NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
+            NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
     {
         ESP_LOGE(TAG, "Header of wav format error");
         return ESP_FAIL;
@@ -92,13 +95,15 @@ bool sr_echo_is_playing(void)
 
 void sr_handler_task(void *pvParam)
 {
+#if !SR_RUN_TEST
     esp_err_t ret;
+
     FILE *fp;
     // const sys_param_t *param = settings_get_parameter();
     const char *files[1][3] =
-        {
-            {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
-        };
+    {
+        {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
+    };
     char audio_file[48] = {0};
     for (size_t i = 0; i < AUDIO_MAX; i++)
     {
@@ -113,6 +118,7 @@ void sr_handler_task(void *pvParam)
         fclose(fp);
     }
     (void)ret;
+#endif
 
     player_state_t last_player_state = PLAYER_STATE_IDLE;
     while (true)
@@ -183,11 +189,12 @@ void sr_handler_task(void *pvParam)
 #endif
         }
     }
-
+#if !SR_RUN_TEST
 err:
     if (fp)
     {
         fclose(fp);
     }
     vTaskDelete(NULL);
+#endif
 }

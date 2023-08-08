@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdio.h>
-#include <string.h>
+#include "esp_err.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -19,12 +19,11 @@ extern "C"
 {
 #endif
 
-    void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
-    void AppLCD_run(void);
-    void AppLVGL_run(void);
+void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
+esp_err_t AppLVGL_run(void);
 
-    void ui_acquire(void);
-    void ui_release(void);
+void ui_acquire(void);
+void ui_release(void);
 
 #ifdef __cplusplus
 }

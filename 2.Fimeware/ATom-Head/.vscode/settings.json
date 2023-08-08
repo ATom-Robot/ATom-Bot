@@ -69,7 +69,8 @@
         "string_view": "c",
         "initializer_list": "c",
         "utility": "c",
-        "functional": "c"
+        "functional": "c",
+        "regex": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

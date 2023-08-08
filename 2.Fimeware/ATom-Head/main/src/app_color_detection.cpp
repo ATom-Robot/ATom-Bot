@@ -115,19 +115,19 @@ static void task_process_handler(void *arg)
     vector<int> color_area_threshes = {1, 4, 16, 32, 64, 128, 256, 512, 1024};
     int color_area_thresh_num = color_area_threshes.size();
     int color_area_thresh_index = color_area_thresh_num / 2;
-    
+
     detector.set_area_thresh({color_area_threshes[color_area_thresh_index]});
 
 
-    vector<uint16_t> draw_lcd_colors = {RGB565_LCD_RED, 
-                                        RGB565_LCD_ORANGE, 
+    vector<uint16_t> draw_lcd_colors = {RGB565_LCD_RED,
+                                        RGB565_LCD_ORANGE,
                                         RGB565_LCD_YELLOW,
-                                        RGB565_LCD_GREEN, 
-                                        RGB565_LCD_CYAN, 
+                                        RGB565_LCD_GREEN,
+                                        RGB565_LCD_CYAN,
                                         RGB565_LCD_BLUE,
-                                        RGB565_LCD_PURPLE, 
-                                        RGB565_LCD_WHITE, 
-                                        RGB565_LCD_GRAY, 
+                                        RGB565_LCD_PURPLE,
+                                        RGB565_LCD_WHITE,
+                                        RGB565_LCD_GRAY,
                                         // RGB565_LCD_BLACK
                                         };
     int draw_colors_num = draw_lcd_colors.size();

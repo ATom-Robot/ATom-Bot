@@ -100,9 +100,15 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
     queue_output = queue_o;
 }
 
-void AppCamera_run(void)
+esp_err_t AppCamera_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 2, NULL, 0);
-    assert("Failed to create task" && result == (BaseType_t) 1);
+    esp_err_t ret = ESP_OK;
+    BaseType_t result  = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 5, NULL, 0);
+    if (result != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to create camera task");
+        ret = ESP_FAIL;
+    }
+    return ret;
 }
 

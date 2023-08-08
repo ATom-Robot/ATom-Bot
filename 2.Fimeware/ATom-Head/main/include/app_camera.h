@@ -58,7 +58,7 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
                     const uint8_t fb_count,
                     const QueueHandle_t queue_o);
 
-void AppCamera_run(void);
+esp_err_t AppCamera_run(void);
 
 #ifdef __cplusplus
 }

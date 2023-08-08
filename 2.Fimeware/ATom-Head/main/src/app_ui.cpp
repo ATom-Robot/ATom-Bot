@@ -4,7 +4,6 @@
 #include "freertos/semphr.h"
 #include "esp_camera.h"
 #include "benchmark/lv_demo_benchmark.h"
-// #include "rlottie/lv_rlottie.h"
 
 static const char *TAG = "lcd";
 
@@ -213,10 +212,16 @@ static void guiTask(void *pvParameter)
     }
 }
 
-void AppLVGL_run(void)
+esp_err_t AppLVGL_run(void)
 {
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, &g_lvgl_task_handle, 0);
-    assert("Failed to create task" && result == (BaseType_t) 1);
+    esp_err_t ret = ESP_OK;
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 2, &g_lvgl_task_handle, 0);
+    if (result != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to create lvgl task");
+        ret = ESP_FAIL;
+    }
+    return ret;
 }
 
 void ui_acquire(void)

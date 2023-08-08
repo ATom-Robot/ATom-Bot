@@ -1,48 +1,137 @@
 #include <stdio.h>
 #include <string.h>
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_console.h"
-#include "esp_vfs_dev.h"
-#include "esp_vfs_fat.h"
-#include "nvs.h"
-#include "nvs_flash.h"
+#include <esp_log.h>
+#include <esp_console.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/queue.h>
+#include <driver/uart.h>
+
+#include "app_shell.h"
 #include "cmd_system.h"
 #include "cmd_i2ctools.h"
 #include "app_joint.h"
 
-#define PROMPT_STR "esp"
-#define CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH 1024
+static const char *TAG = "esp_console";
+static int stop;
 
-static const char *TAG = "shell";
-
-void AppShell_Init(void)
+static void scli_task(void *arg)
 {
-    esp_console_repl_t *repl = NULL;
-    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
-    /* Prompt to be printed before each line.
-     * This can be customized, made dynamic, etc.
-     */
-    repl_config.prompt = PROMPT_STR ">";
-    repl_config.max_cmdline_length = CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH;
+    int uart_num = CONFIG_ESP_CONSOLE_UART_NUM;
+    uint8_t linebuf[256];
+    int i, cmd_ret;
+    esp_err_t ret;
+    QueueHandle_t uart_queue;
+    uart_event_t event;
+    bool first_done = false;
 
-#if CONFIG_CONSOLE_STORE_HISTORY
-    initialize_filesystem();
-    repl_config.history_save_path = HISTORY_PATH;
-    ESP_LOGI(TAG, "Command history enabled");
-#else
-    ESP_LOGI(TAG, "Command history disabled");
-#endif
+    ESP_LOGI(TAG, "Initialising UART on port %d", uart_num);
+    uart_driver_install(uart_num, 256, 0, 8, &uart_queue, 0);
 
-    /* Register commands */
+    /* Initialize the console */
+    esp_console_config_t console_config =
+    {
+        .max_cmdline_args = 8,
+        .max_cmdline_length = 256,
+    };
+    esp_console_init(&console_config);
     esp_console_register_help_command();
+
+    while (!stop)
+    {
+        if (first_done)
+        {
+            uart_write_bytes(uart_num, "\n>> ", 4);
+        }
+        else
+        {
+            first_done = true;
+        }
+        memset(linebuf, 0, sizeof(linebuf));
+        i = 0;
+        do
+        {
+            ret = xQueueReceive(uart_queue, (void *)&event, (portTickType)portMAX_DELAY);
+            if (ret != pdPASS)
+            {
+                if (stop == 1)
+                {
+                    break;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            if (event.type == UART_DATA)
+            {
+                while (uart_read_bytes(uart_num, (uint8_t *) &linebuf[i], 1, 0))
+                {
+                    if (linebuf[i] == '\r')
+                    {
+                        uart_write_bytes(uart_num, "\r\n", 2);
+                    }
+                    else
+                    {
+                        uart_write_bytes(uart_num, (char *) &linebuf[i], 1);
+                    }
+                    i++;
+                }
+            }
+        }
+        while ((i < 255) && linebuf[i - 1] != '\r');
+        if (stop)
+        {
+            break;
+        }
+        /* Remove the truncating \r\n */
+        linebuf[strlen((char *)linebuf) - 1] = '\0';
+        /* Just to go to the next line */
+        printf("\n");
+        ret = esp_console_run((char *) linebuf, &cmd_ret);
+        if (cmd_ret != 0)
+        {
+            printf("%s: Console command failed with error: %d\n", TAG, cmd_ret);
+            cmd_ret = 0;
+        }
+        if (ret < 0)
+        {
+            printf("%s: Console dispatcher error\n", TAG);
+            break;
+        }
+    }
+    ESP_LOGE(TAG, "Stopped CLI");
+    vTaskDelete(NULL);
+}
+
+static esp_err_t scli_init()
+{
+    static bool cli_started = false;
+    if (cli_started)
+    {
+        return ESP_OK;
+    }
+#define SCLI_STACK_SIZE 4096
+
+    BaseType_t result = xTaskCreatePinnedToCore(scli_task, "console_task", SCLI_STACK_SIZE, NULL, 0, NULL, 1);
+    assert("Failed to create task" && result == (BaseType_t) 1);
+
+    cli_started = true;
+    return ESP_OK;
+}
+
+esp_err_t AppShell_run(void)
+{
+    esp_err_t ret = scli_init();
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Couldn't initialise console");
+        return ret;
+    }
 
     register_system();
     register_i2ctools();
     register_jointcmd();
 
-    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
-
-    ESP_ERROR_CHECK(esp_console_start_repl(repl));
+    return ESP_OK;
 }

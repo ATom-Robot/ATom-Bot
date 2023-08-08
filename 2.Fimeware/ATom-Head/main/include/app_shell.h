@@ -1,14 +1,13 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-void AppShell_Init(void);
+esp_err_t AppShell_run(void);
 
 #ifdef __cplusplus
 }
