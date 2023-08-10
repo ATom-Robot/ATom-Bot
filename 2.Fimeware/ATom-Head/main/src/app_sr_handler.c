@@ -102,7 +102,7 @@ void sr_handler_task(void *pvParam)
     // const sys_param_t *param = settings_get_parameter();
     const char *files[1][3] =
     {
-        {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
+        {"/spiffs/wakeup.wav", "/spiffs/wakeup.wav", "/spiffs/wakeup.wav"},
     };
     char audio_file[48] = {0};
     for (size_t i = 0; i < AUDIO_MAX; i++)
@@ -143,8 +143,11 @@ void sr_handler_task(void *pvParam)
         // Detected
         if (AFE_FETCH_WWE_DETECTED == result.fetch_mode)
         {
+            ESP_LOGI(TAG, "WAKE UP!");
+            app_player_play_index(0);
+
             last_player_state = app_player_get_state();
-            app_player_pause();
+            // app_player_pause();
 
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_WAKE);

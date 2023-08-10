@@ -44,7 +44,6 @@ esp_err_t app_player_callback_register(audio_cb_t call_back, void *user_ctx)
     return ESP_OK;
 }
 
-
 size_t app_player_get_index(void)
 {
     return audio_index;
@@ -58,7 +57,6 @@ const char *app_player_get_name_from_index(size_t index)
 
     return g_file_list[index];
 }
-
 
 static esp_err_t play_mp3(const char *path)
 {
@@ -147,7 +145,12 @@ static esp_err_t play_mp3(const char *path)
         {
             memmove(read_buf, read_ptr, bytes_left);
             size_t bytes_read = fread(read_buf + bytes_left, 1, MAINBUF_SIZE - bytes_left, fp);
-            ESP_GOTO_ON_FALSE(bytes_read > 0, ESP_OK, clean_up, TAG, "No data read from strorage device");
+            if (bytes_read <= 0)
+            {
+                g_player_state = PLAYER_STATE_FINSH;
+                ESP_LOGI(TAG, "mp3 play finsh...");
+                goto clean_up;
+            }
             bytes_left = bytes_left + bytes_read;
             read_ptr = read_buf;
         }
@@ -271,11 +274,7 @@ static void audio_task(void *pvParam)
         /* Get next audio's name if audio played without error */
         if (ESP_OK == ret_val)
         {
-            audio_index ++;
-            if (audio_index >= g_file_num)
-            {
-                audio_index = 0;
-            }
+            app_player_pause();
         }
 
         /* Callback for audio index change */

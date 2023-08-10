@@ -30,6 +30,7 @@ typedef enum
     PLAYER_STATE_IDLE,
     PLAYER_STATE_PLAYING,
     PLAYER_STATE_PAUSE,
+    PLAYER_STATE_FINSH,
 } player_state_t;
 
 typedef struct
