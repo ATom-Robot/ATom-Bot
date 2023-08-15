@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stdbool.h>
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void APPUart_Init(void);
+esp_err_t APPUart_Init(void);
 
 #ifdef __cplusplus
 }

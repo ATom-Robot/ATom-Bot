@@ -53,10 +53,10 @@ extern "C"
 
 #define XCLK_FREQ_HZ 20000000
 
-void AppCamera_Init(const pixformat_t pixel_fromat,
-                    const framesize_t frame_size,
-                    const uint8_t fb_count,
-                    const QueueHandle_t queue_o);
+esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
+                         const framesize_t frame_size,
+                         const uint8_t fb_count,
+                         const QueueHandle_t queue_o);
 
 esp_err_t AppCamera_run(void);
 

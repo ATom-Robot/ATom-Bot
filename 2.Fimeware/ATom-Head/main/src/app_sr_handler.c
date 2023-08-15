@@ -12,6 +12,7 @@
 #include "app_speech.h"
 #include "file_manager.h"
 #include "app_player.h"
+#include "app_ui.h"
 #include "driver/i2s.h"
 #include "app_sr_handler.h"
 
@@ -133,6 +134,8 @@ void sr_handler_task(void *pvParam)
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_END);
 #endif
+             ui_wakeup_emoji_over();
+
             if (PLAYER_STATE_PLAYING == last_player_state)
             {
                 app_player_play();
@@ -144,7 +147,9 @@ void sr_handler_task(void *pvParam)
         if (AFE_FETCH_WWE_DETECTED == result.fetch_mode)
         {
             ESP_LOGI(TAG, "WAKE UP!");
-            app_player_play_index(0);
+
+            ui_wakeup_emoji_start();
+            app_player_play_index(1);
 
             last_player_state = app_player_get_state();
             // app_player_pause();
@@ -166,6 +171,7 @@ void sr_handler_task(void *pvParam)
                 app_player_play();
             }
 #endif
+            ui_wakeup_emoji_over();
 
             switch (cmd->cmd)
             {

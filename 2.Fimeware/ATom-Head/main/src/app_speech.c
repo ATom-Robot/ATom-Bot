@@ -252,11 +252,12 @@ static void detect_Task(void *pvParam)
     vTaskDelete(NULL);
 }
 
-void AppSpeech_Init(void)
+esp_err_t AppSpeech_Init(void)
 {
-    esp_err_t res = -1;
+    esp_err_t res = ESP_OK;
     res = bsp_i2s_init(I2S_NUM_1);
     assert(res != ESP_FAIL);
+    return res;
 }
 
 esp_err_t app_sr_get_result(sr_result_t *result, TickType_t xTicksToWait)

@@ -80,7 +80,7 @@ typedef struct
     int command_id;
 } sr_result_t;
 
-void AppSpeech_Init();
+esp_err_t AppSpeech_Init(void);
 esp_err_t AppSpeech_run(void);
 esp_err_t app_sr_stop(void);
 const sr_cmd_t *app_sr_get_cmd_from_id(uint32_t id);

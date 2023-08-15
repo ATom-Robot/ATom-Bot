@@ -31,7 +31,7 @@ static void camera_task(void *param)
     vTaskDelete(NULL);
 }
 
-void AppCamera_Init(const pixformat_t pixel_fromat,
+esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
                     const framesize_t frame_size,
                     const uint8_t fb_count,
                     const QueueHandle_t queue_o)
@@ -72,7 +72,7 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Camera init failed with error");
-        return;
+        return ESP_FAIL;
     }
 
     // camera init
@@ -98,6 +98,8 @@ void AppCamera_Init(const pixformat_t pixel_fromat,
     }
 
     queue_output = queue_o;
+
+    return ESP_OK;
 }
 
 esp_err_t AppCamera_run(void)

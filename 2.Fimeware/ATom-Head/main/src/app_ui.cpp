@@ -1,5 +1,6 @@
 #include <lvgl.h>
 #include "app_lcd.h"
+#include "app_ui.h"
 #include "esp_log.h"
 #include "freertos/semphr.h"
 #include "esp_camera.h"
@@ -10,13 +11,8 @@ static const char *TAG = "lcd";
 /*********************
  *      DEFINES
  *********************/
-#define EMOJI_NUMBER 4
+#define EMOJI_NUMBER 7
 #define LV_TICK_PERIOD_MS 1
-
-LV_IMG_DECLARE(normal_gif);
-LV_IMG_DECLARE(happy_gif);
-LV_IMG_DECLARE(sad_gif);
-LV_IMG_DECLARE(wakeup_gif);
 
 SCREEN_CLASS screen;
 static LGFX_Emma *_lgfxEmma = nullptr;
@@ -34,6 +30,26 @@ static bool lvgl_ready = false;
  **********************/
 static void lv_tick_task(void *arg);
 
+LV_IMG_DECLARE(normal_gif);
+LV_IMG_DECLARE(normal2_gif);
+LV_IMG_DECLARE(listen_gif);
+LV_IMG_DECLARE(listen2normal_gif);
+LV_IMG_DECLARE(wakeup_gif);
+LV_IMG_DECLARE(happy_gif);
+LV_IMG_DECLARE(hurt_gif);
+
+enum
+{
+    NORMAL_EMOJI,
+    NORMAL2_EMOJI,
+    LISTEN_EMOJI,
+    LISTEN2NORMAL_EMOJI,
+    WAKEUP_EMOJI,
+    HAPPY_EMOJI,
+    SAD_EMOJI,
+    HURT_EMOJI,
+};
+
 typedef struct
 {
     const void *gif;
@@ -44,9 +60,12 @@ typedef struct
 emoji_list em_list[EMOJI_NUMBER] =
 {
     {&normal_gif, 5000, 1},
-    {&happy_gif, 5000, 1},
-    {&sad_gif, 5000, 1},
+    {&normal2_gif, 5000, 1},
+    {&listen_gif, 5000, 1},
+    {&listen2normal_gif, 5000, 1},
     {&wakeup_gif, 5000, 1},
+    {&happy_gif, 5000, 1},
+    {&hurt_gif, 5000, 1},
 };
 
 static void lv_set_cam_area(void)
@@ -106,7 +125,7 @@ static void lcd_task(void *arg)
     }
 }
 
-void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+esp_err_t AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
 {
     screen.init();
     screen.setRotation(1);// 1 3 5 7
@@ -116,6 +135,8 @@ void AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
     gReturnFB = return_fb;
+
+    return ESP_OK;
 }
 
 IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_p)
@@ -137,24 +158,43 @@ static uint8_t cnt = 0;
 void next_frame_task_cb(lv_event_t *event)
 {
     lv_event_code_t code = lv_event_get_code(event);
+    bool active = (bool) event->param;
+    static bool is_wakeup = false;
 
-    if (code == LV_EVENT_READY)
+    switch (code)
     {
-        // ESP_LOGI(TAG, "-------------------");
-        // ESP_LOGI(TAG, "gif play finsh");
-        // lv_timer_resume(((lv_gif_t *)gif_anim)->timer);
-        cnt >= EMOJI_NUMBER - 1 ? cnt = 0 : cnt++;
-        lv_gif_set_src(gif_anim, em_list[cnt].gif);
+    case LV_EVENT_READY:
+    {
+        printf("----gif play finsh----\n");
+
+        if (!is_wakeup)
+        {
+            static uint8_t normal_cnt = 0;
+            lv_gif_set_src(gif_anim, em_list[normal_cnt].gif);
+            normal_cnt >= 2 ? normal_cnt = 0 : normal_cnt += 1;
+            ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
+        }
+
+        break;
+    }
+    case LV_EVENT_VALUE_CHANGED:
+    {
         ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
+        active == true ? is_wakeup = true : is_wakeup = false;
+
+        break;
+    }
+    default:
+        break;
     }
 }
 
 void lv_emoji_create(void)
 {
     gif_anim = lv_gif_create(lv_scr_act());
-    lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_READY, NULL);
+    lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_ALL, NULL);
 
-    lv_gif_set_src(gif_anim, em_list[cnt].gif);
+    lv_gif_set_src(gif_anim, em_list[NORMAL_EMOJI].gif);
     lv_obj_align(gif_anim, LV_ALIGN_CENTER, 0, 0);
 
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
@@ -212,6 +252,13 @@ static void guiTask(void *pvParameter)
     }
 }
 
+static void lv_tick_task(void *arg)
+{
+    (void) arg;
+
+    lv_tick_inc(LV_TICK_PERIOD_MS);
+}
+
 esp_err_t AppLVGL_run(void)
 {
     esp_err_t ret = ESP_OK;
@@ -222,6 +269,28 @@ esp_err_t AppLVGL_run(void)
         ret = ESP_FAIL;
     }
     return ret;
+}
+
+void ui_wakeup_emoji_start(void)
+{
+    ui_acquire();
+
+    lv_gif_set_src(gif_anim, em_list[LISTEN_EMOJI].gif);
+
+    lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) true);
+
+    ui_release();
+}
+
+void ui_wakeup_emoji_over(void)
+{
+    ui_acquire();
+
+    lv_gif_set_src(gif_anim, em_list[LISTEN2NORMAL_EMOJI].gif);
+
+    lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) false);
+
+    ui_release();
 }
 
 void ui_acquire(void)
@@ -240,11 +309,4 @@ void ui_release(void)
     {
         xSemaphoreGive(xGuiSemaphore);
     }
-}
-
-static void lv_tick_task(void *arg)
-{
-    (void) arg;
-
-    lv_tick_inc(LV_TICK_PERIOD_MS);
 }

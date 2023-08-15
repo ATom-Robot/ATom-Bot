@@ -70,7 +70,9 @@
         "initializer_list": "c",
         "utility": "c",
         "functional": "c",
-        "regex": "c"
+        "regex": "c",
+        "time.h": "c",
+        "future": "cpp"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",
