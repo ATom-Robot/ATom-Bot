@@ -72,7 +72,10 @@
         "functional": "c",
         "regex": "c",
         "time.h": "c",
-        "future": "cpp"
+        "future": "cpp",
+        "esp_err.h": "c",
+        "semphr.h": "c",
+        "openai.h": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

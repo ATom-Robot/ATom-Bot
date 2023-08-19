@@ -1,10 +1,7 @@
 #pragma once
 
 #include <stdio.h>
-#include "esp_err.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
+#include "app_ui.h"
 #include "Display_conf.hpp"
 
 #define LV_HOR_RES_MAX 240

@@ -16,8 +16,6 @@
 #include "app_uart.h"
 #include "stream_server.h"
 
-static const char *TAG = "main";
-
 extern "C" void app_main()
 {
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));

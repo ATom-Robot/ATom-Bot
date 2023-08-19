@@ -99,7 +99,7 @@ esp_err_t bsp_get_feed_data(int16_t *buffer, int buffer_len)
     int32_t *tmp_buff = buffer;
     for (int i = 0; i < audio_chunksize; i++)
     {
-        tmp_buff[i] = tmp_buff[i] >> 14; // 32:8为有效位， 8:0为低8位， 全为0， AFE的输入为16位语音数据，拿29：13位是为了对语音信号放大。
+        tmp_buff[i] = tmp_buff[i] >> 14;
     }
 
     return ret;
@@ -117,7 +117,6 @@ static const sr_cmd_t g_default_cmd_info[] =
 {
     {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
     {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
 };
