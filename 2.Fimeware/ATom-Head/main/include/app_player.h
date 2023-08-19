@@ -12,7 +12,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 typedef enum
 {
     AUDIO_EVENT_NONE = 0,
@@ -49,6 +48,7 @@ player_state_t app_player_get_state(void);
 esp_err_t app_player_play_next(void);
 esp_err_t app_player_play_prev(void);
 esp_err_t app_player_play_index(size_t index);
+esp_err_t app_player_play_name(const char *file_name);
 size_t app_player_get_index(void);
 const char *app_player_get_name_from_index(size_t index);
 esp_err_t app_player_callback_register(audio_cb_t call_back, void *user_ctx);

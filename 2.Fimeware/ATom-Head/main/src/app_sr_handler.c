@@ -149,7 +149,7 @@ void sr_handler_task(void *pvParam)
             ESP_LOGI(TAG, "WAKE UP!");
 
             ui_wakeup_emoji_start();
-            app_player_play_index(1);
+            app_player_play_name("listen.mp3");
 
             last_player_state = app_player_get_state();
             // app_player_pause();

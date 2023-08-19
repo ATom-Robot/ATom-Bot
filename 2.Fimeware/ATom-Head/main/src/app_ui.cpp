@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "freertos/semphr.h"
 #include "esp_camera.h"
+#include "app_player.h"
 #include "benchmark/lv_demo_benchmark.h"
 
 static const char *TAG = "lcd";
@@ -53,19 +54,19 @@ enum
 typedef struct
 {
     const void *gif;
-    uint16_t time;
     uint8_t repeat;
+    char *voice;
 } emoji_list;
 
 emoji_list em_list[EMOJI_NUMBER] =
 {
-    {&normal_gif, 5000, 1},
-    {&normal2_gif, 5000, 1},
-    {&listen_gif, 5000, 1},
-    {&listen2normal_gif, 5000, 1},
-    {&wakeup_gif, 5000, 1},
-    {&happy_gif, 5000, 1},
-    {&hurt_gif, 5000, 1},
+    {&normal_gif, 1, ""},
+    {&normal2_gif, 1, ""},
+    {&listen_gif, 1, "listen.mp3"},
+    {&listen2normal_gif, 1, ""},
+    {&wakeup_gif, 1, "wakeup.mp3"},
+    {&happy_gif, 1, ""},
+    {&hurt_gif, 1, ""},
 };
 
 static void lv_set_cam_area(void)
@@ -130,7 +131,7 @@ esp_err_t AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, 
     screen.init();
     screen.setRotation(1);// 1 3 5 7
     screen.fillScreen(TFT_BLACK);
-    screen.setBrightness(70);
+    screen.setBrightness(60);
 
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
@@ -153,13 +154,13 @@ IRAM_ATTR void disp_driver_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_c
 }
 
 static lv_obj_t *gif_anim;
-static uint8_t cnt = 0;
 
 void next_frame_task_cb(lv_event_t *event)
 {
     lv_event_code_t code = lv_event_get_code(event);
     bool active = (bool) event->param;
     static bool is_wakeup = false;
+    static uint8_t normal_cnt = NORMAL_EMOJI;
 
     switch (code)
     {
@@ -167,11 +168,11 @@ void next_frame_task_cb(lv_event_t *event)
     {
         printf("----gif play finsh----\n");
 
+        /* normal loop */
         if (!is_wakeup)
         {
-            static uint8_t normal_cnt = 0;
             lv_gif_set_src(gif_anim, em_list[normal_cnt].gif);
-            normal_cnt >= 2 ? normal_cnt = 0 : normal_cnt += 1;
+            normal_cnt >= 1 ? normal_cnt = 0 : normal_cnt += 1;
             ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
         }
 
@@ -179,9 +180,9 @@ void next_frame_task_cb(lv_event_t *event)
     }
     case LV_EVENT_VALUE_CHANGED:
     {
+        /* wake up to emoji */
         ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
         active == true ? is_wakeup = true : is_wakeup = false;
-
         break;
     }
     default:
@@ -189,13 +190,23 @@ void next_frame_task_cb(lv_event_t *event)
     }
 }
 
+static void wakeup_voice_cb(lv_timer_t *timer)
+{
+    /* wake up voice */
+    app_player_play_name(em_list[WAKEUP_EMOJI].voice);
+    lv_timer_del(timer);
+}
+
 void lv_emoji_create(void)
 {
     gif_anim = lv_gif_create(lv_scr_act());
     lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_ALL, NULL);
 
-    lv_gif_set_src(gif_anim, em_list[NORMAL_EMOJI].gif);
+    lv_gif_set_src(gif_anim, em_list[WAKEUP_EMOJI].gif);
     lv_obj_align(gif_anim, LV_ALIGN_CENTER, 0, 0);
+
+    lv_timer_t *t = lv_timer_create(wakeup_voice_cb, 6500, NULL);
+    lv_timer_set_repeat_count(t, 1);
 
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
 }

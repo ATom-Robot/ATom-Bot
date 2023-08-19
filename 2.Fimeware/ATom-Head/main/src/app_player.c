@@ -20,9 +20,9 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-#include "app_player.h"
 #include "mp3dec.h"
 #include "file_manager.h"
+#include "app_player.h"
 
 static const char *TAG = "player";
 
@@ -367,12 +367,38 @@ esp_err_t app_player_play_index(size_t index)
     return ESP_OK;
 }
 
+int findIndex(const char *file_name)
+{
+    size_t index;
+    for (index = 0; index < g_file_num; index++)
+    {
+        if (strcmp(g_file_list[index], file_name) == 0)
+            return index;
+    }
+    return ESP_FAIL;
+}
+
+esp_err_t app_player_play_name(const char *file_name)
+{
+    ESP_RETURN_ON_FALSE(NULL != file_name, ESP_ERR_INVALID_STATE, TAG, "file name not be null");
+
+    size_t index;
+    index = findIndex(file_name);
+    if (index == ESP_FAIL)
+        return ESP_FAIL;
+
+    ESP_RETURN_ON_FALSE(index < g_file_num, ESP_ERR_INVALID_ARG, TAG, "File index out of range");
+    audio_index = index;
+    player_event_t event = AUDIO_EVENT_CHANGE;
+    BaseType_t ret_val = xQueueSend(audio_event_queue, &event, 0);
+    ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_ERR_INVALID_STATE, TAG, "The last event has not been processed yet");
+
+    return ESP_OK;
+}
+
 /* **************** START AUDIO PLAYER **************** */
 esp_err_t app_player_start(char *file_path)
 {
-    // sys_param_t *param = settings_get_parameter();
-    // bsp_codec_set_voice_volume(param->volume);
-
     ESP_RETURN_ON_FALSE(NULL != file_path, ESP_ERR_INVALID_ARG, TAG,  "Invalid base path");
     BaseType_t ret_val = xTaskCreatePinnedToCore(audio_task, "Audio Task", 4 * 1024, file_path, configMAX_PRIORITIES - 5, NULL, 1);
     ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_FAIL, TAG,  "Failed create audio task");
