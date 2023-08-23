@@ -27,7 +27,7 @@ public class RobotController : MonoBehaviour
     void Start()
     {
         targetAngleArmPitch = 0;
-        targetAngleHead = 0;
+        targetAngleHead = 90;
         targetAngleBody = 0;
     }
 
@@ -36,10 +36,10 @@ public class RobotController : MonoBehaviour
     {
         // armPitch.localRotation = Quaternion.Slerp(armPitch.localRotation,
         //     Quaternion.Euler(targetAngleArmPitch, 0, 0), slerpRatio);
-        body.localRotation = Quaternion.Slerp(body.localRotation,
-            Quaternion.Euler(0, targetAngleBody, 0), slerpRatio);
-        head.localRotation = Quaternion.Slerp(head.localRotation,
-            Quaternion.Euler(0, targetAngleHead, 0), slerpRatio);
+        // body.localRotation = Quaternion.Slerp(body.localRotation,
+        //     Quaternion.Euler(0, targetAngleBody, 0), slerpRatio);
+        head.parent.localRotation = Quaternion.Slerp(head.parent.localRotation,
+            Quaternion.Euler(0, targetAngleHead, -90), slerpRatio);
     }
 
     public void SetAngleArmPitch(int _val)
