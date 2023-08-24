@@ -16,7 +16,6 @@ public class PoseEditor : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log(">>>> ");
         GameObject frame0 = Instantiate(framePrefab, transform, true);
         SetupFrame(frame0, 0);
         frame0.transform.Find("FrameAdd").Find("Text (TMP)").GetComponent<TMP_Text>().text = "+";
