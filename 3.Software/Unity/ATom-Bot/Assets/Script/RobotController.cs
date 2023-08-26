@@ -51,7 +51,7 @@ public class RobotController : MonoBehaviour
 
     public void SetAngleArmPitch(int _val)
     {
-        targetAngleArmPitch = _val;
+        targetAngleArmPitch = -_val;
     }
 
     public void SetAngleBody(int _val)
@@ -61,7 +61,21 @@ public class RobotController : MonoBehaviour
 
     public void SetAngleHead(int _val)
     {
-        targetAngleHead = _val;
+        targetAngleHead = 90 - _val;
+    }
+    public void ResetPose()
+    {
+        targetAngleArmPitch = 0;
+        targetAngleHead = 0;
+        targetAngleBody = 0;
+
+        sliderAngleArmPitch.Value = 0;
+        sliderAngleHead.Value = 0;
+        sliderAngleBody.Value = 0;
     }
 
+    public void Recorded()
+    {
+        
+    }
 }

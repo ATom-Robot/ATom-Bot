@@ -1,0 +1,1833 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <CscToolPath>E:\CAD\Unity\2020.1.6f1\Editor\Data\Tools\RoslynScripts</CscToolPath>
+    <CscToolExe>unity_csc.bat</CscToolExe>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{7084980B-891E-D7DF-C459-A4B17B677E3C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>.</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_2020_1_6;UNITY_2020_1;UNITY_2020;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;INCLUDE_DYNAMIC_GI;ENABLE_MONO_BDWGC;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;PLATFORM_STANDALONE;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_STANDARD_2_0;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoConfig>true</NoConfig>
+    <NoStdLib>true</NoStdLib>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
+    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>E:\CAD\Unity\2020.1.6f1\Editor\Data\Managed/UnityEngine/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>E:\CAD\Unity\2020.1.6f1\Editor\Data\Managed/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSliderHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackDataDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListViewPathComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodesSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\IDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Tabs\TabIconActiveButtonTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.Point.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewHeight\ListViewHeightDataSourceSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewIconsMultipleDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\DataBindEvents.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\ITreeViewSampleItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ComparisonCompare.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\IResizableItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\ScrollRectUtilities\ScrollRectPageWithNumberTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\AccordionItemComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ResizeListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeGraph\TreeGraphComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutGrid.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\CompatibilityInput.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutStaggered.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportCalendar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldAdapter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\IO\FileDialogTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\DrivesListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\HarborShop\HarborOrder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\UIBehaviourConditional.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ButtonAdvanced.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CircularSlider\CircularSliderFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Calendar\CalendarTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleAutocomplete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderLimitMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewSampleDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\HarborShop\HarborOrderLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Cursor\CursorsDPISelector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewItemSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ColorPicker\ColorPickerColorSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleSupportCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleProgressbarIndeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectPageWithNumber.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewIcons\ListViewIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewDataSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestDate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\Terrain\DropGameObject2Terrain.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\ScaleMarkTemplate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\DraggableEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleDataCountry.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabButton{TTab}.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\JRPGOrder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerRGBBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\HotKey.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\ComponentPool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListViewPathComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\TreeGraphGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipStringViewer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\Event\SplitterResizeEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewWithInputFields\LVInputFields.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\TimeBaseTimeObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalWholeNumberOfStepsSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Layouts\TrackLayoutAnyLineCompact.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Fast\StyleFastButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodesSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\SmokeTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\ResizableHandles.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewDataSourceItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\ObjectSlidingHorizontalHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\TimeBaseTimeProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\TimeRangeSlider\TimeRangeSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\TreeViewGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ToDoList\ToDoListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogActions.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodeProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalUseValueLimitsSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabsIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\Tooltip{TData,TTooltip}.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\SpinnerFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\IO\DirectoryTreeViewComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableRow.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Rotatable\RotatableHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerRange.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ReferenceGUID.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleFileListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewCheckboxes\TreeViewCheckboxesComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewInt\ListViewInt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\DropRectTransform.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\SpinnerBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutUtilites.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\IMovableToCache.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\ProceduralImage.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.Result.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableList\TableListComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Sidebar\SlideBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\ResizableHeaderDragCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\SizesInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollBlock\ScrollBlockCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\ItemView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListView\ListViewSelectedItemObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewInt\ListViewIntSelectedItemObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemResize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewIcons\ListViewIconsItemComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleSupportNotify.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\CircularSlider\TestCircularSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\Notify.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSliderBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\PickerGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleCenteredSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\TaskView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\DoubleCarouselSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodeObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldExtendedNull.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\ListViewComponentPoolObsolete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListViewComponentGroup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderTreeViewNodeDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackForm.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutExtensions.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewWithInputFields\LVInputFieldsTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\GroupedTileView\Photo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\Tooltip.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMinProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutoCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Calendar\Time12TMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\LinkedHashSet.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\AccordionItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Containers\StyleAccordion.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutPosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\TestCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\TsunamiEffect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerHexBlockBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewWithInputFields\LVInputFieldsComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.LineX.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewCheckboxes\TreeViewCheckboxesItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleCollections.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\NotificationCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemClick.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Customization\CustomListViewIconsComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Picker\PickerIntTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderMaxValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleScroller.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\DirectoryTreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleScale.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\StandaloneExit.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewSlider\ListViewSliderItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListViewComponentItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\ListViewGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\CalendarDateProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewComponentDoubleClick.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Layouts\TrackLayoutTopLineCompact.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\FileListView\FileListViewSelectedItemProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabButtonComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\ItemDragData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewCustomEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewImages\ListViewImagesItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\IListViewItemWidth.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\CustomColoring\ListViewComponentCustomColoring.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\ListComponentPool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\Scale.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\SelectListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DatePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Spinner\SpinnerString.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Modifiers\UniformModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ILineBuilder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\LayoutSwitcher\LayoutSwitcher.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ToDoList\ToDoListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Dialog\DialogButtonComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewCheckboxes\TestTreeViewCheckboxes.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleSupportDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodesProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionEnumAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionIntAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemSelect.cs" />
+     <Compile Include="Assets\Script\RobotController.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\TaskAutocomplete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\ObjectSliding.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableHeight\ListViewVariableHeightItemDescription.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\ResultOrderLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\RangeSliderScaleBase{T}.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMaxProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Spinner\TestSpinner.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\UpdaterProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogButtonComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMinSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackDataDialogBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.Border.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\BringToFront.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Enums\PaginatorPagePosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewBaseEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\PoolEnumerator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ITemplatable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewDataFromHierarchy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewComponentEnumerator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackBackground.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\TreeView\TreeViewComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableWidth\ListViewVariableWidthItemDescription.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\TimeAnalog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\DataBindOption.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutoComboboxString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackDataView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutEllipseScroll.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerListViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\DistanceLines\DistanceLines.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectRestrictedDrag.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Sidebar\Sidebar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListView\ListViewSelectedItemProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleSupportToggle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\DistanceLines\DistanceLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesEditor.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutCompact.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\AccordionTestTemplates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CircularSlider\CircularSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\RingEffect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\NotifyInfoBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterInputField.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Fast\StyleFastProgressbarIndeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\TimeBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Switch\Switch.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewListeners.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMaxObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewInt\ListViewIntSelectedItemProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\GroupedTileView\TestGroupedTileView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\IOExceptionsView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderMinValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleSupportStop.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestDirectoryTreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SteamSpyView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\LayoutSwitcher\UILayout.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CenteredSlider\CenteredSliderVertical.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Tabs\TestTabsIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Layouts\TrackLayout.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListViewPerformance.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerImagePalette.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderLimitMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\AccordionArrow.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackLayoutByName.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorsList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\HarborShop\HarborListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewImages\ListViewImages.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\ListViewCustomHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\IStylable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\ScaleMark.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Switch\SwitchIsOnObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleCalendar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\CalendarDateSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SimpleTable\SimpleTableItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\ComboboxChanges.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabButtonComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewFilter\TileViewFilter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayout.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSpinner.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabsCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackDialogBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarDayOfWeek.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Tooltip\TestTooltip.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\DragRectTransform.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ColorPicker\TestColorPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListView\ListViewSelectedItemsProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemEventData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Notify\TestNotifyButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\KeyValueListViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabIconActiveButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Buttons\SplitButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Enums\PageSizeType.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ImageAdvanced.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewFocusEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\AccordionTestItems.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerBool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesTime.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\LocalizationSampleListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Calendar\Time24TMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\DropIndicatorBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleColorPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemResizeEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleButtonClose.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\SimpleTileView\SimpleTileViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewUnderlineSample\ListViewUnderlineSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SimpleTable\SimpleTableTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterTMProReplacementInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\References\PrefabsMenu.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\RangeSliderFloatSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\InputField\InputFieldTMProExtended.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\EasyLayoutBridge.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\IO\TestFolderDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackDataViewBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListViewStringDataFile.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutBaseType.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\ProceduralImageModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Layouts\TrackLayoutTopLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabIconButtonBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ConnectorPosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\TestGroupedListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateTimeWidgetBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportColorPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemBaseEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\Trader.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Progressbar\TestProgressbarDeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\ListViewTypeFixed.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListViewString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewCustomBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestDateTimePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\TestDoubleCarousel.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Progressbar\ProgressbarDeterminateBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Text\ITextProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleSelectable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\Terrain\DragTerrainHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodesProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\NestedInspectorAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewToggle\TreeViewToggleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\GroupedList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestPaginator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TestTreeViewTag.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TestTileViewList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderLimitMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Style\StyleTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Layouts\TrackLayoutAnyLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleSupportTable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Progressbar\ProgressbarValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\OnDragListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SimpleTable\SimpleTable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\NestedListView\NestedListViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\Event\ResizableEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewDefaultItemChange.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\DoubleCarousel.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\SliderScale.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\Terrain\DragGameObject2Terrain.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackBackgroundBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\TaskPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\ContextMenuView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabSelectEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewIcons\ListViewIconsSelectedItemProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\LinesDrawer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Dialog\PickerBoolTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Draggable\TestDraggableTarget.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\MultipleDefaultItems\ITreeViewSampleMultipleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\NotificationBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\TimeScroller.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\Item.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\Task.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\AccordionHighlight.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Modifiers\OnlyOneEdgeModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\IChatLineComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Time\TestTimeAnalog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Animations.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\IInputFieldProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Rotatable\RotatableEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Tabs\TestTabsCreate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatLimitMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\ContextMenu.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ContextMenu\TestContextMenu.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\TableHeaderDragCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Listeners\ClickListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Events\ScrollRectPageSelect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectEvents.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableList\TableList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewDropIndicator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleSupportUnityButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollBlock\ScrollBlockBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\CalendarDateSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\CenteredSliderScale.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListViewStringComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionBoolAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TracksDataViews.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollbarMinSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\IObservableList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\ListViewCustomSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteStringCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Autocomplete\AutocompleteTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ListViewPaginator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Tabs\TabIconButtonTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\KeyValueAutocomplete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarMultipleDate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerStringV2.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewItemEventData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewSampleDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMinProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewCustomNodeDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewIcons\ListViewIconsDataSourceSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteEvent.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\EmptySprite.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\TileViewTypeSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollBlock\ScrollBlockItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\TableHeaderCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewResizeHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\RangleSliderLabel.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\HotKeyCodeExtensions.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\TestBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\ComboboxDisableDefaultInput.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\DragListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListView\ListViewDataSourceSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\Picker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleSupportAny.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StylePaginator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Picker\TestPickerBool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewButtons\ListViewButtons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableWidth\ListViewVariableWidth.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarMultipleDates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\CenteredSliderLabel.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\MultipleDefaultItems\TreeViewSampleComponentContinent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\CustomButtonWithThreeModifiers.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\ResizableHeader.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\RangeSliderSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesUI.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\Simple\TestSimpleGroupedListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewButtons\ListViewButtonNavigation.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\RippleEffect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\Events\TimeEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\MultipleConnector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\AudioPlayer\AudioPlayer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuInstance.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleProgressbarDeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Events\SelectEvent.cs" />
+     <Compile Include="Assets\Tools\MyTool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ConnectorLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\References\ScriptsTemplates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleCanvas.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodeObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\PopupTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionObjectNotNullAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\KeyValueCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\IFixedUpdatable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\AccordionEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewDoubleClick.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Text\TextUnity.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackDataDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridDetector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Attributes\DataBindAttributes.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleTreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\Event\SubmitEventFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\PoolEnumeratorMode.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableList\TableListCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Listeners\DeselectListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\WaitForSecondsCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\Resizable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Events\MoveEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\FileListView\FileListViewSelectedItemObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewComponentPool.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\IO\TestFileDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListViewHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\HorizontalSelector\HorizontalSelector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Text\TextTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ConnectorArrow.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ComparisonComparer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldExtendedAdapter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\SingleConnector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Compatibility.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerRangeHSV.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\Size.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutEllipseSettings.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Modifiers\FreeModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterText.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\StandardLayoutBridge.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TileView\TileViewCustomSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldNull.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\IOrder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionBoolNotAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSliderFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\IUpgradeable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxEnum.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeGraph\TestTreeGraph.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\SliderScaleBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutUtilities.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleSupportScrollbar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerHexBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\IHideable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\IO\DrivesListViewComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\AccordionEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\TimeSpinnerBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\LineBuilder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewButtons\ListViewButtonsComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\ILateUpdatable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodeProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ColorPicker\ColorPickerColorProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\Simple\SimpleGroupedListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\LayoutUtilities.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackDataForm.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewCheckboxes\TreeViewCheckboxes.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewIconsDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewSampleDataSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\TestAccordionContent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodesObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\SelectableHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatMinValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleCircularSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewCreateFromScript.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerTreeViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewHeight\ListViewHeightSelectedItemsObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestScrollRectEvents.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogButtonsPoolCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\EnumHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\ItemDrag.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorHSV.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleColorPickerRange.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ColorPicker\ColorPickerColorObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TracksViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodesSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldTMProProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Switch\SwitchGroup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIconsDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerRGBPalette.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Lightbox\TestLightbox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\LayoutElementInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CenteredSlider\CenteredSliderBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\RangeSliderAudioTrack.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Utilites.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Tabs\TestTabsEvents.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewLoading.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\ICollectionItemChanged.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabButtonBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatLineIncoming.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\TableHeaderCellInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\TimeBaseTimeSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\JRPGOrderLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewToggleDirection.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Localization\Localization.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\DirectoryTreeViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\IViewData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\TableHeader.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\Events\NodeToggleEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\TableGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Cursor\Cursors.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\NotifySequenceManager.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Containers\StyleSupportTabsTop.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\Popup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesRectTransform.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeGraph\TreeGraphNodesSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesCompare.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\LayoutDropIndicator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Dialog\TestDialogWithDifferentButtons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\ListViewTypeBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\ScheduleView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeNode.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewImages\ListViewImagesComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Groupable\GroupableEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleImage.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleItemCountry.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewDataFromHierarchy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleTooltip.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectHeader.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.cs" />
+     <Compile Include="Assets\Script\PoseEditor.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestDatePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarDate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\References\PrefabsTemplates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\ComboboxChangesEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\Simple\SimpleGroupedItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\TimeBaseTimeSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\Events\ColorHSVChangedEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Progressbar\ProgressbarTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportSpinner.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\ISnapGridSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateTimeScroller.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Progressbar\ProgressbarEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Events\PointerUnityEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewCustomSample\ListViewCustomSampleItemDescription.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Resizable\SplitterSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleToggle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestTimePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Dialog\DialogInputHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Sidebar\SidebarHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TileView\TileView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\UITestSamples.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Progressbar\TestProgressbarIndeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListViewSelect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\IColorPickerBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\LayoutSwitcher\UIPosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesAlign.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\ListViewTypeSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogInfoBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewIcons\ListViewIconsSelectedItemObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderTreeViewNodeDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\ICollectionChanged.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\InputFieldDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\IUpdaterProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerABlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\FileListView\FileListViewSelectedItemsProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesCollections.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\IEditorCondition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalLimitMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\InputFieldDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutStaggeredSettings.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectFooter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TestTrader.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipViewer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewDeselect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackDataCustomDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderWholeNumberOfStepsSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\TimeRangeSlider\TimeRangeSliderEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\InputFieldDragSwapSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\KeyValueListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\LayoutElementsGroup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatLimitMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogButtonComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMinSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\InputFieldExtended.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemAxisEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Progressbar\ProgressbarDeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\TileViewStaggeredItemPosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleNotify.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\MultipleDefaultItems\TreeViewSampleComponentMultiple.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogButtonCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewIconsExt\ListViewIconsItemComponentExt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportButtonBig.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\DragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Text\TextAdapter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerInt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ILayoutBridge.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Attributes\ModifierID.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemEvents.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableWidth\ListViewVariableWidthComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewIcons\ListViewIconsSelectedItemsObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemTemplate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleConnector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\Dialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\DragSupportHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemMove.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\JRPGShop.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerHSVPalette.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\DrivesListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListViewSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\LinesDrawerBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\Events\CalendarDateEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewIconsWithFilter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewInt\ListViewIntDataSourceSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Progressbar\ProgressbarIndeterminate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Containers\IStyleSupportTabs.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\ButtonConfiguration.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatMaxValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CircularSlider\CircularSliderBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIconsDataSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewIconsExt\ListViewIconsItemDescriptionExt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Sidebar\SlideBlockHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapLines.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Pinchable\PinchableEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Cursor\UICursor.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\Prices.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterTMProFieldData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutCompactOrGrid.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\Tab.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\Events\ColorAlphaChangedEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMaxSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\DoubleCarouselCustomized.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\GroupSize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\Time12.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Tabs\TabIconDefaultButtonTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\LayoutElementMax.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\Event\OnChangeEventInt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TileView\TileViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\DragOneDirection.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutFlexSettings.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderListViewDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Enums\ScrollRectHeaderType.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerColorBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewItemPointerEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewSelectedNodesObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SimpleTable\SimpleTableComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableList\TableListTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\Combobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\WidgetGeneration\DataItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarDayOfWeekBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.LineY.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Progressbar\SampleProgressBar1.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Templates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMaxObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\Event\ResizableDeltaEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewEnum\ListViewEnum.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\RectangularPath.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSliderVertical.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListGroup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewComponentSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\Track.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewInt\ListViewIntSelectedItemsObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TileView\TileViewScrollRectFitter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Containers\StyleSupportTabsLeft.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\DraggableSnapEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeGraph\TreeGraphComponentIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestDateScroller.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\Simple\SimpleGroupedList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\GroupedTileView\GroupedTileView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatLineComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Autocomplete\AutocompleteCustomTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutoComboboxIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\PickerString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableHeight\ListViewVariableHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\ListView\ListViewInt\ListViewIntComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteCombobox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Switch\SwitchEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleRawImage.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\ItemDrop.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\Simple\SimpleGroupedComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Calendar\CalendarDateObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ColorPicker\ColorPickerColorSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Accordion\Accordion.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\RangeSlider\TimeRangeSlider\TestTimeRangeSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.Distance.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SteamSpyItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeNodeSerialized.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\TaskComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\Draggable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Autocomplete\AutocompleteRemote.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\UtilitiesColor.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleSupportPopup.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListViewIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\IO\FileListViewPathComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Events\PaginatorMovement.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\DragRedirect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewStringDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\IItemWidth.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\Calendar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewSlider\ListViewSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderTreeViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\LocalizationSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\Updater.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\RangeSliderScaleFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Attributes\DataBindEventAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewCheckbox\ListViewIconsToggleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\DialogCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\DirectoryTreeView\DirectoryTreeViewNodesSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMaxProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateTimeWidget.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\Event\SubmitEventInt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\AutocompleteDataSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Dialog\DialogTreeViewInputHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleAudioPlayer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Progressbar\SampleProgressBar2.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\SimpleTileView\SimpleTileView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\ModalHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Float\CircularSliderFloatValueSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewHeight\ListViewHeightSelectedItemsProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ConnectorBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\References\DataBindTemplates.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\SceneVersionNumber.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Autocomplete\AutocompleteIconsHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\SceneGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\Spinner.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewEnum\TestEnumObsolete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleSupportTooltip.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\BaseDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Autocomplete\AutocompleteIconsTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\Item.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateTimePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\TraderTreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\TimePicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewUnderlineSample\ListViewUnderlineSampleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewIconsMultipleDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollBlock\ScrollBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleSupportHeaderCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\LayoutSwitcher\LayoutSwitcherEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestCalendar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\DoubleCarouselCustomizedSlide.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewNodeDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\IListViewTemplateSelector.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\IGroupedListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EnumHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\ListViewTypeRectangle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderLimitMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewIconsExt\ListViewIconsExt.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewReorder.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileSystemEntry.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListViewVariableHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewNodeDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\TsunamiEffectScrollCompensation.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewCustomSample\ListViewCustomSampleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\SwitchTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewCustomDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderStepSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackDataFormBase.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Modifiers\CustomPremadeModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxIconsItemComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutEllipse.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Fast\StyleFast.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\DateScroller.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Progressbar\Progressbar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Enums\PaginatorDirection.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Switch\SwitchIsOnSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Notify\NotifyInfoTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewHeight\ListViewHeightSelectedItemProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleRangeSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\InventoryView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\IO\FileListViewComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TestTreeView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ToDoList\ToDoListViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CenteredSlider\CenteredSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxInputField.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\CountryFlag.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemAction.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Dialog\TestDialogWithCustomContent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipString.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\DoubleCarousel{T}.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectPage.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSwitch.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewAutoResize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutFlex.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Pinchable\Pinchable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\MultipleDefaultItems\TreeViewMultipleDefaultItems.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\RangeSlider\RangeSliderFloatVertical.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\ResizableHeaderCellInfo.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionBlockAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleSupportPicker.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Drag-and-Drop\InputFieldDragSupportBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemOverEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewIcons\ListViewIconsItemDescription.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Notify\TestNotify.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewUnderlineSample\ListViewUnderlineSampleItemDescription.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\KeyValueListViewDataSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\GroupedTileView\GroupedTileViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipSettings.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewSlider\ListViewSliderComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Int\SpinnerValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\ListViewCustomWidth.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\ObservableList.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewVariableHeight\ListViewVariableHeightComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ColorPicker\TestColorPickerRange.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleDropdown.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Table\ResizableHeaderCell.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewInt\ListViewIntComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeNodeDropType.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ScrollRectUtilities\TestScrollRectEventsPull.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\AccordionArrowAnimation.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListView\ListViewSelectedItemsObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\SimpleTileView\SimpleTileViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Switch\SwitchIsOnSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\HotKeyCode.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleSupportSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\HierarchyToggle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleContextMenu.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Int\RangeSliderValueMinObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewCustomSample\ListViewCustomSample.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGrid.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Sidebar\SidebarEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedItems.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Text\TextNull.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIconsDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Dialog\Lightbox.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\ITrackData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Combobox\ComboboxTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewSaveIndices.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\NestedListView\NestedListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Attributes\DataBindFieldAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Calendar\CalendarDateTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Calendar\CalendarDayOfWeekTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderValueMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewEnums.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\ListViewGameObjects.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleTime.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\IOrderLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\InputField\IInputFieldExtended.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Progressbar\SampleProgressbar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Groupable\Groupable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Input\StyleSupportButtonSmall.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMaxSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\IGroupedListItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\JRPGShop\PlaylistDialogHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Tabs\TabButtonComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestDayRangeSource.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Autocomplete\Autocomplete.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Style.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TracksViewBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Notify\NotificationButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewWithInputFields\LVInputFieldsItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewCustomDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\InventoryTooltip.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackViewBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Combobox\ComboboxIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatLineOutgoing.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewNodesSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\LayoutSwitcher\TestLayoutSwitcher.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\ColorPickerHSVBlock.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestScene2.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Calendar\TestCalendarDayRange.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Groupable\TestGroupable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\EasyLayoutFlexOrStaggered.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\IListViewItemHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Dialog\DialogInfoTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Tooltip\TutorialsTooltips.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeNodeToggle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\DataBindGenerator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\TileViewStaggered.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Vertical\CenteredSliderVerticalLimitMinSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\Time24.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\ListView\ListViewIconsItemComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Progressbar\ProgressbarMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\GroupedListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleSlider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Updater\IUpdatable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\EasyLayout\Padding.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Resizable\Splitter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Obsolete\IItemHeight.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewIconsDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterTMProWindow.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewButtons\ListViewButtonsItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\IStyleDefaultValues.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Combobox\ComboboxIconsItemComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewInt\ListViewIntSelectedItemsProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Attributes\DataBindSupportAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\ListViewTypeEllipse.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\ColorPicker\ColorPickerHexBlockTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\SnapGridDrawer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Rotatable\Rotatable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewCustomDragSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapGridBase.DistanceValue.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollRectPaginator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIconsLayoutWidthExtender.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\ScrollButtons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListViewComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\TestComboboxIcons.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewEnum\ListViewEnumComponent.cs" />
+     <Compile Include="Assets\Packages\ProceduralUIImage\Scripts\Modifiers\RoundModifier.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewInt\ListViewIntComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\ListView\ListViewStringComponentTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleUnityButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestMultipleDefaultItems.cs" />
+     <Compile Include="Assets\Script\FrameMeta.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewColors\ListViewColorsComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Events\SubmitEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CenteredSlider\Horizontal\CenteredSliderUseValueLimitsSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Extensions.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewType\TileViewTypeFixed.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Autocomplete\AutocompleteTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SteamSpyComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\MultipleDefaultItems\TreeViewSampleComponentCountry.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\MultipleDefaultItems\GroupMultipleItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\Tabs.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Listeners\TransformListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\MultipleDefaultItems\GroupMultipleComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleText.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewHeight\ListViewHeightSelectedItemObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FolderDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Spinner\TestSpinnerFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\LayoutUtilites.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionFloatAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\GroupedListView\MultipleDefaultItems\GroupMultipleListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Switch\SwitchIsOnProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleSupportButtonClose.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Spinner\Event\OnChangeEventFloat.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\Table.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TasksView\TaskTests.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewEnum\TestListViewEnum.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\References\PrefabsMenuGenerated.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\OnDragKeepSelected.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\TileViewIcons\TileViewIconsTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Containers\StyleTabs.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\CollectionsUtilities\IObservable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\TestListViewIconsThread.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tooltips\TooltipPosition.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\SlideUp.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatMaxSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabIconButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\TreeViewCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\ComboboxGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\SteamSpyData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Accordion\AccordionTestToggle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListViewStringItemComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Tabs\TabIconDefaultButton.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\TreeViewCustomNodeDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ColorPicker\Events\ColorRGBChangedEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewItem.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Connector\ConnectorType.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\ListViewStringDropSupport.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\CircularSlider\Int\CircularSliderValueProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatViewTest.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\ListView\ListViewIcons\ListViewIconsSelectedItemsProvider.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\MenuItemMoveEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\IValidateable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Listeners\ScrollListener.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewString\ListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Table\TableRowComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\ObjectSlidingVerticalHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TestScheduleView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Drag-and-Drop\IAutoScroll.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\HarborShop\HarborShop.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\MonoBehaviourConditional.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\ListViewAutoResize\TestListViewAutoResize.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Progressbar\ProgressbarDeterminateTMPro.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SnapGrid\SnapDragMode.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ContextMenu\IMenuSubscriber.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Utilities\Utilities.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Converter\ConverterTMProMessage.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\FileListView\FileListViewSelectedItemsObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleTable.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileListViewPath.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\Chat\ChatLine.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Dialogs\StyleDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\UIWidgetsMonoBehaviour.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\IO\FileListView\FileListViewDataSourceSetter.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Misc\StyleSidebar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Shops\HarborShop\HarborListView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Calendar\CalendarDateBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewColors\ListViewColors.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Cursor\UICursorSettings.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Draggable\DraggableHandle.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\Events\TreeViewNodeEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeGraph\TreeGraph.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Collections\StyleDropIndicator.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\FileDialog.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\Events\ListViewGameObjectsEvent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TracksView\TrackView.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\TMProSupport\Scripts\Utilities\InputFieldTMProProxy.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\ListView\NestedListView\NestedListViewComponent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\TreeView\TreeViewSelectedNodesSynchronizer.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Core\UIWidgetsBehaviour.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleInputField.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\AutocompleteGeneratorHelper.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TileView\GroupedTileView\GroupedPhotos.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ScrollRectUtilities\Enums\ScrollButtonType.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeView\ListNode.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\SliderScale\RangeSliderScale.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Inventory\InventoryController.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestTabs.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewComponentWithClick.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewEnum\ListViewEnum{T}.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Editor.Conditions\EditorConditionObjectNullAttribute.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\Combobox\ComboboxAutocompleteCopyData.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\Spinner\Float\SpinnerFloatValueObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Unity\StyleScrollbar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ListView\ListViewItemTemplate.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\IO\DrivesListViewComponentBase.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\DataBindSupport\RangeSlider\Float\RangeSliderFloatValueMinObserver.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TreeGraph\TreeGraphCustom.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TreeView\TreeViewSampleItemContinent.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Style\Fast\StyleFastScrollbar.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\Effects\UV1Effect.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Examples\TestScripts\TestMobile.cs" />
+     <Compile Include="Assets\Packages\UI Widgets\Scripts\TracksView\TrackFormBase.cs" />
+     <Compile Include="Assets\Script\scroll utils\PlayButtonBehavior.cs" />
+     <Compile Include="Assets\Script\scroll utils\AutoSizeLayout.cs" />
+     <Compile Include="Assets\Script\scroll utils\ScrollMechanic.cs" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMPro.cginc" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIFlare.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\UnlitColor.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Mobile.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\Grid.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderPlaneHSV.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
+     <None Include="Assets\Packages\UI Widgets\Examples\TestData\TileViewListData.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\BoxSelectionShader.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTCommon\Resources\RenderTextureOverlay.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderCircleHSV.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\DepthMaskColorBillboardShader.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIRipple.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\ArrowShader.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderHLineRGB.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderVLineRGB.shader" />
+     <None Include="Assets\Packages\ProceduralUIImage\Resources\Shaders\ProceduralImageRuntime.shader" />
+     <None Include="Assets\Packages\UI Widgets\Examples\TestData\classes.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\DepthMaskColorShader.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderVLineHSV.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIFlareGlobal.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTCommon\Resources\Billboard.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\LineBillboard.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Fonts\FontLicense!.txt" />
+     <None Include="Assets\Packages\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\SSCircleShader.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\AxisShader.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIWidgets.cginc" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+     <None Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\Observer.template.txt" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderPlaneRGB.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
+     <None Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\Setter.template.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\VertexColorClipUsingClipPlane.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UILinesDrawer.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\SSQuadShader.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF Overlay.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIRing.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\Shape.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Prefabs\Models\Materials\Shaders\QuadShader.shader" />
+     <None Include="Assets\Packages\UI Widgets\Examples\TestData\countries.txt" />
+     <None Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\Synchronizer.template.txt" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTCommon\Resources\LineBillboard.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Outline\Resources\UnityOutline.cginc" />
+     <None Include="Assets\Packages\UI Widgets\Scripts\ThirdPartySupport\readme.txt" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTCommon\Resources\SceenSpaceDecal.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIFlareTransparent.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
+     <None Include="Assets\Packages\UI Widgets\Scripts\WidgetGeneration\DataBindSupport\Provider.template.txt" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Masking.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\RawImage.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Outline\Resources\UnityOutline.shader" />
+     <None Include="Assets\Packages\UI Widgets\Shaders\UIGradientShaderHLineHSV.shader" />
+     <None Include="Assets\Packages\Battlehub\ThirdParty\TextMesh Pro\Resources\Shaders\TMPro_Surface.cginc" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\LineBillboardClip.shader" />
+     <None Include="Assets\Packages\Battlehub\RTEditor\Content\Runtime\RTHandles\Shaders\Resources\PointBillboard.shader" />
+     <None Include="Assets\Packages\TextMesh Pro\Shaders\TMP_Sprite.shader" />
+ <Reference Include="Unity.Timeline.Editor">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.VSCode.Editor">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TextMeshPro.Editor">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UI">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Timeline">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Rider.Editor">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.VisualStudio.Editor">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.VisualStudio.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TextMeshPro">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEditor.UI">
+ <HintPath>D:/workspace_rb/ATom-Bot/3.Software/Unity/ATom-Bot/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AIModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ARModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ARModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AccessibilityModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AccessibilityModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AndroidJNIModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AndroidJNIModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AnimationModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AnimationModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AssetBundleModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AssetBundleModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.AudioModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AudioModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ClothModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClothModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ClusterInputModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClusterInputModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ClusterRendererModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ClusterRendererModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.CoreModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.CrashReportingModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.CrashReportingModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.DSPGraphModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.DSPGraphModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.DirectorModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.DirectorModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.GameCenterModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.GameCenterModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.GridModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.GridModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.HotReloadModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.HotReloadModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.IMGUIModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.IMGUIModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ImageConversionModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ImageConversionModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.InputModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.InputModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.InputLegacyModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.InputLegacyModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.JSONSerializeModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.LocalizationModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.LocalizationModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ParticleSystemModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.PerformanceReportingModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.PerformanceReportingModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.PhysicsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.PhysicsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Physics2DModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.Physics2DModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ProfilerModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ProfilerModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.ScreenCaptureModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.SharedInternalsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.SharedInternalsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.SpriteMaskModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.SpriteMaskModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.SpriteShapeModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.SpriteShapeModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.StreamingModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.StreamingModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.SubstanceModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.SubstanceModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.SubsystemsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.SubsystemsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TLSModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TLSModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TerrainModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TerrainModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TerrainPhysicsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TextCoreModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TextCoreModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TextRenderingModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TextRenderingModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TilemapModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.TilemapModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UIModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UIModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UIElementsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UIElementsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UIElementsNativeModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UIElementsNativeModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UNETModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UNETModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UmbraModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UmbraModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityAnalyticsModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityAnalyticsModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityConnectModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityConnectModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityTestProtocolModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityTestProtocolModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityWebRequestModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VFXModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.VFXModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VRModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.VRModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VehiclesModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.VehiclesModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VideoModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.VideoModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.VirtualTexturingModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.VirtualTexturingModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.WindModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.WindModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.XRModule">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
+ </Reference>
+ <Reference Include="mscorlib">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
+ </Reference>
+ <Reference Include="System">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Core">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Core.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Serialization">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Runtime.Serialization.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Xml.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.Linq">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Xml.Linq.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Numerics">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Numerics.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Numerics.Vectors">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Numerics.Vectors.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Http">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Net.Http.dll</HintPath>
+ </Reference>
+ <Reference Include="Microsoft.CSharp">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Microsoft.CSharp.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/System.Data.dll</HintPath>
+ </Reference>
+ <Reference Include="Microsoft.Win32.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/Microsoft.Win32.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="netstandard">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/netstandard.dll</HintPath>
+ </Reference>
+ <Reference Include="System.AppContext">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.AppContext.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Collections.Concurrent">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Collections.Concurrent.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Collections">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Collections.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Collections.NonGeneric">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Collections.NonGeneric.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Collections.Specialized">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Collections.Specialized.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ComponentModel.Annotations">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ComponentModel.Annotations.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ComponentModel">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ComponentModel.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ComponentModel.EventBasedAsync">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ComponentModel.EventBasedAsync.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ComponentModel.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ComponentModel.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ComponentModel.TypeConverter">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ComponentModel.TypeConverter.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Console">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Console.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data.Common">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Data.Common.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.Contracts">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.Contracts.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.Debug">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.Debug.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.FileVersionInfo">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.FileVersionInfo.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.Process">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.Process.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.StackTrace">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.StackTrace.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.TextWriterTraceListener">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.TextWriterTraceListener.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.Tools">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.Tools.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Diagnostics.TraceSource">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Diagnostics.TraceSource.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Drawing.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Drawing.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Dynamic.Runtime">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Dynamic.Runtime.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Globalization.Calendars">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Globalization.Calendars.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Globalization">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Globalization.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Globalization.Extensions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Globalization.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.Compression.ZipFile">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.Compression.ZipFile.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.FileSystem">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.FileSystem.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.FileSystem.DriveInfo">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.FileSystem.DriveInfo.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.FileSystem.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.FileSystem.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.FileSystem.Watcher">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.FileSystem.Watcher.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.IsolatedStorage">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.IsolatedStorage.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.MemoryMappedFiles">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.MemoryMappedFiles.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.Pipes">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.Pipes.dll</HintPath>
+ </Reference>
+ <Reference Include="System.IO.UnmanagedMemoryStream">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.IO.UnmanagedMemoryStream.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Linq">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Linq.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Linq.Expressions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Linq.Expressions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Linq.Parallel">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Linq.Parallel.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Linq.Queryable">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Linq.Queryable.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Http.Rtc">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Http.Rtc.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.NameResolution">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.NameResolution.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.NetworkInformation">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.NetworkInformation.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Ping">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Ping.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Requests">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Requests.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Security">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Security.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.Sockets">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.Sockets.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.WebHeaderCollection">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.WebHeaderCollection.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.WebSockets.Client">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.WebSockets.Client.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Net.WebSockets">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Net.WebSockets.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ObjectModel">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ObjectModel.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection.Emit">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.Emit.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection.Emit.ILGeneration">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.Emit.ILGeneration.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection.Emit.Lightweight">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.Emit.Lightweight.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection.Extensions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Reflection.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Reflection.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Resources.Reader">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Resources.Reader.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Resources.ResourceManager">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Resources.ResourceManager.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Resources.Writer">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Resources.Writer.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.CompilerServices.VisualC">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.CompilerServices.VisualC.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Extensions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Handles">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Handles.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.InteropServices">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.InteropServices.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.InteropServices.WindowsRuntime">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Numerics">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Numerics.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Serialization.Formatters">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Serialization.Formatters.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Serialization.Json">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Serialization.Json.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Serialization.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Serialization.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Runtime.Serialization.Xml">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Runtime.Serialization.Xml.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Claims">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Claims.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Cryptography.Algorithms">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Cryptography.Algorithms.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Cryptography.Csp">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Cryptography.Csp.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Cryptography.Encoding">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Cryptography.Encoding.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Cryptography.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Cryptography.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Cryptography.X509Certificates">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Cryptography.X509Certificates.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.Principal">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.Principal.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Security.SecureString">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Security.SecureString.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ServiceModel.Duplex">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ServiceModel.Duplex.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ServiceModel.Http">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ServiceModel.Http.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ServiceModel.NetTcp">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ServiceModel.NetTcp.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ServiceModel.Primitives">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ServiceModel.Primitives.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ServiceModel.Security">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ServiceModel.Security.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Text.Encoding">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Text.Encoding.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Text.Encoding.Extensions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Text.Encoding.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Text.RegularExpressions">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Text.RegularExpressions.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.Overlapped">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.Overlapped.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.Tasks">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.Tasks.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.Tasks.Parallel">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.Tasks.Parallel.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.Thread">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.Thread.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.ThreadPool">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.ThreadPool.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Threading.Timer">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Threading.Timer.dll</HintPath>
+ </Reference>
+ <Reference Include="System.ValueTuple">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.ValueTuple.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.ReaderWriter">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.ReaderWriter.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.XDocument">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.XDocument.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.XmlDocument">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.XmlDocument.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.XmlSerializer">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.XmlSerializer.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.XPath">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.XPath.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Xml.XPath.XDocument">
+ <HintPath>E:/CAD/Unity/2020.1.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/System.Xml.XPath.XDocument.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Battlehub.RTEditor.Editor.csproj">
+      <Project>{6D63CA1D-A336-6498-0E6A-0E917457BC23}</Project>
+      <Name>Battlehub.RTEditor.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Battlehub.RTEditor.csproj">
+      <Project>{9DFA0CCB-D2C8-51DF-F75C-7132EA0B391C}</Project>
+      <Name>Battlehub.RTEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
