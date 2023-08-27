@@ -493,13 +493,7 @@ public class ScrollMechanic : MonoBehaviour, IDropHandler, IDragHandler, IBeginD
 
     public void OnValueChanged(int id)
     {
-        float[] deltaTimes = new float[testData.Length];
-        deltaTimes[0] = 0.1f;
-        deltaTimes[1] = 0.2f;
-        deltaTimes[2] = 0.5f;
-        deltaTimes[3] = 1.0f;
-        deltaTimes[4] = 2.0f;
-        deltaTimes[5] = 5.0f;
-        // deltaTime.GetComponent<PlayButtonBehavior>().deltaTime = deltaTimes[id];
+        // 向按钮传入滚动的字符串
+        deltaTime.GetComponent<PlayButtonBehavior>().deltaTime = int.Parse(testData[id].Replace("s", ""));
     }
 }

@@ -2,10 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UIWidgets;
 
 public class RobotController : MonoBehaviour
 {
+    public PlayButtonBehavior pb;
+
     public float slerpRatio = 0.5f;
 
     public Transform armPitch;
@@ -23,6 +26,7 @@ public class RobotController : MonoBehaviour
     public CenteredSlider sliderAngleHead;
     public CenteredSlider sliderAngleBody;
 
+    public GameObject deltaTime;
     public bool isPlaying = false;
 
     // Start is called before the first frame update
@@ -74,8 +78,4 @@ public class RobotController : MonoBehaviour
         sliderAngleBody.Value = 0;
     }
 
-    public void Recorded()
-    {
-        
-    }
 }
