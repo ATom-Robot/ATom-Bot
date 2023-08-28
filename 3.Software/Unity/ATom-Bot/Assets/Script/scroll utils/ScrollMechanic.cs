@@ -493,7 +493,7 @@ public class ScrollMechanic : MonoBehaviour, IDropHandler, IDragHandler, IBeginD
 
     public void OnValueChanged(int id)
     {
-        // 向按钮传入滚动的字符串
+        // 向按钮传入字符串 5s,6s,7s......
         deltaTime.GetComponent<PlayButtonBehavior>().deltaTime = int.Parse(testData[id].Replace("s", ""));
     }
 }

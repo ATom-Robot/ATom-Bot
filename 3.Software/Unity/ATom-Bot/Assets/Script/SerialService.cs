@@ -22,7 +22,7 @@ public class SerialService : MonoBehaviour
 
     char[] strchar = new char[128];
 
-    public List<byte> listReceive = new List<byte>();
+    private List<byte> listReceive = new List<byte>();
 
     // Start is called before the first frame update
     void Start()
