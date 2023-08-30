@@ -11,7 +11,7 @@
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pArmCC>6160000::V6.16::ARMCLANG</pArmCC>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <pCCUsed>6160000::V6.16::ARMCLANG</pCCUsed>
       <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -404,6 +404,11 @@
               <FileType>1</FileType>
               <FilePath>applications\APP\app_motion_control.c</FilePath>
             </File>
+            <File>
+              <FileName>sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\APP\sensor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -420,11 +425,6 @@
           <GroupName>AT-Control</GroupName>
           <Files>
             <File>
-              <FileName>bsp_pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\Control\bsp_pid.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_motor.c</FilePath>
@@ -433,6 +433,11 @@
               <FileName>bsp_encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Control\bsp_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\Control\bsp_pid.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -470,14 +475,14 @@
           <GroupName>AT-LED</GroupName>
           <Files>
             <File>
-              <FileName>ws2812.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\LED\ws2812.c</FilePath>
-            </File>
-            <File>
               <FileName>ws2812b_example.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\LED\ws2812b_example.c</FilePath>
+            </File>
+            <File>
+              <FileName>ws2812.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\LED\ws2812.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -545,24 +550,24 @@
               <FilePath>rt-thread\components\libc\cplusplus\cxx_Thread.cpp</FilePath>
             </File>
             <File>
-              <FileName>cxx_crt_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt_init.c</FilePath>
-            </File>
-            <File>
               <FileName>cxx_Semaphore.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>rt-thread\components\libc\cplusplus\cxx_Semaphore.cpp</FilePath>
             </File>
             <File>
-              <FileName>cxx_crt.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt.cpp</FilePath>
-            </File>
-            <File>
               <FileName>cxx_Mutex.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>rt-thread\components\libc\cplusplus\cxx_Mutex.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>cxx_crt_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>cxx_crt.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>rt-thread\components\libc\cplusplus\cxx_crt.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -600,14 +605,14 @@
           <GroupName>cpu_usage</GroupName>
           <Files>
             <File>
-              <FileName>cpu_usage.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage.c</FilePath>
-            </File>
-            <File>
               <FileName>cpu_usage_cmd.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\cpu_usage-v1.0.0\cpu_usage_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_usage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -763,11 +768,6 @@
               <FileName>drv_hwtimer.c</FileName>
               <FileType>1</FileType>
               <FilePath>libraries\HAL_Drivers\drv_hwtimer.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>libraries\HAL_Drivers\drv_i2c.c</FilePath>
             </File>
             <File>
               <FileName>drv_soft_i2c.c</FileName>
@@ -1035,7 +1035,7 @@
               <FilePath>rt-thread\components\drivers\sensors\sensor_cmd.c</FilePath>
             </File>
             <File>
-              <FileName>sensor.c</FileName>
+              <FileName>sensors_sensor.c</FileName>
               <FileType>1</FileType>
               <FilePath>rt-thread\components\drivers\sensors\sensor.c</FilePath>
             </File>
@@ -1050,29 +1050,9 @@
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_ranging.c</FilePath>
             </File>
             <File>
-              <FileName>vl53l0x_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x_api_calibration.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_calibration.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x_App.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\examples\vl53l0x_App.c</FilePath>
-            </File>
-            <File>
               <FileName>vl53l0x_platform.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\platform\src\vl53l0x_platform.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x_api_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_core.c</FilePath>
             </File>
             <File>
               <FileName>vl53l0x.c</FileName>
@@ -1080,9 +1060,29 @@
               <FilePath>packages\vl53l0x-v1.0.0\src\vl53l0x.c</FilePath>
             </File>
             <File>
+              <FileName>vl53l0x_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x_api_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x_App.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\examples\vl53l0x_App.c</FilePath>
+            </File>
+            <File>
               <FileName>vl53l0x_api_strings.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_strings.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x_api_calibration.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_calibration.c</FilePath>
             </File>
           </Files>
         </Group>

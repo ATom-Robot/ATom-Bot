@@ -497,31 +497,3 @@ rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
     return RT_EOK;
 }
 MSH_CMD_EXPORT(Read_mpu6xx_dmp, Read data mpu6050 from dmp);
-
-static void read_mpu6xxx_entry()
-{
-    while (1)
-    {
-        MPU6050_DMP_GetData(&robot_imu_dmp_data);
-
-        rt_thread_mdelay(20);
-    }
-}
-
-int read_mpu6xxx_td(void)
-{
-    rt_thread_t distance_thread;
-
-    distance_thread = rt_thread_create("mpu",
-                                       read_mpu6xxx_entry,
-                                       RT_NULL,
-                                       1024,
-                                       24,
-                                       10);
-    if (distance_thread != RT_NULL)
-    {
-        rt_thread_startup(distance_thread);
-    }
-
-    return RT_EOK;
-}

@@ -158,6 +158,19 @@ menu "On-chip Peripheral Drivers"
                         range 1 63
                         default 17
                 endif
+            config BSP_USING_I2C2
+                bool "Enable I2C2 Bus (User I2C)"
+                default n
+                if BSP_USING_I2C2
+                    config BSP_I2C2_SCL_PIN
+                        int "i2c2 SCL pin number"
+                        range 1 63
+                        default 26
+                    config BSP_I2C2_SDA_PIN
+                        int "i2c2 SDA pin number"
+                        range 1 63
+                        default 27
+                endif
         endif
 
     menuconfig BSP_USING_PWM

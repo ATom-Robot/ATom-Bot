@@ -18,7 +18,7 @@
 
 #ifdef BSP_USING_HW_I2C
 
-#define BSP_I2C2_CLOCK  300000
+#define BSP_I2C2_CLOCK  100000
 
 /* stm32 config class */
 typedef void (*pI2CInit)(rt_uint32_t speed);

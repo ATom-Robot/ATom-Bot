@@ -15,6 +15,7 @@
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
 #include "bsp_pid.h"
+#include "sensor.h"
 #include "ano.h"
 
 #define POWER_SW        GET_PIN(C, 6)
@@ -46,9 +47,9 @@ int main(void)
     Motor_Init();
     Encoder_Init();
     MPU6050_Init();
-    read_mpu6xxx_td();
-
-//    joint_i2c_init();
+    joint_i2c_init();
+	
+	sensor_thread_create();
 
     /* PID Init*/
     Loc_level_PID_Init();

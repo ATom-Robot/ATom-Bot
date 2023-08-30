@@ -14,12 +14,40 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-#define ANY 0
-#define JOINT_SIZE 3
-
 static uint8_t i2cRxData[8];
 static uint8_t i2cTxData[8];
 struct Joint_device joint[JOINT_SIZE];
+
+int target_angle = 0;
+
+static rt_err_t joint_write_regs(struct Joint_device *dev, rt_uint8_t reg, rt_uint8_t len, rt_uint8_t *buf)
+{
+    rt_int8_t res = 0;
+    struct rt_i2c_msg msgs[2];
+
+    if (dev->bus->type == RT_Device_Class_I2CBUS)
+    {
+        msgs[0].addr  = dev->config.id;   /* Slave address */
+        msgs[0].flags = RT_I2C_WR;        /* Write flag */
+        msgs[0].buf   = &reg;             /* Slave register address */
+        msgs[0].len   = 1;                /* Number of bytes sent */
+
+        msgs[1].addr  = dev->config.id;   /* Slave address */
+        msgs[1].flags = RT_I2C_RD;        /* Read flag */
+        msgs[1].buf   = buf;              /* Read data pointer */
+        msgs[1].len   = len;              /* Number of bytes read */
+
+        if (rt_i2c_transfer((struct rt_i2c_bus_device *)dev->bus, msgs, 2) == 2)
+        {
+            res = RT_EOK;
+        }
+        else
+        {
+            res = -RT_ERROR;
+        }
+    }
+    return res;
+}
 
 static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uint8_t len)
 {
@@ -30,9 +58,9 @@ static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uin
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)
     {
-        msgs.addr  = dev->config.id;        /* slave address */
-        msgs.flags = RT_I2C_IGNORE_NACK;    /* write flag */
-        msgs.buf   = buf;                   /* Send data pointer */
+        msgs.addr  = dev->config.id;	/* slave address */
+        msgs.flags = RT_I2C_WR;			/* write flag */
+        msgs.buf   = buf;				/* Send data pointer */
         msgs.len   = len;
 
         if (rt_i2c_transfer((struct rt_i2c_bus_device *)dev->bus, &msgs, 1) == 1)
@@ -112,11 +140,8 @@ void SetJointEnable(struct Joint_device  *_joint, rt_bool_t _enable)
 
 void TransmitAndReceiveI2cPacket(struct Joint_device *_joint)
 {
-    rt_err_t state = -RT_ERROR;
-
-    state = joint_write_reg(_joint, i2cTxData, 5);
-
-    state = joint_read_regs(_joint, 5, i2cRxData);
+    joint_write_reg(_joint, i2cTxData, 5);
+    joint_read_regs(_joint, 5, i2cRxData);
 }
 
 void SetJointTorqueLimit(struct Joint_device  *_joint, float _percent)
@@ -374,12 +399,8 @@ int joint_angele_test(int argc, const char *argv[])
     }
 
     float angle = atof(argv[1]);
-
-    SetJointEnable(&joint[1], RT_TRUE);
-    SetJointEnable(&joint[2], RT_TRUE);
-
-    UpdateJointAngle_2(&joint[1], angle);
-    UpdateJointAngle_2(&joint[2], angle);
+	
+	target_angle = (int)angle;
 
     LOG_D("set dev1 target angle:%f | current angle:%f", angle, joint[1].config.angle);
     LOG_D("set dev2 target angle:%f | current angle:%f", angle, joint[2].config.angle);
@@ -398,25 +419,27 @@ static int joint_init(void)
     joint[ANY].config.modelAngelMin = -90;
     joint[ANY].config.modelAngelMax = 90;
     joint[ANY].config.inverted = RT_FALSE;
-
-    joint[1].config.id = 2;
+	
+	//right
+    joint[1].config.id = 1;
     joint[1].config.angleMin = 0;
-    joint[1].config.angleMax = 180;
+    joint[1].config.angleMax = 95;
     joint[1].config.angle = 0;
-    joint[1].config.modelAngelMin = -90;
+    joint[1].config.modelAngelMin = -20;
     joint[1].config.modelAngelMax = 90;
     joint[1].config.inverted = RT_FALSE;
-
-    joint[2].config.id = 1;
+	
+	//left
+    joint[2].config.id = 2;
     joint[2].config.angleMin = 0;
-    joint[2].config.angleMax = 180;
+    joint[2].config.angleMax = 90;
     joint[2].config.angle = 0;
     joint[2].config.modelAngelMin = -90;
-    joint[2].config.modelAngelMax = 90;
+    joint[2].config.modelAngelMax = 0;
     joint[2].config.inverted = RT_FALSE;
 
-    SetJointEnable(&joint[1], RT_TRUE);
-    SetJointEnable(&joint[2], RT_TRUE);
+    SetJointEnable(&joint[1], RT_TRUE);//right
+    SetJointEnable(&joint[2], RT_TRUE);//left
 
     UpdateJointAngle_2(&joint[1], 0);
     UpdateJointAngle_2(&joint[2], 0);

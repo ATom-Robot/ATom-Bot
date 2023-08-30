@@ -4,6 +4,9 @@
 #include <rtthread.h>
 #include <stdint.h>
 
+#define ANY 0
+#define JOINT_SIZE 3
+
 struct Joint_config
 {
     uint8_t id;
