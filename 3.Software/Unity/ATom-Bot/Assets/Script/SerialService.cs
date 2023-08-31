@@ -16,13 +16,9 @@ public class SerialService : MonoBehaviour
 
     SerialPort sp = null;
 
-    public int serial_baudRate = 115000;//波特率
+    Thread rx_thread;
 
-    string str;
-
-    char[] strchar = new char[128];
-
-    private List<byte> listReceive = new List<byte>();
+    public int serial_baudRate = 115200;//波特率
 
     // Start is called before the first frame update
     void Start()
@@ -35,13 +31,14 @@ public class SerialService : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void SetDropDownAddListener(UnityAction<int> OnValueChangeListener)
     {
         //当点击后值改变是触发 (切换下拉选项)
-        dropDown.onValueChanged.AddListener((value) => {
+        dropDown.onValueChanged.AddListener((value) =>
+        {
             OnValueChangeListener(value);
         });
     }
@@ -89,8 +86,8 @@ public class SerialService : MonoBehaviour
             Debug.Log("serial port:" + _portName);
             sp = new SerialPort(_portName, _baudRate, _parity, dataBits, _stopbits);//绑定端口
             sp.Open();
-            Thread thread = new Thread(new ThreadStart(DataReceiveFunction));
-            thread.Start();
+            rx_thread = new Thread(DataReceiveFunction);
+            rx_thread.Start();
         }
         catch (Exception ex)
         {
@@ -102,51 +99,50 @@ public class SerialService : MonoBehaviour
     //接收数据
     void DataReceiveFunction()
     {
-        byte[] buffer = new byte[1024];
-        int bytes = 0;
-        while (true)
+        while (sp != null && sp.IsOpen)
         {
-            if (sp != null && sp.IsOpen)
+            try
             {
-                try
-                {
-                    bytes = sp.Read(buffer, 0, buffer.Length);
-                    if (bytes == 0)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        string strbytes = Encoding.Default.GetString(buffer);
-                        //接受的数据
-                        Debug.Log(strbytes);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (ex.GetType() != typeof(ThreadAbortException))
-                    {
-                    }
-                }
+                RecAndProcessingFunction();
             }
+            catch (Exception) { }
+
             Thread.Sleep(10);
         }
     }
 
-    //打印数据
-    void PrintData()
+    private void RecAndProcessingFunction()
     {
-        for (int i = 0; i < listReceive.Count; i++)
+        int retLen = sp.BytesToRead;
+        byte[] buffer = new byte[retLen];
+
+        sp.Read(buffer, 0, retLen);
+
+        if (buffer[0] == 170 && buffer[1] == 255)
         {
-            strchar[i] = (char)(listReceive[i]);
-            str = new string(strchar);
+            int sum = 0;
+            int size = buffer[3];
+            for (int i = 0; i < size + 4; i++)
+            {
+                sum += buffer[i];
+            }
+            int sum_l = sum & 0xFF;
+
+            if (sum_l == buffer[size + 4])
+                Debug.Log(buffer[3] + " " + buffer[4]);
         }
-        Debug.Log(str);
     }
 
     // 关闭串口
     private void CloseSerialPort()
     {
         sp.Close();
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log("关闭串口");
+        CloseSerialPort();
+        rx_thread.Abort();
     }
 }

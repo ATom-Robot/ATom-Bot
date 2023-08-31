@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 class Action
 {
-    public int arm_angle;
-    public int head_angle;
+    public float arm_angle;
+    public float head_angle;
 }
 
 [System.Serializable]
@@ -16,16 +16,26 @@ class Action_data
 }
 public class ActionEditor : MonoBehaviour
 {
+    public GameObject robot;
+
+    Action action = new Action();
+    Action_data action_Data = new Action_data();
+
     void Start()
     {
-        write_json_data();
+        action_Data.action_list = new List<Action>();
+    }
+
+    void update()
+    {
+        RobotController rc = robot.GetComponent<RobotController>();
+
+        action.head_angle = rc.targetAngleHead;
+        action.arm_angle = rc.targetAngleArmPitch;
     }
 
     public void write_json_data()
     {
-        Action_data action_Data = new Action_data();
-        action_Data.action_list = new List<Action>();
-
         for(int i = 0; i < 5; i++)
         {
             Action action = new Action();
