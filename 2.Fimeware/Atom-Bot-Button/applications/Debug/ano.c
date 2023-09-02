@@ -386,7 +386,7 @@ int ano_set_device(const char *device_name)
     /* check whether it's a same device */
     if (dev == dev_ano) return RT_ERROR;
     /* open this device and set the new device in finsh shell */
-    if (rt_device_open(dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_TX) == RT_EOK)
+    if (rt_device_open(dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX) == RT_EOK)
     {
         if (dev_ano != RT_NULL)
         {

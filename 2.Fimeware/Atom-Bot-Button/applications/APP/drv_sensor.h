@@ -8,8 +8,8 @@
  * 2023-03-05     Rbb66         First version
  */
 
-#ifndef SENSOR_H
-#define SENSOR_H
+#ifndef DRV_SENSOR_H
+#define DRV_SENSOR_H
 
 int sensor_thread_create(void);
 

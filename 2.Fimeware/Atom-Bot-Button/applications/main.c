@@ -15,7 +15,7 @@
 #include "bsp_motor.h"
 #include "bsp_encoder.h"
 #include "bsp_pid.h"
-#include "sensor.h"
+#include "drv_sensor.h"
 #include "ano.h"
 
 #define POWER_SW        GET_PIN(C, 6)
@@ -48,15 +48,14 @@ int main(void)
     Encoder_Init();
     MPU6050_Init();
     joint_i2c_init();
+    ano_init("uart3");
 	
 	sensor_thread_create();
 
     /* PID Init*/
     Loc_level_PID_Init();
     control_hwtimer();
-    app_motion_ctrl_init();
-
-    ano_init("uart3");
+//    app_motion_ctrl_init();
 
     while (1)
     {

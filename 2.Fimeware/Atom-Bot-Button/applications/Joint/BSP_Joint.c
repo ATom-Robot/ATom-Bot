@@ -22,7 +22,7 @@ int target_angle = 0;
 
 static rt_err_t joint_write_regs(struct Joint_device *dev, rt_uint8_t reg, rt_uint8_t len, rt_uint8_t *buf)
 {
-    rt_int8_t res = 0;
+    int8_t res = 0;
     struct rt_i2c_msg msgs[2];
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)
@@ -51,7 +51,7 @@ static rt_err_t joint_write_regs(struct Joint_device *dev, rt_uint8_t reg, rt_ui
 
 static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uint8_t len)
 {
-    rt_int8_t res = 0;
+    int8_t res = 0;
     struct rt_i2c_msg msgs;
     uint8_t buf[5] = {0};
     rt_memcpy((uint8_t *)buf, (uint8_t *)pData, len);
@@ -78,7 +78,7 @@ static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uin
 
 static rt_err_t joint_read_regs(struct Joint_device *dev, rt_uint8_t len, rt_uint8_t *buf)
 {
-    rt_int8_t res = 0;
+    int8_t res = 0;
     struct rt_i2c_msg msgs;
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)

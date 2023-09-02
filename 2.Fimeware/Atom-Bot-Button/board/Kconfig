@@ -83,14 +83,6 @@ menu "On-chip Peripheral Drivers"
         default n
         select RT_USING_HWTIMER
         if BSP_USING_TIM
-            config BSP_USING_TIM2
-                bool "Enable TIM2"
-                default n
-
-            config BSP_USING_TIM3
-                bool "Enable TIM3"
-                default n
-
             config BSP_USING_TIM4
                 bool "Enable TIM4"
                 default n
