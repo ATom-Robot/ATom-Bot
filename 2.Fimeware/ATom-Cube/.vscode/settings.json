@@ -55,5 +55,7 @@
         "lv_demo_music.h": "c",
         "lv_demo_benchmark.h": "c",
         "lv_demos.h": "c"
-    }
+    },
+    "idf.flashType": "UART",
+    "idf.portWin": "COM27"
 }
