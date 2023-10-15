@@ -7774,6 +7774,8 @@ MonoBehaviour:
   dropDown: {fileID: 1789154558}
   serial_portList: []
   serial_baudRate: 115000
+  robot: {fileID: 1467071769}
+  armPitch: 0
 --- !u!23 &10685836746326674
 MeshRenderer:
   m_ObjectHideFlags: 0
