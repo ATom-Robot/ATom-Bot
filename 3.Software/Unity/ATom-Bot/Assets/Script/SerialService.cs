@@ -108,7 +108,7 @@ public class SerialService : MonoBehaviour
             }
             catch (Exception) { }
 
-            Thread.Sleep(10);
+            Thread.Sleep(5);
         }
     }
 
@@ -118,11 +118,6 @@ public class SerialService : MonoBehaviour
         byte[] buffer = new byte[retLen];
 
         sp.Read(buffer, 0, retLen);
-        // StringBuilder sb = new StringBuilder();
-        // for (int i = 0; i < retLen; i++)
-        // {
-        //     sb.AppendFormat("{0:x2}" + "", buffer[i]);
-        // }
 
         if (buffer[0] == 0xAA && buffer[1] == 0xFF)
         {
