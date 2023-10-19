@@ -25,7 +25,7 @@ void sensor_entry()
         distence_sensor_get();
 
         ano_send_user_data(1, (int)joint[1].config.angle,   \
-                           (int)joint[2].config.angle,      \
+                           -(int)joint[2].config.angle,		\
                            0,                           	\
                            0);
 
