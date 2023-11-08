@@ -131,7 +131,7 @@ void lv_emoji_create(void)
     lv_gif_set_src(gif_anim, em_list[WAKEUP_EMOJI].gif);
     lv_obj_align(gif_anim, LV_ALIGN_CENTER, 0, 0);
 
-    lv_timer_t *t = lv_timer_create(wakeup_voice_cb, 6500, NULL);
+    lv_timer_t *t = lv_timer_create(wakeup_voice_cb, 6800, NULL);
     lv_timer_set_repeat_count(t, 1);
 
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;

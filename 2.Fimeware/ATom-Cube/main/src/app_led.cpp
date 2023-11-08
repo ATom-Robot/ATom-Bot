@@ -12,7 +12,7 @@ CRGB color_buffers[CONFIG_RGB_LED_NUM];
 void Led_Init(void)
 {
     FastLED.addLeds<SK6812, CONFIG_RGB_LED_PIN, GRB>(color_buffers, CONFIG_RGB_LED_NUM);
-    FastLED.setBrightness(200);
+    FastLED.setBrightness(150);
 }
 
 void setRGB(int id, int r, int g, int b)

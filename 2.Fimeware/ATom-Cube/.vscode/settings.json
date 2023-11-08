@@ -54,7 +54,9 @@
         "numbers": "c",
         "lv_demo_music.h": "c",
         "lv_demo_benchmark.h": "c",
-        "lv_demos.h": "c"
+        "lv_demos.h": "c",
+        "mpu6050.h": "c",
+        "esp32_i2c_rw.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM27"

@@ -28,7 +28,27 @@ public class PoseEditor : MonoBehaviour
     {
 
     }
+    public void ModifyFrameCallback(int _id)
+    {
+        SetFrameCapture(_id);
+    }
 
+    private void SetFrameCapture(int _id)
+    {
+        GameObject frame = timelineFrames[_id];
+
+        // frame.transform.Find("FrameView").GetComponent<RawImage>().texture =
+        //     CaptureCamera(frame.GetComponent<FrameMeta>().renderTexture);
+
+        frame.GetComponent<FrameMeta>().targetAngleBody =
+            robot.GetComponent<RobotController>().targetAngleBody;
+        frame.GetComponent<FrameMeta>().targetAngleHead =
+            robot.GetComponent<RobotController>().targetAngleHead;
+        frame.GetComponent<FrameMeta>().targetAngleArmPitch =
+            robot.GetComponent<RobotController>().targetAngleArmPitch;
+        frame.GetComponent<FrameMeta>().targetAngleArmPitch =
+            robot.GetComponent<RobotController>().targetAngleArmPitch;
+    }
     public void AddFrameCallback(int _id)
     {
         GameObject frame = Instantiate(framePrefab, transform, true);
@@ -57,8 +77,6 @@ public class PoseEditor : MonoBehaviour
         rc.sliderAngleBody.Value = (int)rc.targetAngleBody;
         rc.sliderAngleHead.Value = (int)rc.targetAngleHead;
         rc.sliderAngleArmPitch.Value = (int)rc.targetAngleArmPitch;
-
-        Debug.Log(">>>> " + rc.sliderAngleArmPitch.Value);
     }
     public void DeleteFrameCallback(int _id)
     {
@@ -109,15 +127,18 @@ public class PoseEditor : MonoBehaviour
         frame.transform.Find("FrameAdd").GetComponent<Button>().onClick.RemoveAllListeners();
         frame.transform.Find("FrameAdd").GetComponent<Button>().onClick
             .AddListener(() => AddFrameCallback(frame.GetComponent<FrameMeta>().id));
+        frame.transform.Find("FrameView").Find("Capture").GetComponent<Button>().onClick.RemoveAllListeners();
+        frame.transform.Find("FrameView").Find("Capture").GetComponent<Button>().onClick
+            .AddListener(() => ModifyFrameCallback(frame.GetComponent<FrameMeta>().id));
         frame.transform.Find("FrameView").GetComponent<Button>().onClick.RemoveAllListeners();
         frame.transform.Find("FrameView").GetComponent<Button>().onClick
             .AddListener(() => SelectFrameCallback(frame.GetComponent<FrameMeta>().id));
         frame.transform.Find("FrameDelete").GetComponent<Button>().onClick.RemoveAllListeners();
         frame.transform.Find("FrameDelete").GetComponent<Button>().onClick
             .AddListener(() => DeleteFrameCallback(frame.GetComponent<FrameMeta>().id));
-        // frame.transform.Find("FilePath").GetComponent<Button>().onClick.RemoveAllListeners();
-        // frame.transform.Find("FilePath").GetComponent<Button>().onClick
-        //     .AddListener(() => FilePathCallback(frame.GetComponent<FrameMeta>().id));
+        frame.transform.Find("FilePath").GetComponent<Button>().onClick.RemoveAllListeners();
+        frame.transform.Find("FilePath").GetComponent<Button>().onClick
+            .AddListener(() => FilePathCallback(frame.GetComponent<FrameMeta>().id));
 
         frame.transform.Find("FrameAdd").Find("Text (TMP)").GetComponent<TMP_Text>().text = "" + _id;
     }

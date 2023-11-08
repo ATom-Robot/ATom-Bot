@@ -75,6 +75,6 @@ void HAL::IMU_Update()
         imuInfo.pitch = ypr[1] * 180 / M_PI;
         imuInfo.roll = ypr[2] * 180 / M_PI;
 
-        // Serial.println(imuInfo.yaw);
+        Serial.println(imuInfo.yaw);
     }
 }

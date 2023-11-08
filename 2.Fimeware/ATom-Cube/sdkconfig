@@ -163,6 +163,13 @@ CONFIG_SPI2_HOST=y
 # end of ST7789 Configuration
 
 #
+# I2Cdev library
+#
+CONFIG_I2C_BUS_ACCESS_TIMEOUT=100
+CONFIG_I2C_BUS_DEFAULT_READ_TIMEOUT=1000
+# end of I2Cdev library
+
+#
 # Compiler options
 #
 # CONFIG_COMPILER_OPTIMIZATION_DEFAULT is not set
