@@ -14,6 +14,7 @@
 #include "app_rtsp.h"
 #include "app_joint.h"
 #include "app_uart.h"
+#include "app_net_remote.h"
 #include "stream_server.h"
 
 extern "C" void app_main()
@@ -36,6 +37,8 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(AppCamera_run());
     ESP_ERROR_CHECK(app_wifi_main());
     ESP_ERROR_CHECK(start_stream_server(xQueueLCDFrame, true));
+    // ESP_ERROR_CHECK(APPTcpServer_run());
     // // rtsp_server();
+    
     ESP_ERROR_CHECK(AppShell_run());
 }

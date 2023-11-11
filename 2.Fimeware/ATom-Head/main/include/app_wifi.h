@@ -24,10 +24,13 @@
 #ifndef _APP_WIFI_H_
 #define _APP_WIFI_H_
 
+#include "netdb.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+extern char wifi_ip_address[16];
 esp_err_t app_wifi_main(void);
 
 #ifdef __cplusplus
