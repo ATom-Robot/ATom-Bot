@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "esp_console.h"
 #include "freertos/task.h"
+#include "freertos/timers.h"
 #include <string.h>
 
 static const char *TAG = "joint";
@@ -345,6 +346,39 @@ static int joint_angele_test(int argc, const char *argv[])
     return ESP_OK;
 }
 
+static int jointdev_scan(void)
+{
+    int err = ESP_OK;
+    int joint_id = -1;
+
+    printf("I2C Scanning I2C devices...\n");
+    printf("----------------------------\n");
+
+    for (int i = 0; i < 8; i++)
+    {
+        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+        i2c_master_start(cmd);
+        i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, true);
+        i2c_master_stop(cmd);
+        esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 10 / portTICK_RATE_MS);
+        i2c_cmd_link_delete(cmd);
+
+        if (ret == ESP_OK)
+        {
+            joint_id = i;
+            printf("I2C Device found at address 0x%.2X\n", i);
+        }
+    }
+
+    if (joint_id < 0)
+        err = ESP_FAIL;
+
+    printf("----------------------------\n");
+    printf("I2C scanning complete.\n");
+
+    return err;
+}
+
 static int joint_init(void)
 {
     // Left arm
@@ -357,7 +391,6 @@ static int joint_init(void)
     joint[ANY].config.inverted = false;
 
     SetJointEnable(&joint[ANY], true);
-    UpdateJointAngle_2(&joint[ANY], 0);
 
     return ESP_OK;
 }
@@ -406,6 +439,28 @@ void register_jointcmd(void)
     register_jointset();
 }
 
+#define SERVO_MIN_ANGLE -15
+#define SERVO_MAX_ANGLE 40
+#define SERVO_PERIOD_MS 200
+#define SERVO_ROTATION_TIME_MS 10000
+
+void timer_callback(TimerHandle_t timer)
+{
+    static int angle = SERVO_MIN_ANGLE;
+    const uint8_t ucAngleStep = (SERVO_MAX_ANGLE - SERVO_MIN_ANGLE) / (SERVO_ROTATION_TIME_MS / SERVO_PERIOD_MS);
+
+    // set joint angle
+    UpdateJointAngle_2(&joint[ANY], angle);
+
+    angle += ucAngleStep;
+    if ((int)joint[ANY].config.angle > SERVO_MAX_ANGLE)
+    {
+        UpdateJointAngle_2(&joint[ANY], 0);
+
+        xTimerDelete(timer, 0);
+    }
+}
+
 esp_err_t joint_i2c_init(void)
 {
     esp_err_t res = ESP_OK;
@@ -415,6 +470,24 @@ esp_err_t joint_i2c_init(void)
         ESP_LOGE(TAG, "i2c init fail");
         return res;
     }
+
+    if (jointdev_scan() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "not find joint device!");
+        return res;
+    }
+
+    // init joint
     joint_init();
+
+    UpdateJointAngle_2(&joint[ANY], SERVO_MIN_ANGLE);
+
+    // create timer
+    TimerHandle_t timer = xTimerCreate("servo_timer", pdMS_TO_TICKS(SERVO_PERIOD_MS), pdTRUE, NULL, timer_callback);
+    if (timer != NULL)
+    {
+        xTimerStart(timer, 0);
+    }
+
     return res;
 }

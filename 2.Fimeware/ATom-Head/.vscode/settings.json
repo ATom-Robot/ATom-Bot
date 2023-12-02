@@ -75,7 +75,8 @@
         "future": "cpp",
         "esp_err.h": "c",
         "semphr.h": "c",
-        "openai.h": "c"
+        "openai.h": "c",
+        "timers.h": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

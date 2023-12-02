@@ -65,7 +65,7 @@ esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
     config.jpeg_quality = 10;
     config.fb_count = fb_count;
     config.fb_location = CAMERA_FB_IN_PSRAM;
-    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+    config.grab_mode = CAMERA_GRAB_LATEST;
 
     // camera init
     esp_err_t err = esp_camera_init(&config);
