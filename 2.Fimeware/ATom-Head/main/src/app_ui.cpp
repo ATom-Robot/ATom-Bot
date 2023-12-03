@@ -92,7 +92,7 @@ void next_frame_task_cb(lv_event_t *event)
     {
     case LV_EVENT_READY:
     {
-        printf("----gif play finsh----\n");
+        // printf("----gif play finsh----\n");
 
         /* normal loop */
         if (!is_wakeup)

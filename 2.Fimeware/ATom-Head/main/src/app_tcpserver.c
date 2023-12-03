@@ -6,6 +6,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "app_wifi.h"
+#include "app_uart.h"
 
 static const char *TAG = "tcp-server";
 
@@ -26,6 +27,8 @@ static const char *TAG = "tcp-server";
  * we have to yield to all tasks to prevent lower priority tasks from starving.
  */
 #define YIELD_TO_ALL_MS 50
+
+static void pack_data_analysis(int len, const char *rx_buffer);
 
 /**
  * @brief Utility to log socket errors
@@ -130,7 +133,7 @@ static inline char *get_clients_address(struct sockaddr_storage *source_addr)
 
 static void tcp_server_task(void *pvParameters)
 {
-    static char rx_buffer[128];
+    static char rx_buffer[64];
     xSemaphoreHandle *server_ready = pvParameters;
     struct addrinfo hints = { .ai_socktype = SOCK_STREAM };
     struct addrinfo *address_info;
@@ -253,7 +256,6 @@ static void tcp_server_task(void *pvParameters)
         {
             if (sock[i] != INVALID_SOCK)
             {
-
                 // This is an open socket -> try to serve it
                 int len = try_receive(TAG, sock[i], rx_buffer, sizeof(rx_buffer));
                 if (len < 0)
@@ -266,20 +268,16 @@ static void tcp_server_task(void *pvParameters)
                 else if (len > 0)
                 {
                     // Received some data -> echo back
-                    ESP_LOGI(TAG, "[sock=%d]: Received %.*s", sock[i], len, rx_buffer);
+                    // ESP_LOGI(TAG, "[sock=%d]: Received %.*s", sock[i], len, rx_buffer);
+                    pack_data_analysis(len, rx_buffer);
 
-                    len = socket_send(TAG, sock[i], rx_buffer, len);
+                    len = socket_send(TAG, sock[i], "server", 7);
                     if (len < 0)
                     {
                         // Error occurred on write to this socket -> close it and mark invalid
                         ESP_LOGI(TAG, "[sock=%d]: socket_send() returned %d -> closing the socket", sock[i], len);
                         close(sock[i]);
                         sock[i] = INVALID_SOCK;
-                    }
-                    else
-                    {
-                        // Successfully echoed to this socket
-                        ESP_LOGI(TAG, "[sock=%d]: Written %.*s", sock[i], len, rx_buffer);
                     }
                 }
 
@@ -306,7 +304,34 @@ error:
 
     free(address_info);
     vTaskDelete(NULL);
+}
 
+Chassis_data chassis;
+
+/* 数据解析部分 */
+static void pack_data_analysis(int len, const char *rx_buffer)
+{
+    // 油门、方向
+    if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBB)
+    {
+        int thro = *((uint8_t *)(rx_buffer + 3));
+        int yaw = *((uint8_t *)(rx_buffer + 5));
+
+        chassis.thro = thro >= 100 ? abs(50 - (thro / 2)) : -abs(50 - (thro / 2));
+        chassis.yaw = yaw >= 100 ? abs(50 - (yaw / 2)) : -abs(50 - (yaw / 2));
+
+        ESP_LOGI(TAG, "[thro=%d][yaw=%d]", chassis.thro, chassis.yaw);
+    }
+    // 舵机角度
+    else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBC)
+    {
+        chassis.angle = *((uint8_t *)(rx_buffer + 3));
+
+        ESP_LOGI(TAG, "[angle=%d]", chassis.angle);
+    }
+
+    // 串口发送数据
+    data_sendto_ChassisData(chassis.thro, chassis.yaw, chassis.angle, 0);
 }
 
 esp_err_t APPTcpServer_run(void)

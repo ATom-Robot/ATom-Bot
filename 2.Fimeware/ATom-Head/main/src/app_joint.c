@@ -441,9 +441,10 @@ void register_jointcmd(void)
 
 #define SERVO_MIN_ANGLE -15
 #define SERVO_MAX_ANGLE 40
-#define SERVO_PERIOD_MS 200
+#define SERVO_PERIOD_MS 220
 #define SERVO_ROTATION_TIME_MS 10000
 
+/* 头部关节动作*/
 void timer_callback(TimerHandle_t timer)
 {
     static int angle = SERVO_MIN_ANGLE;
@@ -456,7 +457,6 @@ void timer_callback(TimerHandle_t timer)
     if ((int)joint[ANY].config.angle > SERVO_MAX_ANGLE)
     {
         UpdateJointAngle_2(&joint[ANY], 0);
-
         xTimerDelete(timer, 0);
     }
 }
@@ -480,6 +480,7 @@ esp_err_t joint_i2c_init(void)
     // init joint
     joint_init();
 
+    // setup joint angle
     UpdateJointAngle_2(&joint[ANY], SERVO_MIN_ANGLE);
 
     // create timer

@@ -76,7 +76,9 @@
         "esp_err.h": "c",
         "semphr.h": "c",
         "openai.h": "c",
-        "timers.h": "c"
+        "timers.h": "c",
+        "app_wifi.h": "c",
+        "app_uart.h": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",
