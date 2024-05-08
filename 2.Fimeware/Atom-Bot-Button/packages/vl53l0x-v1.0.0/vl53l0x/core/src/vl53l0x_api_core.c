@@ -1870,9 +1870,10 @@ VL53L0X_Error VL53L0X_calc_sigma_estimate(VL53L0X_DEV Dev,
 		/* Shift by 8 bits to increase resolution prior to the
 		 * division */
 		diff1_mcps <<= 8;
-
+		
+		float my_abs(float f);
 		/* FixPoint0824/FixPoint1616 = FixPoint2408 */
-		xTalkCorrection	 = abs(diff1_mcps/diff2_mcps);
+		xTalkCorrection	 = my_abs(diff1_mcps/diff2_mcps);
 
 		/* FixPoint2408 << 8 = FixPoint1616 */
 		xTalkCorrection <<= 8;

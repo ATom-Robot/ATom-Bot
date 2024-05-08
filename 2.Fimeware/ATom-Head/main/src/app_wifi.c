@@ -25,6 +25,8 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+#include "app_ui.h"
+
 #if (ESP_IDF_VERSION_MAJOR >= 5)
     #include "esp_mac.h"
     #include "lwip/ip_addr.h"
@@ -38,13 +40,13 @@
 #define EXAMPLE_ESP_WIFI_SSID "Rb_2.4G"
 #define EXAMPLE_ESP_WIFI_PASS "zhang123"
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5
-#define EXAMPLE_ESP_WIFI_AP_SSID "ATOM-BOT"
+#define EXAMPLE_ESP_WIFI_AP_SSID "ATom-Bot"
 #define EXAMPLE_ESP_WIFI_AP_PASS "atom-bot"
 #define EXAMPLE_MAX_STA_CONN 1
 #define EXAMPLE_IP_ADDR "192.168.4.1"
 #define EXAMPLE_ESP_WIFI_AP_CHANNEL ""
 
-static const char *TAG = "camera wifi";
+static const char *TAG = "app_wifi";
 
 static int s_retry_num = 0;
 /* FreeRTOS event group to signal when we are connected*/
@@ -66,6 +68,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
         ESP_LOGI(TAG, "AP "MACSTR" join, AID=%d",
                  MAC2STR(event->mac), event->aid);
+        // show mac address to lcd
+        ui_set_mac_address(event->mac);
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
     else if (event_id == WIFI_EVENT_AP_STADISCONNECTED)
@@ -73,6 +77,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         wifi_event_ap_stadisconnected_t *event = (wifi_event_ap_stadisconnected_t *) event_data;
         ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
                  MAC2STR(event->mac), event->aid);
+        // show mac address to lcd
+        ui_set_mac_address(event->mac);
     }
     /* Sta mode */
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
@@ -97,11 +103,21 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        memset(wifi_ip_address, 0x0, sizeof(wifi_ip_address));
         strcpy(wifi_ip_address, ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
+        // show ip address to lcd
+        ui_set_ip_address(wifi_ip_address);
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
-
+    else if (event_id == WIFI_EVENT_STA_CONNECTED)
+    {
+        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
+        ESP_LOGI(TAG, "AP "MACSTR" join, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+        // show mac address to lcd
+        ui_set_mac_address(event->mac);
+    }
     return;
 }
 
@@ -228,8 +244,8 @@ esp_err_t app_wifi_main(void)
                         pdTRUE,
                         portMAX_DELAY);
 
-    vEventGroupDelete(s_wifi_event_group);
-    s_wifi_event_group = NULL;
+    // vEventGroupDelete(s_wifi_event_group);
+    // s_wifi_event_group = NULL;
 
     return ESP_OK;
 }

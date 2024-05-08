@@ -1,6 +1,7 @@
 #include "app_lcd.h"
 #include "app_ui.h"
 #include "esp_log.h"
+#include "ui.h"
 
 static const char *TAG = "lcd";
 
@@ -77,7 +78,7 @@ static void guiTask(void *pvParameter)
     lv_disp_drv_register(&disp_drv);
 
     /* UI App Init*/
-    lv_emoji_create();
+    ui_init();
 
     /* Create and start a periodic timer interrupt to call lv_tick_inc */
     const esp_timer_create_args_t periodic_timer_args =
@@ -107,7 +108,6 @@ static void guiTask(void *pvParameter)
 static void lv_tick_task(void *arg)
 {
     (void) arg;
-
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 

@@ -47,6 +47,8 @@ void lv_emoji_create(void);
 
 void ui_wakeup_emoji_start(void);
 void ui_wakeup_emoji_over(void);
+void ui_set_mac_address(uint8_t *address);
+void ui_set_ip_address(const char *address);
 
 void ui_acquire(void);
 void ui_release(void);

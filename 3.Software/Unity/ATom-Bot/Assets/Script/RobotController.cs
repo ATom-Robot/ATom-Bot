@@ -51,6 +51,13 @@ public class RobotController : MonoBehaviour
 
         head.parent.localRotation = Quaternion.Slerp(head.parent.localRotation,
             Quaternion.Euler(0, targetAngleHead, -90), slerpRatio);
+
+        if (isPlaying)
+        {
+            sliderAngleArmPitch.Value = (int)targetAngleArmPitch;
+            sliderAngleHead.Value = (int)targetAngleHead;
+            sliderAngleBody.Value = 0;
+        }
     }
 
     public void SetAngleArmPitch(int _val)

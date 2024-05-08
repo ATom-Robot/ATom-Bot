@@ -2,7 +2,7 @@
 #include "esp_log.h"
 #include "esp_camera.h"
 #include "app_player.h"
-// #include "benchmark/lv_demo_benchmark.h"
+#include "ui.h"
 
 static const char *TAG = "UI";
 
@@ -101,7 +101,6 @@ void next_frame_task_cb(lv_event_t *event)
             normal_cnt >= 1 ? normal_cnt = 0 : normal_cnt += 1;
             ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
         }
-
         break;
     }
     case LV_EVENT_VALUE_CHANGED:
@@ -116,7 +115,7 @@ void next_frame_task_cb(lv_event_t *event)
     }
 }
 
-static void wakeup_voice_cb(lv_timer_t *timer)
+static void getup_voice_cb(lv_timer_t *timer)
 {
     /* wake up voice */
     app_player_play_name(em_list[WAKEUP_EMOJI].voice);
@@ -131,12 +130,14 @@ void lv_emoji_create(void)
     lv_gif_set_src(gif_anim, em_list[WAKEUP_EMOJI].gif);
     lv_obj_align(gif_anim, LV_ALIGN_CENTER, 0, 0);
 
-    lv_timer_t *t = lv_timer_create(wakeup_voice_cb, 6800, NULL);
+    /* play sleep up voice */
+    lv_timer_t *t = lv_timer_create(getup_voice_cb, 6800, NULL);
     lv_timer_set_repeat_count(t, 1);
 
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
 }
 
+/* play wake up voice */
 void ui_wakeup_emoji_start(void)
 {
     ui_acquire();
@@ -156,5 +157,21 @@ void ui_wakeup_emoji_over(void)
 
     lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) false);
 
+    ui_release();
+}
+
+void ui_set_mac_address(uint8_t *address)
+{
+    ui_acquire();
+    char mac[18];
+    sprintf(mac, MACSTR, MAC2STR(address));
+    lv_label_set_text(ui_MACtext, mac);
+    ui_release();
+}
+
+void ui_set_ip_address(const char *address)
+{
+    ui_acquire();
+    lv_label_set_text(ui_IPtext, address);
     ui_release();
 }

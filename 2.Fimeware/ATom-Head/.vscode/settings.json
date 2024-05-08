@@ -78,7 +78,14 @@
         "openai.h": "c",
         "timers.h": "c",
         "app_wifi.h": "c",
-        "app_uart.h": "c"
+        "app_uart.h": "c",
+        "ui_helpers.h": "c",
+        "ui.h": "c",
+        "lvgl.h": "c",
+        "esp_netif.h": "c",
+        "esp_wifi.h": "c",
+        "esp_system.h": "c",
+        "esp_mac.h": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

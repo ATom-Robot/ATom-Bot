@@ -20,7 +20,7 @@ public class PoseEditor : MonoBehaviour
         SetupFrame(frame0, 0);
         frame0.transform.Find("FrameAdd").Find("Text (TMP)").GetComponent<TMP_Text>().text = "+";
         timelineFrames.Add(frame0);
-
+        SetFrameCapture(0);
     }
 
     // Update is called once per frame
@@ -31,6 +31,7 @@ public class PoseEditor : MonoBehaviour
     public void ModifyFrameCallback(int _id)
     {
         SetFrameCapture(_id);
+        Debug.Log("ModifyFrameCallback:" + _id);
     }
 
     private void SetFrameCapture(int _id)
@@ -48,6 +49,8 @@ public class PoseEditor : MonoBehaviour
             robot.GetComponent<RobotController>().targetAngleArmPitch;
         frame.GetComponent<FrameMeta>().targetAngleArmPitch =
             robot.GetComponent<RobotController>().targetAngleArmPitch;
+
+        Debug.Log("SetFrameCapture:" + robot.GetComponent<RobotController>().targetAngleHead);
     }
     public void AddFrameCallback(int _id)
     {
@@ -77,6 +80,7 @@ public class PoseEditor : MonoBehaviour
         rc.sliderAngleBody.Value = (int)rc.targetAngleBody;
         rc.sliderAngleHead.Value = (int)rc.targetAngleHead;
         rc.sliderAngleArmPitch.Value = (int)rc.targetAngleArmPitch;
+        Debug.Log("rc.targetAngleHead:" + rc.targetAngleHead);
     }
     public void DeleteFrameCallback(int _id)
     {
