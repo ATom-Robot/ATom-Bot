@@ -268,6 +268,6 @@ void data_sendto_ChassisData(int32_t _a, int32_t _b, int32_t _c, int32_t _d)
 
     for (i = 0; i < cnt; i++)
     {
-        uart_write_bytes(UART_NUM_1, Data_Buff[i], 1);
+        uart_write_bytes(UART_NUM_1, &Data_Buff[i], 1);
     }
 }

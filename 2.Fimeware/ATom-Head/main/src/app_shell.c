@@ -67,14 +67,7 @@ static void scli_task(void *arg)
             {
                 while (uart_read_bytes(uart_num, (uint8_t *) &linebuf[i], 1, 0))
                 {
-                    if (linebuf[i] == '\r')
-                    {
-                        uart_write_bytes(uart_num, "\r\n", 2);
-                    }
-                    else
-                    {
-                        uart_write_bytes(uart_num, (char *) &linebuf[i], 1);
-                    }
+                    uart_write_bytes(uart_num, (char *) &linebuf[i], 1);
                     i++;
                 }
             }
@@ -112,7 +105,6 @@ static esp_err_t scli_init()
         return ESP_OK;
     }
 #define SCLI_STACK_SIZE 4096
-
     BaseType_t result = xTaskCreatePinnedToCore(scli_task, "console_task", SCLI_STACK_SIZE, NULL, 0, NULL, 1);
     assert("Failed to create task" && result == (BaseType_t) 1);
 

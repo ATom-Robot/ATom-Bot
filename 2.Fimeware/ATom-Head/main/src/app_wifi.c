@@ -18,76 +18,50 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
+#include "esp_smartconfig.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "sdkconfig.h"
-
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
 #include "app_ui.h"
 
 #if (ESP_IDF_VERSION_MAJOR >= 5)
-    #include "esp_mac.h"
-    #include "lwip/ip_addr.h"
+#include "esp_mac.h"
+#include "lwip/ip_addr.h"
 #endif
 
-/* The examples use WiFi configuration that you can set via 'make menuconfig'.
+#define ESP_MAXIMUM_RETRY 2
 
-   If you'd rather not, just change the below entries to strings with
-   the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
-*/
-#define EXAMPLE_ESP_WIFI_SSID "Rb_2.4G"
-#define EXAMPLE_ESP_WIFI_PASS "zhang123"
-#define EXAMPLE_ESP_MAXIMUM_RETRY 5
-#define EXAMPLE_ESP_WIFI_AP_SSID "ATom-Bot"
-#define EXAMPLE_ESP_WIFI_AP_PASS "atom-bot"
-#define EXAMPLE_MAX_STA_CONN 1
-#define EXAMPLE_IP_ADDR "192.168.4.1"
-#define EXAMPLE_ESP_WIFI_AP_CHANNEL ""
+/* The event group allows multiple bits for each event, but we only care about two events:
+ * - we are connected to the AP with an IP
+ * - we failed to connect after the maximum amount of retries */
+#define WIFI_CONNECTED_BIT BIT0
+#define WIFI_FAIL_BIT BIT1
+#define ESPTOUCH_DONE_BIT BIT1
 
 static const char *TAG = "app_wifi";
+
+esp_netif_t *ap_netif = NULL;
+nvs_handle_t wifi_nvs_handle;
 
 static int s_retry_num = 0;
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group = NULL;
 char wifi_ip_address[16] = {0};
 
-/* The event group allows multiple bits for each event, but we only care about two events:
- * - we are connected to the AP with an IP
- * - we failed to connect after the maximum amount of retries */
-#define WIFI_CONNECTED_BIT BIT0
-#define WIFI_FAIL_BIT      BIT1
-
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
-    /* AP mode */
-    if (event_id == WIFI_EVENT_AP_STACONNECTED)
-    {
-        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
-        ESP_LOGI(TAG, "AP "MACSTR" join, AID=%d",
-                 MAC2STR(event->mac), event->aid);
-        // show mac address to lcd
-        ui_set_mac_address(event->mac);
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-    }
-    else if (event_id == WIFI_EVENT_AP_STADISCONNECTED)
-    {
-        wifi_event_ap_stadisconnected_t *event = (wifi_event_ap_stadisconnected_t *) event_data;
-        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
-                 MAC2STR(event->mac), event->aid);
-        // show mac address to lcd
-        ui_set_mac_address(event->mac);
-    }
     /* Sta mode */
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
-        esp_wifi_connect();
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
-        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
+        if (s_retry_num < ESP_MAXIMUM_RETRY)
         {
             esp_wifi_connect();
             s_retry_num++;
@@ -95,13 +69,15 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         }
         else
         {
+            ESP_LOGE(TAG, "connect ap fail for 4 times, now start smartconfig...");
+            xTaskCreate(wifi_smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
         ESP_LOGI(TAG, "connect to the AP fail");
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         memset(wifi_ip_address, 0x0, sizeof(wifi_ip_address));
         strcpy(wifi_ip_address, ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
@@ -112,65 +88,132 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     }
     else if (event_id == WIFI_EVENT_STA_CONNECTED)
     {
-        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
-        ESP_LOGI(TAG, "AP "MACSTR" join, AID=%d",
+        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)event_data;
+        ESP_LOGI(TAG, "AP " MACSTR " join, AID=%d",
                  MAC2STR(event->mac), event->aid);
         // show mac address to lcd
         ui_set_mac_address(event->mac);
     }
-    return;
+    /* Smartconfig mode */
+    else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD)
+    {
+        ESP_LOGI(TAG, "Got SSID and password");
+        smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
+        wifi_config_t wifi_config;
+        uint8_t ssid[33] = {0};
+        uint8_t password[65] = {0};
+        uint8_t rvd_data[33] = {0};
+
+        bzero(&wifi_config, sizeof(wifi_config_t));
+        memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
+
+        wifi_config.sta.bssid_set = evt->bssid_set;
+        if (wifi_config.sta.bssid_set == true)
+        {
+            memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
+        }
+
+        memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+        memcpy(password, evt->password, sizeof(evt->password));
+        ESP_LOGI(TAG, "SSID:%s", ssid);
+        ESP_LOGI(TAG, "PASSWORD:%s", password);
+        if (evt->type == SC_TYPE_ESPTOUCH_V2)
+        {
+            ESP_ERROR_CHECK(esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)));
+            ESP_LOGI(TAG, "RVD_DATA:");
+            for (int i = 0; i < 33; i++)
+            {
+                printf("%02x ", rvd_data[i]);
+            }
+            printf("\n");
+        }
+
+        /* save wifi info to flash */
+        ESP_ERROR_CHECK(nvs_open("wifi_info", NVS_READWRITE, &wifi_nvs_handle));
+        ESP_ERROR_CHECK(nvs_set_str(wifi_nvs_handle, "wifi_ssid", (const char *)ssid));
+        ESP_ERROR_CHECK(nvs_set_str(wifi_nvs_handle, "wifi_pswd", (const char *)password));
+        ESP_ERROR_CHECK(nvs_set_u8(wifi_nvs_handle, "wifi_info_flag", 1));
+        ESP_ERROR_CHECK(nvs_commit(wifi_nvs_handle));
+        nvs_close(wifi_nvs_handle);
+
+        ESP_ERROR_CHECK(esp_wifi_disconnect());
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+        esp_wifi_connect();
+    }
+    else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE)
+    {
+        xEventGroupSetBits(s_wifi_event_group, ESPTOUCH_DONE_BIT);
+    }
 }
 
-static void wifi_init_softap(esp_netif_t *netif)
+static void wifi_smartconfig_task(void *parm)
 {
-    if (strcmp(EXAMPLE_IP_ADDR, "192.168.4.1"))
+    EventBits_t uxBits;
+    ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
+    smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
+    while (1)
     {
-        int a, b, c, d;
-        sscanf(EXAMPLE_IP_ADDR, "%d.%d.%d.%d", &a, &b, &c, &d);
-        esp_netif_ip_info_t ip_info;
-        IP4_ADDR(&ip_info.ip, a, b, c, d);
-        IP4_ADDR(&ip_info.gw, a, b, c, d);
-        IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
-        ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
-        ESP_ERROR_CHECK(esp_netif_set_ip_info(netif, &ip_info));
-        ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
+        uxBits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | ESPTOUCH_DONE_BIT, true, false, portMAX_DELAY);
+        if (uxBits & WIFI_CONNECTED_BIT)
+        {
+            ESP_LOGI(TAG, "WiFi Connected to ap");
+        }
+        if (uxBits & ESPTOUCH_DONE_BIT)
+        {
+            ESP_LOGI(TAG, "smartconfig over");
+            esp_smartconfig_stop();
+            vTaskDelete(NULL);
+        }
     }
-    wifi_config_t wifi_config;
-    memset(&wifi_config, 0, sizeof(wifi_config_t));
-    snprintf((char *)wifi_config.ap.ssid, 32, "%s", EXAMPLE_ESP_WIFI_AP_SSID);
-    wifi_config.ap.ssid_len = strlen((char *)wifi_config.ap.ssid);
-    snprintf((char *)wifi_config.ap.password, 64, "%s", EXAMPLE_ESP_WIFI_AP_PASS);
-    wifi_config.ap.max_connection = EXAMPLE_MAX_STA_CONN;
-    wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
-    if (strlen(EXAMPLE_ESP_WIFI_AP_PASS) == 0)
-    {
-        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-    }
-    if (strlen(EXAMPLE_ESP_WIFI_AP_CHANNEL))
-    {
-        int channel;
-        sscanf(EXAMPLE_ESP_WIFI_AP_CHANNEL, "%d", &channel);
-        wifi_config.ap.channel = channel;
-    }
-
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
-
-    ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
-             EXAMPLE_ESP_WIFI_AP_SSID, EXAMPLE_ESP_WIFI_AP_PASS);
 }
 
-static void wifi_init_sta()
+static void check_wifi_info(void)
 {
+    uint8_t has_conf_flag = 0;
     wifi_config_t wifi_config;
+
     memset(&wifi_config, 0, sizeof(wifi_config_t));
-    snprintf((char *)wifi_config.sta.ssid, 32, "%s", EXAMPLE_ESP_WIFI_SSID);
-    snprintf((char *)wifi_config.sta.password, 64, "%s", EXAMPLE_ESP_WIFI_PASS);
 
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+    nvs_open("wifi_info", NVS_READONLY, &wifi_nvs_handle);
+    nvs_get_u8(wifi_nvs_handle, "wifi_info_flag", &has_conf_flag);
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
-    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
-             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+    if (has_conf_flag == 1)
+    {
+        ESP_LOGI(TAG, "flash have wifi Info, now try to connect wifi...");
+
+        char flash_ssid[32] = {0};
+        size_t ssid_length = sizeof(flash_ssid);
+        esp_err_t ssid_err = nvs_get_str(wifi_nvs_handle, "wifi_ssid", flash_ssid, &ssid_length);
+        if (ssid_err == ESP_OK)
+        {
+            ESP_LOGI(TAG, "Flash Wi-Fi SSID = %s", flash_ssid);
+            snprintf((char *)wifi_config.sta.ssid, 32, "%s", flash_ssid);
+        }
+
+        char flash_passwd[64] = {0};
+        size_t passwd_length = sizeof(flash_passwd);
+        esp_err_t passwd_err = nvs_get_str(wifi_nvs_handle, "wifi_pswd", flash_passwd, &passwd_length);
+        if (passwd_err == ESP_OK)
+        {
+            ESP_LOGI(TAG, "Flash Wi-Fi pswd = %s", flash_passwd);
+            snprintf((char *)wifi_config.sta.password, 64, "%s", flash_passwd);
+        }
+
+        ESP_LOGI(TAG, "connect wifi ssid = %s, pswd = %s", wifi_config.sta.ssid, wifi_config.sta.password);
+        ESP_ERROR_CHECK(esp_wifi_disconnect());
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+        ESP_ERROR_CHECK(esp_wifi_connect());
+    }
+    else
+    {
+        ESP_LOGI(TAG, "No wifi info in the nvs, now start smartconfig...");
+        xTaskCreate(wifi_smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
+    }
+
+    // close nvs
+    nvs_close(wifi_nvs_handle);
 }
 
 esp_err_t app_wifi_main(void)
@@ -182,61 +225,25 @@ esp_err_t app_wifi_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    wifi_mode_t mode = WIFI_MODE_NULL;
-
-    if (strlen(EXAMPLE_ESP_WIFI_AP_SSID) && strlen(EXAMPLE_ESP_WIFI_SSID))
-    {
-        mode = WIFI_MODE_APSTA;
-    }
-    else if (strlen(EXAMPLE_ESP_WIFI_AP_SSID))
-    {
-        mode = WIFI_MODE_AP;
-    }
-    else if (strlen(EXAMPLE_ESP_WIFI_SSID))
-    {
-        mode = WIFI_MODE_STA;
-    }
-
-    if (mode == WIFI_MODE_NULL)
-    {
-        ESP_LOGW(TAG, "Neither AP or STA have been configured. WiFi will be off.");
-        return -1;
-    }
+    s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    s_wifi_event_group = xEventGroupCreate();
+    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+    assert(sta_netif);
 
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
-                    ESP_EVENT_ANY_ID,
-                    &wifi_event_handler,
-                    NULL,
-                    NULL));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
-                    IP_EVENT_STA_GOT_IP,
-                    &wifi_event_handler,
-                    NULL,
-                    NULL));
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(mode));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
 
-    if (mode & WIFI_MODE_AP)
-    {
-        esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
-        wifi_init_softap(ap_netif);
-    }
-
-    if (mode & WIFI_MODE_STA)
-    {
-        esp_netif_create_default_wifi_sta();
-        wifi_init_sta();
-    }
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
     ESP_LOGI(TAG, "wifi init finished.");
+
+    check_wifi_info();
 
     xEventGroupWaitBits(s_wifi_event_group,
                         WIFI_CONNECTED_BIT,
@@ -244,8 +251,8 @@ esp_err_t app_wifi_main(void)
                         pdTRUE,
                         portMAX_DELAY);
 
-    // vEventGroupDelete(s_wifi_event_group);
-    // s_wifi_event_group = NULL;
+    vEventGroupDelete(s_wifi_event_group);
+    s_wifi_event_group = NULL;
 
     return ESP_OK;
 }

@@ -140,7 +140,6 @@ static void tcp_server_task(void *pvParameters)
     int listen_sock = INVALID_SOCK;
     const size_t max_socks = CONFIG_LWIP_MAX_SOCKETS - 1;
     static int sock[CONFIG_LWIP_MAX_SOCKETS - 1];
-    struct sockaddr_in6 dest_addr;
 
     for (int i = 0; i < max_socks; ++i)
     {

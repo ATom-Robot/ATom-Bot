@@ -32,8 +32,8 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(joint_i2c_init());
 
     ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
-    ESP_ERROR_CHECK(AppSpeech_run());
     ESP_ERROR_CHECK(AppLVGL_run());
+    ESP_ERROR_CHECK(AppSpeech_run());
     ESP_ERROR_CHECK(AppCamera_run());
     ESP_ERROR_CHECK(app_wifi_main());
     ESP_ERROR_CHECK(start_stream_server(xQueueLCDFrame, true));
