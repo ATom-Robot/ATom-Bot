@@ -41,6 +41,12 @@
 #define WIFI_FAIL_BIT BIT1
 #define ESPTOUCH_DONE_BIT BIT1
 
+enum
+{
+    WIFI_UNCONNECT,
+    WIFI_CONNECTED
+};
+
 static const char *TAG = "app_wifi";
 
 esp_netif_t *ap_netif = NULL;
@@ -50,6 +56,8 @@ static int s_retry_num = 0;
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group = NULL;
 char wifi_ip_address[16] = {0};
+
+static void wifi_smartconfig_task(void *parm);
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
@@ -72,6 +80,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             ESP_LOGE(TAG, "connect ap fail for 4 times, now start smartconfig...");
             xTaskCreate(wifi_smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            // show to lcd
+            ui_set_info_to_statusbar("start smartconfig");
+            ui_set_wifi_icon_status(WIFI_UNCONNECT);
         }
         ESP_LOGI(TAG, "connect to the AP fail");
     }
@@ -83,21 +94,29 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         strcpy(wifi_ip_address, ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
         // show ip address to lcd
         ui_set_ip_address(wifi_ip_address);
+        ui_set_wifi_icon_status(WIFI_CONNECTED);
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
     else if (event_id == WIFI_EVENT_STA_CONNECTED)
     {
-        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)event_data;
-        ESP_LOGI(TAG, "AP " MACSTR " join, AID=%d",
-                 MAC2STR(event->mac), event->aid);
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
+        wifi_event_sta_connected_t *event = (wifi_event_sta_connected_t *)event_data;
+        uint8_t mac[6];
+        esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
         // show mac address to lcd
-        ui_set_mac_address(event->mac);
+        ui_set_mac_address(mac);
+
+        // show wifi info to lcd
+        char connect_text[48] = {0};
+        sprintf(connect_text, "connected:%s", (const char *)event->ssid);
+        ui_set_wifi_ssid((const char *)event->ssid);
+        ui_set_info_to_statusbar((char *)connect_text);
     }
     /* Smartconfig mode */
     else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD)
     {
-        ESP_LOGI(TAG, "Got SSID and password");
+        ESP_LOGI(TAG, "SC_EVENT_GOT_SSID_PSWD");
         smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
         wifi_config_t wifi_config;
         uint8_t ssid[33] = {0};
@@ -140,6 +159,11 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         ESP_ERROR_CHECK(esp_wifi_disconnect());
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
         esp_wifi_connect();
+
+        // show to lcd
+        char connect_text[48] = {0};
+        sprintf(connect_text, "connecting:%s", (const char *)ssid);
+        ui_set_info_to_statusbar((char *)connect_text);
     }
     else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE)
     {
@@ -150,7 +174,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 static void wifi_smartconfig_task(void *parm)
 {
     EventBits_t uxBits;
-    ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
+    ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_AIRKISS));
     smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
     while (1)
@@ -183,22 +207,22 @@ static void check_wifi_info(void)
     {
         ESP_LOGI(TAG, "flash have wifi Info, now try to connect wifi...");
 
-        char flash_ssid[32] = {0};
+        char flash_ssid[33] = {0};
         size_t ssid_length = sizeof(flash_ssid);
         esp_err_t ssid_err = nvs_get_str(wifi_nvs_handle, "wifi_ssid", flash_ssid, &ssid_length);
         if (ssid_err == ESP_OK)
         {
             ESP_LOGI(TAG, "Flash Wi-Fi SSID = %s", flash_ssid);
-            snprintf((char *)wifi_config.sta.ssid, 32, "%s", flash_ssid);
+            memcpy((char *)wifi_config.sta.ssid, flash_ssid, 32);
         }
 
-        char flash_passwd[64] = {0};
+        char flash_passwd[65] = {0};
         size_t passwd_length = sizeof(flash_passwd);
         esp_err_t passwd_err = nvs_get_str(wifi_nvs_handle, "wifi_pswd", flash_passwd, &passwd_length);
         if (passwd_err == ESP_OK)
         {
             ESP_LOGI(TAG, "Flash Wi-Fi pswd = %s", flash_passwd);
-            snprintf((char *)wifi_config.sta.password, 64, "%s", flash_passwd);
+            memcpy((char *)wifi_config.sta.password, flash_passwd, 64);
         }
 
         ESP_LOGI(TAG, "connect wifi ssid = %s, pswd = %s", wifi_config.sta.ssid, wifi_config.sta.password);
@@ -210,6 +234,8 @@ static void check_wifi_info(void)
     {
         ESP_LOGI(TAG, "No wifi info in the nvs, now start smartconfig...");
         xTaskCreate(wifi_smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
+        // set ui to lcd
+        ui_set_info_to_statusbar("start smartconfig");
     }
 
     // close nvs
@@ -251,8 +277,8 @@ esp_err_t app_wifi_main(void)
                         pdTRUE,
                         portMAX_DELAY);
 
-    vEventGroupDelete(s_wifi_event_group);
-    s_wifi_event_group = NULL;
+    // vEventGroupDelete(s_wifi_event_group);
+    // s_wifi_event_group = NULL;
 
     return ESP_OK;
 }

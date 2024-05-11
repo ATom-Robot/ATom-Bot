@@ -3,23 +3,31 @@
 // LVGL version: 8.3.6
 // Project name: SquareLine_Project
 
-#include "ui.h"
 #include <string.h>
-#include "esp_log.h"
 #include <esp_flash.h>
+#include "esp_log.h"
+#include "app_joint.h"
+#include "app_ui.h"
 
 static const char *TAG = "ui_event";
+
+static void enter_screen_countdown_cb(lv_timer_t *timer)
+{
+    int status = get_switchDirection_status();
+    if (status == 0)
+    {
+        ui_emoji_create();
+        _ui_screen_delete(&ui_Screen2);
+        _ui_screen_delete(&ui_Screen3);
+        // delete joint task
+        delete_joint_task();
+    }
+    lv_timer_del(timer);
+}
 
 void lv_setup_system(lv_event_t *e)
 {
     // Your code here
-    static bool init_flag = false;
-    if (init_flag)
-    {
-        init_flag = true;
-        return;
-    }
-
     char err_msg[20];
     esp_err_t status;
     uint64_t unique_out_id;
@@ -31,4 +39,7 @@ void lv_setup_system(lv_event_t *e)
     char uni_base[18];
     sprintf(uni_base, "%lld", unique_out_id);
     lv_label_set_text(ui_Systext, uni_base);
+
+    lv_timer_t *t = lv_timer_create(enter_screen_countdown_cb, 4000, NULL);
+    lv_timer_set_repeat_count(t, 1);
 }

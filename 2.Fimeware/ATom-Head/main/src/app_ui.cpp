@@ -2,13 +2,15 @@
 #include "esp_log.h"
 #include "esp_camera.h"
 #include "app_player.h"
-#include "ui.h"
 
-static const char *TAG = "UI";
+static const char *TAG = "app_ui";
 
 /*********************
  *      DEFINES
  *********************/
+#define LV_OBJ_EXITS(lv_obj)    \
+    if (lv_obj == NULL)         \
+        return                  \
 
 /**********************
  *  STATIC PROTOTYPES
@@ -122,7 +124,7 @@ static void getup_voice_cb(lv_timer_t *timer)
     lv_timer_del(timer);
 }
 
-void lv_emoji_create(void)
+void ui_emoji_create(void)
 {
     gif_anim = lv_gif_create(lv_scr_act());
     lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_ALL, NULL);
@@ -160,8 +162,37 @@ void ui_wakeup_emoji_over(void)
     ui_release();
 }
 
+void ui_set_info_to_statusbar(const char *text)
+{
+    ui_acquire();
+    lv_label_set_text(ui_wifistalabel, text);
+    ui_release();
+}
+
+void ui_set_wifi_icon_status(bool status)
+{
+    ui_acquire();
+    if (status == false)
+    {
+        lv_img_set_src(ui_imgconnSta, &ui_img_connect_fail_png);
+        _ui_flag_modify(ui_imgconnSta, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_opacity_set(ui_imgconnSta, 0);
+        wifi_status_icon_in_Animation(ui_imgconnSta, 0);
+    }
+    else
+    {
+        lv_img_set_src(ui_imgconnSta, &ui_img_connected_png);
+        _ui_flag_modify(ui_imgconnSta, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_opacity_set(ui_imgconnSta, 0);
+        wifi_status_icon_in_Animation(ui_imgconnSta, 0);
+        _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 1500, &ui_Screen2_screen_init);
+    }
+    ui_release();
+}
+
 void ui_set_mac_address(uint8_t *address)
 {
+    LV_OBJ_EXITS(ui_MACtext);
     ui_acquire();
     char mac[18];
     sprintf(mac, MACSTR, MAC2STR(address));
@@ -171,7 +202,43 @@ void ui_set_mac_address(uint8_t *address)
 
 void ui_set_ip_address(const char *address)
 {
+    LV_OBJ_EXITS(ui_IPtext);
     ui_acquire();
     lv_label_set_text(ui_IPtext, address);
+    ui_release();
+}
+
+void ui_set_wifi_ssid(const char *ssid)
+{
+    LV_OBJ_EXITS(ui_SSIDtext);
+    ui_acquire();
+    lv_label_set_text(ui_SSIDtext, ssid);
+    ui_release();
+}
+
+void ui_set_joint_angle(int16_t angle)
+{
+    LV_OBJ_EXITS(ui_HeadArc);
+    ui_acquire();
+    lv_arc_set_value(ui_HeadArc, angle);
+    ui_release();
+}
+
+void ui_set_menu(uint8_t *page_index)
+{
+    ui_acquire();
+
+    switch (*page_index)
+    {
+    case 0:
+        _ui_screen_change(&ui_Screen3, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, NULL);
+        break;
+    case 1:
+        _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, NULL);
+        break;
+    default:
+        break;
+    }
+
     ui_release();
 }

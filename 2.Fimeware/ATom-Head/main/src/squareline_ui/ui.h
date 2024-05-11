@@ -15,10 +15,17 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
+void wifi_status_icon_in_Animation(lv_obj_t * TargetObject, int delay);
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 void ui_event_Screen1(lv_event_t * e);
 extern lv_obj_t * ui_Screen1;
+extern lv_obj_t * ui_Spinner1;
+extern lv_obj_t * ui_wifistalabel;
+extern lv_obj_t * ui_imgconnSta;
+// SCREEN: ui_Screen2
+void ui_Screen2_screen_init(void);
+extern lv_obj_t * ui_Screen2;
 extern lv_obj_t * ui_Sysabel;
 extern lv_obj_t * ui_Systext;
 extern lv_obj_t * ui_OSlabel;
@@ -33,14 +40,16 @@ extern lv_obj_t * ui_DISTlabel;
 extern lv_obj_t * ui_DISTtext;
 extern lv_obj_t * ui_BAITlabel;
 extern lv_obj_t * ui_BAITtext;
-// SCREEN: ui_Screen2
-void ui_Screen2_screen_init(void);
-extern lv_obj_t * ui_Screen2;
+// SCREEN: ui_Screen3
+void ui_Screen3_screen_init(void);
+extern lv_obj_t * ui_Screen3;
 extern lv_obj_t * ui_HeadArc;
 extern lv_obj_t * ui_ArmSlider;
 extern lv_obj_t * ui____initial_actions0;
 
 
+LV_IMG_DECLARE(ui_img_connected_png);    // assets/connected.png
+LV_IMG_DECLARE(ui_img_connect_fail_png);    // assets/connect_fail.png
 
 
 

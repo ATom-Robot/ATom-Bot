@@ -6,6 +6,7 @@
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "esp_err.h"
+#include "ui.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -43,12 +44,16 @@ typedef struct
 extern QueueHandle_t xQueueFrameI;
 extern QueueHandle_t xQueueFrameO;
 
-void lv_emoji_create(void);
-
+void ui_emoji_create(void);
 void ui_wakeup_emoji_start(void);
 void ui_wakeup_emoji_over(void);
 void ui_set_mac_address(uint8_t *address);
 void ui_set_ip_address(const char *address);
+void ui_set_wifi_ssid(const char *ssid);
+void ui_set_info_to_statusbar(const char *text);
+void ui_set_wifi_icon_status(bool status);
+void ui_set_joint_angle(int16_t angle);
+void ui_set_menu(uint8_t *page_index);
 
 void ui_acquire(void);
 void ui_release(void);

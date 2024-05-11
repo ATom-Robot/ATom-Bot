@@ -31,7 +31,7 @@ esp_err_t AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, 
     screen.init();
     screen.setRotation(1);// 1 3 5 7
     screen.fillScreen(TFT_BLACK);
-    screen.setBrightness(60);
+    screen.setBrightness(50);
 
     xQueueFrameI = frame_i;
     xQueueFrameO = frame_o;
