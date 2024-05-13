@@ -98,20 +98,27 @@ static esp_err_t stream_handler(httpd_req_t *req)
     return res;
 }
 
+void stophttpServer(void)
+{
+    if (stream_httpd != NULL)
+    {
+        httpd_stop(&stream_httpd);
+    }
+}
+
 esp_err_t start_stream_server(const QueueHandle_t frame_i, const bool return_fb)
 {
     xQueueFrameI = frame_i;
     gReturnFB = return_fb;
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    // config.stack_size = 5120;
+    config.task_priority = 2;
     httpd_uri_t stream_uri =
-    {
-        .uri = "/stream",
-        .method = HTTP_GET,
-        .handler = stream_handler,
-        .user_ctx = NULL
-    };
+        {
+            .uri = "/stream",
+            .method = HTTP_GET,
+            .handler = stream_handler,
+            .user_ctx = NULL};
 
     esp_err_t err = httpd_start(&stream_httpd, &config);
     if (err == ESP_OK)
@@ -121,5 +128,6 @@ esp_err_t start_stream_server(const QueueHandle_t frame_i, const bool return_fb)
         return err;
     }
     ESP_LOGE(TAG, "httpd start err = %s", esp_err_to_name(err));
+    stophttpServer();
     return ESP_FAIL;
 }

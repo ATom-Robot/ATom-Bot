@@ -55,8 +55,9 @@ typedef struct
 
 static sr_data_t *g_sr_data = NULL;
 
+static SemaphoreHandle_t sr_detect_semaphore = NULL;
+
 static int detect_flag = 0;
-static volatile bool task_flag = false;
 
 static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
 {
@@ -64,13 +65,13 @@ static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
 
     i2s_config_t i2s_config = I2S_CONFIG_DEFAULT();
     i2s_pin_config_t pin_config =
-    {
-        .bck_io_num = GPIO_I2S_SCLK,
-        .ws_io_num = GPIO_I2S_LRCK,
-        .data_out_num = GPIO_I2S_DOUT,
-        .data_in_num = GPIO_I2S_SDIN,
-        .mck_io_num = GPIO_I2S_MCLK,
-    };
+        {
+            .bck_io_num = GPIO_I2S_SCLK,
+            .ws_io_num = GPIO_I2S_LRCK,
+            .data_out_num = GPIO_I2S_DOUT,
+            .data_in_num = GPIO_I2S_SDIN,
+            .mck_io_num = GPIO_I2S_MCLK,
+        };
 
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
@@ -114,11 +115,11 @@ int bsp_get_feed_channel(void)
  * @brief all default commands
  */
 static const sr_cmd_t g_default_cmd_info[] =
-{
-    {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
-    {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
-    {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
+    {
+        {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
+        {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
+        {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
+        {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
 };
 
 static void feed_Task(void *pvParam)
@@ -135,7 +136,7 @@ static void feed_Task(void *pvParam)
         esp_system_abort("No mem for audio buffer");
     }
     g_sr_data->afe_in_buffer = audio_buffer;
-    while (task_flag)
+    while (1)
     {
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group))
         {
@@ -177,13 +178,18 @@ static void detect_Task(void *pvParam)
         esp_system_abort("Invalid chunk size");
     }
 
+    if (xSemaphoreTake(sr_detect_semaphore, portMAX_DELAY) == pdTRUE)
+    {
+        vSemaphoreDelete(sr_detect_semaphore);
+    }
+
     printf("------------detect start------------\n");
 
-    while (task_flag)
+    while (1)
     {
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group))
         {
-            xEventGroupSetBits(g_sr_data->event_group, DETECT_DELETED);
+            xEventGroupSetBits(g_sr_data->event_group, DETECT_DELETED); 
             vTaskDelete(g_sr_data->handle_task);
             vTaskDelete(NULL);
         }
@@ -197,11 +203,11 @@ static void detect_Task(void *pvParam)
             g_sr_data->afe_handle->disable_wakenet(afe_data);
 
             sr_result_t result =
-            {
-                .fetch_mode = ret_val,
-                .state = ESP_MN_STATE_DETECTING,
-                .command_id = 0,
-            };
+                {
+                    .fetch_mode = ret_val,
+                    .state = ESP_MN_STATE_DETECTING,
+                    .command_id = 0,
+                };
             xQueueSend(g_sr_data->result_que, &result, 0);
         }
 
@@ -216,11 +222,11 @@ static void detect_Task(void *pvParam)
             {
                 ESP_LOGW(TAG, "Time out");
                 sr_result_t result =
-                {
-                    .fetch_mode = ret_val,
-                    .state = mn_state,
-                    .command_id = 0,
-                };
+                    {
+                        .fetch_mode = ret_val,
+                        .state = mn_state,
+                        .command_id = 0,
+                    };
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
@@ -231,11 +237,11 @@ static void detect_Task(void *pvParam)
                 int sr_command_id = mn_state;
                 ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
                 sr_result_t result =
-                {
-                    .fetch_mode = ret_val,
-                    .state = mn_state,
-                    .command_id = sr_command_id,
-                };
+                    {
+                        .fetch_mode = ret_val,
+                        .state = mn_state,
+                        .command_id = sr_command_id,
+                    };
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
@@ -367,10 +373,15 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     return app_sr_update_cmds(); /* Reset command list */
 }
 
+void en_sr_detect_task(void)
+{
+    if (sr_detect_semaphore)
+        xSemaphoreGive(sr_detect_semaphore);
+}
+
 esp_err_t AppSpeech_run(void)
 {
     esp_err_t ret = ESP_OK;
-    task_flag = true;
 
     ESP_RETURN_ON_FALSE(NULL == g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR already running");
 
@@ -403,8 +414,10 @@ esp_err_t AppSpeech_run(void)
     ret_val = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 6 * 1024, g_sr_data->afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio detect task");
 
-    ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 0);
-    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio handler task");
+    ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);
+    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio handler task");
+
+    sr_detect_semaphore = xSemaphoreCreateBinary();
 
     return ESP_OK;
 err:

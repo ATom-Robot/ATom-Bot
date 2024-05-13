@@ -90,12 +90,9 @@ static void guiTask(void *pvParameter)
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
-    static TickType_t tick;
-    tick = xTaskGetTickCount();
-
     while (1)
     {
-        vTaskDelayUntil(&tick, pdMS_TO_TICKS(30));
+        vTaskDelay(pdMS_TO_TICKS(10));
         /* Try to take the semaphore, call lvgl related function on success */
         if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
         {
@@ -103,6 +100,9 @@ static void guiTask(void *pvParameter)
             xSemaphoreGive(xGuiSemaphore);
         }
     }
+    /* A task should NEVER return */
+    free(buf1);
+    vTaskDelete(NULL);
 }
 
 static void lv_tick_task(void *arg)
@@ -114,7 +114,7 @@ static void lv_tick_task(void *arg)
 esp_err_t AppLVGL_run(void)
 {
     esp_err_t ret = ESP_OK;
-    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 2, &g_lvgl_task_handle, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, &g_lvgl_task_handle, 0);
     if (result != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to create lvgl task");

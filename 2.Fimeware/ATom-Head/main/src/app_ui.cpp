@@ -99,7 +99,9 @@ void next_frame_task_cb(lv_event_t *event)
         /* normal loop */
         if (!is_wakeup)
         {
+            ui_acquire();
             lv_gif_set_src(gif_anim, em_list[normal_cnt].gif);
+            ui_release();
             normal_cnt >= 1 ? normal_cnt = 0 : normal_cnt += 1;
             ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
         }

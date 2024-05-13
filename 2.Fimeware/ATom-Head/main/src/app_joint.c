@@ -1,3 +1,6 @@
+#include <string.h>
+#include <math.h>
+
 #include "app_joint.h"
 #include "driver/i2c.h"
 #include "esp_log.h"
@@ -5,8 +8,7 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "app_ui.h"
-#include <string.h>
-#include <math.h>
+#include "app_sr_handler.h"
 
 static const char *TAG = "joint";
 
@@ -497,6 +499,7 @@ void timer_callback(TimerHandle_t timer)
     angle += ucAngleStep;
     if ((int)joint[ANY].config.angle > SERVO_MAX_ANGLE)
     {
+        en_sr_detect_task();
         updateJointAngle_2(&joint[ANY], 0);
         xTimerDelete(timer, 0);
     }
