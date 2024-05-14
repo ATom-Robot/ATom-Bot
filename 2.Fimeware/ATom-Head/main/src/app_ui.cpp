@@ -187,7 +187,6 @@ void ui_set_wifi_icon_status(bool status)
         _ui_flag_modify(ui_imgconnSta, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         _ui_opacity_set(ui_imgconnSta, 0);
         wifi_status_icon_in_Animation(ui_imgconnSta, 0);
-        _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 1500, &ui_Screen2_screen_init);
     }
     ui_release();
 }

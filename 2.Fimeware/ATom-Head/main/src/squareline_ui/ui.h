@@ -45,6 +45,7 @@ void ui_Screen3_screen_init(void);
 extern lv_obj_t * ui_Screen3;
 extern lv_obj_t * ui_HeadArc;
 extern lv_obj_t * ui_ArmSlider;
+extern lv_obj_t * ui_Chart1;
 extern lv_obj_t * ui____initial_actions0;
 
 

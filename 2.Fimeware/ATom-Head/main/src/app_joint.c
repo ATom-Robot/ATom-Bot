@@ -45,9 +45,7 @@ static uint8_t i2cRxData[8];
 static uint8_t i2cTxData[8];
 struct Joint_device joint[JOINT_SIZE];
 
-static SemaphoreHandle_t joint_Semaphore = NULL;
-
-static void start_first_action(void);
+static bool delete_task_flag = false;
 
 struct Joint_device *get_joint_obj(void)
 {
@@ -61,10 +59,7 @@ int get_switchDirection_status(void)
 
 void delete_joint_task(void)
 {
-    if (joint_Semaphore)
-        xSemaphoreGive(joint_Semaphore);
-    // enable control
-    SetJointEnable(&joint[ANY], true);
+    delete_task_flag = true;
 }
 
 int I2C_WriteData(uint8_t slaveAddr, uint8_t regAddr, uint8_t *pData, uint16_t dataLen)
@@ -540,12 +535,12 @@ static void joint_ui_menu_task(void *parm)
 
     while (1)
     {
-        if (xSemaphoreTake(joint_Semaphore, pdMS_TO_TICKS(600)) == pdTRUE)
+        if (delete_task_flag == true)
         {
-            start_first_action();
             vTaskDelete(NULL);
-            vSemaphoreDelete(joint_Semaphore);
         }
+        vTaskDelay(pdMS_TO_TICKS(600));
+
         updateJointAngle_1(&joint[ANY]);
 
         // Update servo angle and Check if servo angle exceeds threshold
@@ -577,7 +572,7 @@ static void joint_ui_menu_task(void *parm)
     }
 }
 
-static void start_first_action(void)
+void start_first_action(void)
 {
     // create timer
     TimerHandle_t timer = xTimerCreate("servo_timer", pdMS_TO_TICKS(SERVO_PERIOD_MS), pdTRUE, NULL, timer_callback);
@@ -585,6 +580,11 @@ static void start_first_action(void)
     {
         xTimerStart(timer, 0);
     }
+
+    // enable control
+    joint_init();
+    // setup joint angle
+    updateJointAngle_2(&joint[ANY], SERVO_MIN_ANGLE);
 }
 
 esp_err_t joint_i2c_init(void)
@@ -616,8 +616,7 @@ esp_err_t AppJoint_run(void)
 {
     esp_err_t ret = ESP_OK;
 
-    joint_Semaphore = xSemaphoreCreateBinary();
-
     xTaskCreate(joint_ui_menu_task, "joint_task", 4096, NULL, 2, NULL);
+
     return ret;
 }

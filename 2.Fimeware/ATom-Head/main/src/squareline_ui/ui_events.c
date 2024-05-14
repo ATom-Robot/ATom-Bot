@@ -8,26 +8,29 @@
 #include "esp_log.h"
 #include "app_joint.h"
 #include "app_ui.h"
+#include "nvs_flash.h"
 
 static const char *TAG = "ui_event";
-
-static void enter_screen_countdown_cb(lv_timer_t *timer)
-{
-    int status = get_switchDirection_status();
-    if (status == 0)
-    {
-        ui_emoji_create();
-        _ui_screen_delete(&ui_Screen2);
-        _ui_screen_delete(&ui_Screen3);
-        // delete joint task
-        delete_joint_task();
-    }
-    lv_timer_del(timer);
-}
 
 void lv_setup_system(lv_event_t *e)
 {
     // Your code here
+    lv_event_code_t code = lv_event_get_code(e);
+    if (code == LV_EVENT_VALUE_CHANGED)
+    {
+        bool connected_flag = lv_event_get_param(e);
+        if (connected_flag == true)
+            ui_set_wifi_icon_status(true);
+        else
+            ui_set_wifi_icon_status(false);
+    }
+
+    // just run once
+    static bool init_flg = false;
+    if (init_flg)
+        return;
+    init_flg = true;
+
     char err_msg[20];
     esp_err_t status;
     uint64_t unique_out_id;
@@ -40,6 +43,31 @@ void lv_setup_system(lv_event_t *e)
     sprintf(uni_base, "%lld", unique_out_id);
     lv_label_set_text(ui_Systext, uni_base);
 
-    lv_timer_t *t = lv_timer_create(enter_screen_countdown_cb, 4000, NULL);
-    lv_timer_set_repeat_count(t, 1);
+    uint8_t has_conf_flag = 0;
+    nvs_handle_t nvs_handle;
+    nvs_open("parameter", NVS_READWRITE, &nvs_handle);
+    nvs_get_u8(nvs_handle, "test_flag", &has_conf_flag);
+
+    // 需要进入测试模式
+    if (has_conf_flag == 0)
+    {
+        ESP_ERROR_CHECK(nvs_set_u8(nvs_handle, "test_flag", 1));
+        ESP_ERROR_CHECK(nvs_commit(nvs_handle));
+        _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 1500, &ui_Screen2_screen_init);
+        ESP_ERROR_CHECK(AppJoint_run());
+    }
+    else
+    // 直接进入主界面
+    {
+        // enter gif screen
+        ui_emoji_create();
+        start_first_action();
+        // delete joint task
+        delete_joint_task();
+
+        _ui_screen_delete(&ui_Screen2);
+        _ui_screen_delete(&ui_Screen3);
+    }
+
+    nvs_close(nvs_handle);
 }

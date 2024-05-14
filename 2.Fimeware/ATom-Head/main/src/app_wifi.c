@@ -57,6 +57,8 @@ static int s_retry_num = 0;
 static EventGroupHandle_t s_wifi_event_group = NULL;
 char wifi_ip_address[16] = {0};
 
+static bool wifi_connected_flag = false;
+
 static void wifi_smartconfig_task(void *parm);
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
@@ -82,7 +84,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
             // show to lcd
             ui_set_info_to_statusbar("start smartconfig");
-            ui_set_wifi_icon_status(WIFI_UNCONNECT);
+
+            wifi_connected_flag = WIFI_UNCONNECT;
+            lv_event_send(ui_Screen1, LV_EVENT_VALUE_CHANGED, (bool *)wifi_connected_flag);
         }
         ESP_LOGI(TAG, "connect to the AP fail");
     }
@@ -94,7 +98,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         strcpy(wifi_ip_address, ip4addr_ntoa((const ip4_addr_t *)&event->ip_info.ip));
         // show ip address to lcd
         ui_set_ip_address(wifi_ip_address);
-        ui_set_wifi_icon_status(WIFI_CONNECTED);
+
+        wifi_connected_flag = WIFI_CONNECTED;
+        lv_event_send(ui_Screen1, LV_EVENT_VALUE_CHANGED, (bool *)wifi_connected_flag);
+
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }

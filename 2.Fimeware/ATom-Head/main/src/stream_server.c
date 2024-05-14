@@ -48,7 +48,7 @@ static esp_err_t stream_handler(httpd_req_t *req)
                 _jpg_buf = frame->buf;
                 _jpg_buf_len = frame->len;
             }
-            else if (!frame2jpg(frame, 60, &_jpg_buf, &_jpg_buf_len))
+            else if (!frame2jpg(frame, 50, &_jpg_buf, &_jpg_buf_len))
             {
                 ESP_LOGE(TAG, "JPEG compression failed");
                 res = ESP_FAIL;
@@ -90,7 +90,6 @@ static esp_err_t stream_handler(httpd_req_t *req)
 
         if (res != ESP_OK)
         {
-            ESP_LOGE(TAG, "Break stream handler");
             break;
         }
     }

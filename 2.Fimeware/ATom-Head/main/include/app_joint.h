@@ -28,6 +28,8 @@ struct Joint_device *get_joint_obj(void);
 
 int get_switchDirection_status(void);
 
+void start_first_action(void);
+
 void delete_joint_task(void);
 
 void SetJointId(struct Joint_device *_joint, uint8_t _id);

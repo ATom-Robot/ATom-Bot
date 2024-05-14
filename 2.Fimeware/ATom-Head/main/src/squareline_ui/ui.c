@@ -43,6 +43,7 @@ void ui_Screen3_screen_init(void);
 lv_obj_t * ui_Screen3;
 lv_obj_t * ui_HeadArc;
 lv_obj_t * ui_ArmSlider;
+lv_obj_t * ui_Chart1;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -83,7 +84,7 @@ void ui_event_Screen1(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_SCREEN_UNLOADED) {
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
         lv_setup_system(e);
     }
 }
