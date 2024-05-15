@@ -1,4 +1,5 @@
 #include <string.h>
+#include <nvs_flash.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "sys/socket.h"
@@ -10,7 +11,7 @@
 
 static const char *TAG = "tcp-server";
 
-#define TCP_SERVER_BIND_PORT    "1234"
+#define TCP_SERVER_BIND_PORT "1234"
 
 /**
  * @brief Indicates that the file descriptor represents an invalid (uninitialized or closed) socket
@@ -41,7 +42,8 @@ static void pack_data_analysis(int len, const char *rx_buffer);
 static void log_socket_error(const char *tag, const int sock, const int err, const char *message)
 {
     ESP_LOGE(tag, "[sock=%d]: %s\n"
-             "error=%d: %s", sock, message, err, strerror(err));
+                  "error=%d: %s",
+             sock, message, err, strerror(err));
 }
 
 /**
@@ -65,12 +67,12 @@ static int try_receive(const char *tag, const int sock, char *data, size_t max_l
     {
         if (errno == EINPROGRESS || errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            return 0;   // Not an error
+            return 0; // Not an error
         }
         if (errno == ENOTCONN)
         {
             ESP_LOGW(tag, "[sock=%d]: Connection closed", sock);
-            return -2;  // Socket has been disconnected
+            return -2; // Socket has been disconnected
         }
         log_socket_error(tag, sock, errno, "Error occurred during receiving");
         return -1;
@@ -135,7 +137,7 @@ static void tcp_server_task(void *pvParameters)
 {
     static char rx_buffer[64];
     xSemaphoreHandle *server_ready = pvParameters;
-    struct addrinfo hints = { .ai_socktype = SOCK_STREAM };
+    struct addrinfo hints = {.ai_socktype = SOCK_STREAM};
     struct addrinfo *address_info;
     int listen_sock = INVALID_SOCK;
     const size_t max_socks = CONFIG_LWIP_MAX_SOCKETS - 1;
@@ -157,7 +159,8 @@ static void tcp_server_task(void *pvParameters)
     if (res != 0 || address_info == NULL)
     {
         ESP_LOGE(TAG, "couldn't get hostname for `%s` "
-                 "getaddrinfo() returns %d, addrinfo=%p", wifi_ip_address, res, address_info);
+                      "getaddrinfo() returns %d, addrinfo=%p",
+                 wifi_ip_address, res, address_info);
         goto error;
     }
 
@@ -223,7 +226,7 @@ static void tcp_server_task(void *pvParameters)
 
             if (sock[new_sock_index] < 0)
             {
-                if (errno == EWOULDBLOCK)   // The listener socket did not accepts any connection
+                if (errno == EWOULDBLOCK) // The listener socket did not accepts any connection
                 {
                     // continue to serve open connections and try to accept again upon the next iteration
                     ESP_LOGV(TAG, "No pending connections...");
@@ -325,8 +328,21 @@ static void pack_data_analysis(int len, const char *rx_buffer)
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBC)
     {
         chassis.angle = *((uint8_t *)(rx_buffer + 3));
-
         ESP_LOGI(TAG, "[angle=%d]", chassis.angle);
+    }
+    // 参数设置
+    else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xAB)
+    {
+        // int flag = *((uint8_t *)(rx_buffer + 2));
+        ESP_LOGI(TAG, "Enter test mode when powering on next time");
+
+        nvs_handle_t nvs_handle;
+
+        // 清空参数
+        nvs_open("parameter", NVS_READWRITE, &nvs_handle);
+        ESP_ERROR_CHECK(nvs_set_u8(nvs_handle, "test_flag", 0));
+        ESP_ERROR_CHECK(nvs_commit(nvs_handle));
+        nvs_close(nvs_handle);
     }
 
     // 串口发送数据
@@ -337,7 +353,7 @@ esp_err_t APPTcpServer_run(void)
 {
     xSemaphoreHandle server_ready = xSemaphoreCreateBinary();
     assert(server_ready);
-    BaseType_t result  = xTaskCreatePinnedToCore(tcp_server_task, "tcp_server", 4 * 1024, &server_ready, 5, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(tcp_server_task, "tcp_server", 4 * 1024, &server_ready, 5, NULL, 0);
     if (result != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to create tcp server task");

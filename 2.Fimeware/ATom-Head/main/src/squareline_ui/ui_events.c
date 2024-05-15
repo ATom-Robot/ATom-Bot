@@ -5,10 +5,10 @@
 
 #include <string.h>
 #include <esp_flash.h>
+#include <nvs_flash.h>
 #include "esp_log.h"
 #include "app_joint.h"
 #include "app_ui.h"
-#include "nvs_flash.h"
 
 static const char *TAG = "ui_event";
 
@@ -61,6 +61,7 @@ void lv_setup_system(lv_event_t *e)
     {
         // enter gif screen
         ui_emoji_create();
+
         start_first_action();
         // delete joint task
         delete_joint_task();

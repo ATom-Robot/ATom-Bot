@@ -29,6 +29,7 @@ emoji_list em_list[] =
 
 extern bool gReturnFB;
 static lv_obj_t *gif_anim = NULL;
+static lv_obj_t *ui_screen_main = NULL;
 
 #if 0
 extern lv_obj_t *camera_obj;
@@ -128,7 +129,9 @@ static void getup_voice_cb(lv_timer_t *timer)
 
 void ui_emoji_create(void)
 {
-    gif_anim = lv_gif_create(lv_scr_act());
+    ui_screen_main = lv_obj_create(NULL);
+    lv_obj_clear_flag(ui_screen_main, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    gif_anim = lv_gif_create(ui_screen_main);
     lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_ALL, NULL);
 
     lv_gif_set_src(gif_anim, em_list[WAKEUP_EMOJI].gif);
@@ -139,6 +142,8 @@ void ui_emoji_create(void)
     lv_timer_set_repeat_count(t, 1);
 
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
+
+    _ui_screen_change(&ui_screen_main, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2500, NULL);
 }
 
 /* play wake up voice */
