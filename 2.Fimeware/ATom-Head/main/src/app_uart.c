@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -15,10 +16,6 @@ static const char *TAG = "uart_events";
 #define BYTE2(dwTemp) (*((char *)(&dwTemp) + 2))
 #define BYTE3(dwTemp) (*((char *)(&dwTemp) + 3))
 
-uint8_t Data_Buff[32] = {0XAA, 0XFF, 0XF1};
-uint8_t Data_Sent[32] = {0XAA, 0XFF, 0XE2};
-uint8_t Data_Check[12] = {0XAA, 0XFF, 0X00};
-
 #define BUF_SIZE (128)
 #define RD_BUF_SIZE (BUF_SIZE)
 #define PATTERN_CHR_NUM (3)
@@ -26,16 +23,29 @@ uint8_t Data_Check[12] = {0XAA, 0XFF, 0X00};
 #define UART_TX_PIN GPIO_NUM_14
 #define UART_RX_PIN GPIO_NUM_21
 
-Chassis_data chassis;
+#define SHAKE_WINDOW_SIZE 4
+#define SHAKE_ANGLE_THRESHOLD 6
+#define SHAKE_THRESHOLD 2
+
+static void get_ChassisData(uint8_t data);
+static void shaking_detected_func(void);
 
 static QueueHandle_t uart1_queue;
 
-static void get_ChassisData(uint8_t data);
+// 初始化时间窗口
+static int rollWindow[SHAKE_WINDOW_SIZE] = {0};
+static int pitchWindow[SHAKE_WINDOW_SIZE] = {0};
+static int yawWindow[SHAKE_WINDOW_SIZE] = {0};
+
+// 发送数据
+uint8_t Data_Buff[32] = {0XAA, 0XFF, 0XF1};
+
+// 底盘数据
+Chassis_data chassis;
 
 static void uart_event_task(void *pvParameters)
 {
     uart_event_t event;
-    size_t buffered_size;
     uint8_t *dtmp = (uint8_t *)malloc(RD_BUF_SIZE);
     for (;;)
     {
@@ -60,6 +70,8 @@ static void uart_event_task(void *pvParameters)
                     {
                         get_ChassisData(dtmp[i]);
                     }
+                    // 晃动检测
+                    shaking_detected_func();
                 }
                 break;
             }
@@ -144,7 +156,7 @@ esp_err_t APPUart_Init(void)
     return ESP_OK;
 }
 
-void uart_data_Anl(uint8_t *Data_Pack)
+static void uart_data_Anl(uint8_t *Data_Pack)
 {
     uint8_t sc = 0, ac = 0;
 
@@ -265,5 +277,67 @@ void data_sendto_ChassisData(int16_t _a, int16_t _b, int16_t _c, int16_t _d)
     for (i = 0; i < cnt; i++)
     {
         uart_write_bytes(UART_NUM_1, &Data_Buff[i], 1);
+    }
+}
+
+// 晃动检测
+static bool isShaking(int *rollWindow, int *pitchWindow, int *yawWindow, int windowSize)
+{
+    int maxChange = 0;
+    for (int i = 1; i < windowSize; i++)
+    {
+        int rollChange = abs(rollWindow[i] - rollWindow[i - 1]);
+        int pitchChange = abs(pitchWindow[i] - pitchWindow[i - 1]);
+        int yawChange = abs(yawWindow[i] - yawWindow[i - 1]);
+
+        int change = sqrt(rollChange * rollChange + pitchChange * pitchChange + yawChange * yawChange);
+
+        if (change > maxChange)
+        {
+            maxChange = change;
+        }
+    }
+
+    int shakeCount = 0;
+    for (int i = 1; i < windowSize; i++)
+    {
+        int rollChange = abs(rollWindow[i] - rollWindow[i - 1]);
+        int pitchChange = abs(pitchWindow[i] - pitchWindow[i - 1]);
+        int yawChange = abs(yawWindow[i] - yawWindow[i - 1]);
+
+        int change = sqrt(rollChange * rollChange + pitchChange * pitchChange + yawChange * yawChange);
+        if (change > SHAKE_ANGLE_THRESHOLD)
+        {
+            shakeCount++;
+        }
+    }
+
+    if (shakeCount >= SHAKE_THRESHOLD)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+static void shaking_detected_func(void)
+{
+    int currentRoll = chassis.roll;
+    int currentPitch = chassis.pitch;
+    int currentYaw = chassis.yaw;
+
+    for (int i = 1; i < SHAKE_WINDOW_SIZE; i++)
+    {
+        rollWindow[i - 1] = rollWindow[i];
+        pitchWindow[i - 1] = pitchWindow[i];
+        yawWindow[i - 1] = yawWindow[i];
+    }
+    rollWindow[SHAKE_WINDOW_SIZE - 1] = currentRoll;
+    pitchWindow[SHAKE_WINDOW_SIZE - 1] = currentPitch;
+    yawWindow[SHAKE_WINDOW_SIZE - 1] = currentYaw;
+
+    if (isShaking(rollWindow, pitchWindow, yawWindow, SHAKE_WINDOW_SIZE))
+    {
+        ESP_LOGI(TAG, "Shaking detected");
     }
 }

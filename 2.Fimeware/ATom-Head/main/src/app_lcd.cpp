@@ -1,7 +1,6 @@
 #include "app_lcd.h"
-#include "app_ui.h"
 #include "esp_log.h"
-#include "ui.h"
+#include "app_ui.h"
 
 static const char *TAG = "lcd";
 

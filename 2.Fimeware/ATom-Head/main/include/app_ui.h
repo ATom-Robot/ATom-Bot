@@ -1,10 +1,5 @@
 #pragma once
 
-#include <lvgl.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/semphr.h"
 #include "esp_err.h"
 #include "ui.h"
 
@@ -40,9 +35,6 @@ typedef struct
     uint8_t repeat;
     char *voice;
 } emoji_list;
-
-extern QueueHandle_t xQueueFrameI;
-extern QueueHandle_t xQueueFrameO;
 
 void ui_emoji_create(void);
 void ui_wakeup_emoji_start(void);

@@ -9,6 +9,7 @@
 #include "esp_log.h"
 #include "app_joint.h"
 #include "app_ui.h"
+#include "app_uart.h"
 
 static const char *TAG = "ui_event";
 
