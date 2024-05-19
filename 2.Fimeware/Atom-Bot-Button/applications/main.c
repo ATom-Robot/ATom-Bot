@@ -25,6 +25,7 @@ extern int control_hwtimer(void);
 extern void app_motion_ctrl_init(void);
 extern int MPU6050_Init(void);
 extern int read_mpu6xxx_td(void);
+extern int vl53l0x_port(void);
 
 int main(void)
 {
@@ -47,6 +48,8 @@ int main(void)
     Motor_Init();
     Encoder_Init();
     MPU6050_Init();
+	vl53l0x_port();
+	
     joint_i2c_init();
     ano_init("uart3");
 	

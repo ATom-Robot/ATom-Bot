@@ -4,6 +4,6 @@ cwd = GetCurrentDir()
 src = Glob('*.c') + Glob('*.cpp')
 inc = [cwd]
 
-group = DefineGroup('ADC-Voltage', src, depend = [''], CPPPATH = inc)
+group = DefineGroup('AT-Voltage', src, depend = [''], CPPPATH = inc)
 
 Return('group')

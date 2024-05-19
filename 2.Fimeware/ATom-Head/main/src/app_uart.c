@@ -6,6 +6,7 @@
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "app_uart.h"
 
 static const char *TAG = "uart_events";
 
@@ -18,25 +19,14 @@ uint8_t Data_Buff[32] = {0XAA, 0XFF, 0XF1};
 uint8_t Data_Sent[32] = {0XAA, 0XFF, 0XE2};
 uint8_t Data_Check[12] = {0XAA, 0XFF, 0X00};
 
-/**
- * This example shows how to use the UART driver to handle special UART events.
- *
- * It also reads data from UART0 directly, and echoes it to console.
- *
- * - Port: UART1
- * - Receive (Rx) buffer: on
- * - Transmit (Tx) buffer: off
- * - Flow control: off
- * - Event queue: on
- * - Pin assignment: TxD (default), RxD (default)
- */
-
-#define BUF_SIZE (512)
+#define BUF_SIZE (128)
 #define RD_BUF_SIZE (BUF_SIZE)
 #define PATTERN_CHR_NUM (3)
 
 #define UART_TX_PIN GPIO_NUM_14
 #define UART_RX_PIN GPIO_NUM_21
+
+Chassis_data chassis;
 
 static QueueHandle_t uart1_queue;
 
@@ -60,11 +50,19 @@ static void uart_event_task(void *pvParameters)
             other types of events. If we take too much time on data event, the queue might
             be full.*/
             case UART_DATA:
+            {
                 // ESP_LOGI(TAG, "[UART DATA]: %d", event.size);
-                uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
-                get_ChassisData(*dtmp);
-                ESP_LOGI(TAG, "[DATA]:%s", (const char *)dtmp);
+                int recv_len;
+                recv_len = uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
+                if (recv_len > 0)
+                {
+                    for (int i = 0; i < recv_len; i++)
+                    {
+                        get_ChassisData(dtmp[i]);
+                    }
+                }
                 break;
+            }
             // Event of HW FIFO overflow detected
             case UART_FIFO_OVF:
                 ESP_LOGI(TAG, "hw fifo overflow");
@@ -92,29 +90,11 @@ static void uart_event_task(void *pvParameters)
                 break;
             // Event of UART frame error
             case UART_FRAME_ERR:
-                ESP_LOGI(TAG, "uart frame error");
+                ESP_LOGE(TAG, "uart frame error");
                 break;
             // UART_PATTERN_DET
             case UART_PATTERN_DET:
-                uart_get_buffered_data_len(UART_NUM_1, &buffered_size);
-                int pos = uart_pattern_pop_pos(UART_NUM_1);
-                ESP_LOGI(TAG, "[UART PATTERN DETECTED] pos: %d, buffered size: %d", pos, buffered_size);
-                if (pos == -1)
-                {
-                    // There used to be a UART_PATTERN_DET event, but the pattern position queue is full so that it can not
-                    // record the position. We should set a larger queue size.
-                    // As an example, we directly flush the rx buffer here.
-                    uart_flush_input(UART_NUM_1);
-                }
-                else
-                {
-                    uart_read_bytes(UART_NUM_1, dtmp, pos, 100 / portTICK_PERIOD_MS);
-                    uint8_t pat[PATTERN_CHR_NUM + 1];
-                    memset(pat, 0, sizeof(pat));
-                    uart_read_bytes(UART_NUM_1, pat, PATTERN_CHR_NUM, 100 / portTICK_PERIOD_MS);
-                    ESP_LOGI(TAG, "read data: %s", dtmp);
-                    ESP_LOGI(TAG, "read pat : %s", pat);
-                }
+                ESP_LOGI(TAG, "uart pattern det");
                 break;
             // Others
             default:
@@ -136,7 +116,7 @@ esp_err_t APPUart_Init(void)
      * communication pins and install the driver */
     uart_config_t uart_config =
         {
-            .baud_rate = 115200,
+            .baud_rate = 500000,
             .data_bits = UART_DATA_8_BITS,
             .parity = UART_PARITY_DISABLE,
             .stop_bits = UART_STOP_BITS_1,
@@ -158,7 +138,7 @@ esp_err_t APPUart_Init(void)
     uart_pattern_queue_reset(UART_NUM_1, 20);
 
     // Create a task to handler UART event from ISR
-    BaseType_t result = xTaskCreatePinnedToCore(uart_event_task, "uart_event_task", 4096, NULL, 12, NULL, 1);
+    BaseType_t result = xTaskCreatePinnedToCore(uart_event_task, "uart_event_task", 4096, NULL, 5, NULL, 1);
     assert("Failed to create uart task" && result == (BaseType_t)1);
 
     return ESP_OK;
@@ -177,6 +157,25 @@ void uart_data_Anl(uint8_t *Data_Pack)
     {
         return;
     }
+
+    /* 参数ID=0xF5 */
+    if (Data_Pack[2] == 0xF5)
+    {
+        chassis.angle_r = *((int16_t *)(Data_Pack + 4));
+        chassis.angle_l = *((int16_t *)(Data_Pack + 6));
+        chassis.pitch = *((int16_t *)(Data_Pack + 8));
+        chassis.roll = *((int16_t *)(Data_Pack + 10));
+        chassis.yaw = *((int16_t *)(Data_Pack + 12));
+        chassis.voltage = *((int16_t *)(Data_Pack + 14)) * 0.01f;
+
+        // printf("angle_r:%d angle_l:%d pitch:%d roll:%d yaw:%d vol:%.2f\n",
+        //        chassis.angle_r,
+        //        chassis.angle_l,
+        //        chassis.pitch,
+        //        chassis.roll,
+        //        chassis.yaw,
+        //        chassis.voltage);
+    }
 }
 
 // 获取底盘串口数据
@@ -194,7 +193,7 @@ static void get_ChassisData(uint8_t data)
         if (data == 0xAA)
             sta = 1;
     }
-    else if (sta == 1)
+    else if (sta == 1 && data == 0xFF)
     {
         recv_data[1] = data;
         sta = 2;
@@ -206,9 +205,9 @@ static void get_ChassisData(uint8_t data)
     }
     else if (sta == 3)
     {
-        sta = 4;
         recv_data[3] = data;
         datalen = data;
+        sta = 4;
     }
     else if (sta == 4)
     {
@@ -228,35 +227,29 @@ static void get_ChassisData(uint8_t data)
         sta = 0;
         recv_data[4 + datacnt++] = data;
 
-        printf("uart recv data:%d %d %d\n", recv_data[0], recv_data[1], recv_data[2]);
         uart_data_Anl(recv_data);
+        return;
     }
+    else
+        sta = 0;
 }
 
-void data_sendto_ChassisData(int32_t _a, int32_t _b, int32_t _c, int32_t _d)
+void data_sendto_ChassisData(int16_t _a, int16_t _b, int16_t _c, int16_t _d)
 {
     uint8_t i, cnt = 4;
     uint8_t sc = 0, ac = 0;
 
     Data_Buff[cnt++] = BYTE0(_a);
     Data_Buff[cnt++] = BYTE1(_a);
-    Data_Buff[cnt++] = BYTE2(_a);
-    Data_Buff[cnt++] = BYTE3(_a);
 
     Data_Buff[cnt++] = BYTE0(_b);
     Data_Buff[cnt++] = BYTE1(_b);
-    Data_Buff[cnt++] = BYTE2(_b);
-    Data_Buff[cnt++] = BYTE3(_b);
 
     Data_Buff[cnt++] = BYTE0(_c);
     Data_Buff[cnt++] = BYTE1(_c);
-    Data_Buff[cnt++] = BYTE2(_c);
-    Data_Buff[cnt++] = BYTE3(_c);
 
     Data_Buff[cnt++] = BYTE0(_d);
     Data_Buff[cnt++] = BYTE1(_d);
-    Data_Buff[cnt++] = BYTE2(_d);
-    Data_Buff[cnt++] = BYTE3(_d);
 
     Data_Buff[3] = cnt - 4;
 

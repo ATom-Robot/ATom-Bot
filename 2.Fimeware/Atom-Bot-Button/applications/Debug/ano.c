@@ -305,7 +305,7 @@ int ano_send_motorpwm(uint16_t m_1, uint16_t m_2, uint16_t m_3, uint16_t m_4, ui
     return _send_data(data_to_send, _cnt);
 }
 
-int ano_send_user_data(uint8_t number, int32_t d0, int32_t d1, int32_t d2, int32_t d3)
+int ano_send_user_data(uint8_t number, int16_t d0, int16_t d1, int16_t d2, int16_t d3, int16_t d4, int16_t d5)
 {
     uint8_t data_to_send[35];
     uint8_t _cnt = 0;
@@ -317,23 +317,21 @@ int ano_send_user_data(uint8_t number, int32_t d0, int32_t d1, int32_t d2, int32
 
     data_to_send[_cnt++] = BYTE0(d0);
     data_to_send[_cnt++] = BYTE1(d0);
-    data_to_send[_cnt++] = BYTE2(d0);
-    data_to_send[_cnt++] = BYTE3(d0);
 
     data_to_send[_cnt++] = BYTE0(d1);
     data_to_send[_cnt++] = BYTE1(d1);
-    data_to_send[_cnt++] = BYTE2(d1);
-    data_to_send[_cnt++] = BYTE3(d1);
 
     data_to_send[_cnt++] = BYTE0(d2);
     data_to_send[_cnt++] = BYTE1(d2);
-    data_to_send[_cnt++] = BYTE2(d2);
-    data_to_send[_cnt++] = BYTE3(d2);
 
     data_to_send[_cnt++] = BYTE0(d3);
     data_to_send[_cnt++] = BYTE1(d3);
-    data_to_send[_cnt++] = BYTE2(d3);
-    data_to_send[_cnt++] = BYTE3(d3);
+
+    data_to_send[_cnt++] = BYTE0(d4);
+    data_to_send[_cnt++] = BYTE1(d4);
+
+    data_to_send[_cnt++] = BYTE0(d5);
+    data_to_send[_cnt++] = BYTE1(d5);
 
     data_to_send[3] = _cnt - 4;
 
@@ -380,7 +378,7 @@ int ano_set_device(const char *device_name)
         return RT_ERROR;
     }
 
-    config.baud_rate = BAUD_RATE_115200;
+    config.baud_rate = 500000;
     rt_device_control(dev, RT_DEVICE_CTRL_CONFIG, &config);
 
     /* check whether it's a same device */

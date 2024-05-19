@@ -8,13 +8,23 @@ extern "C" {
 
 typedef struct
 {
-    int thro;
+    int angle_r;
+    int angle_l;
+    int pitch;
+    int roll;
     int yaw;
-    int angle;
+    float voltage;
+
+    int target_yaw;
+    int target_thro;
+    int target_angle;
+
 } Chassis_data;
 
+extern Chassis_data chassis;
+
 esp_err_t APPUart_Init(void);
-void data_sendto_ChassisData(int32_t _a, int32_t _b, int32_t _c, int32_t _d);
+void data_sendto_ChassisData(int16_t _a, int16_t _b, int16_t _c, int16_t _d);
 
 #ifdef __cplusplus
 }

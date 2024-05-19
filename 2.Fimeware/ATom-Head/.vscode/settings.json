@@ -89,7 +89,8 @@
         "app_ui.h": "c",
         "i2c.h": "c",
         "app_joint.h": "c",
-        "fstream": "c"
+        "fstream": "c",
+        "queue.h": "c"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

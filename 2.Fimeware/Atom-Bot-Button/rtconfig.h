@@ -129,6 +129,12 @@
 /* CYW43012 WiFi */
 
 
+/* BL808 WiFi */
+
+
+/* CYW43439 WiFi */
+
+
 /* IoT Cloud */
 
 
@@ -185,6 +191,14 @@
 
 /* peripheral libraries and drivers */
 
+/* HAL & SDK Drivers */
+
+/* STM32 HAL & SDK Drivers */
+
+
+/* Kendryte SDK */
+
+
 /* sensors drivers */
 
 #define PKG_USING_MPU6XXX
@@ -197,9 +211,6 @@
 #define PKG_USING_VL53L0X_V100
 
 /* touch drivers */
-
-
-/* Kendryte SDK */
 
 #define PKG_USING_I2C_TOOLS
 #define PKG_USING_I2C_TOOLS_V100

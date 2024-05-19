@@ -26,6 +26,7 @@ void VIN_Init(void);
 float get_temprate(void);
 void init_vrefint_reciprocal(void);
 float get_battery_voltage(void);
+float get_battery_data(void);
 
 uint16_t adcx_get_chx_value(ADC_HandleTypeDef *ADCx, uint32_t ch);
 float adcx_get_chx_value_average(ADC_HandleTypeDef *ADCx, uint32_t ch, uint8_t times);

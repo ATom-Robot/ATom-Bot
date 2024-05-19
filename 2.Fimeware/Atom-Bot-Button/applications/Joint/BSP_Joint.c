@@ -18,8 +18,6 @@ static uint8_t i2cRxData[8];
 static uint8_t i2cTxData[8];
 struct Joint_device joint[JOINT_SIZE];
 
-int target_angle = 0;
-
 static rt_err_t joint_write_regs(struct Joint_device *dev, rt_uint8_t reg, rt_uint8_t len, rt_uint8_t *buf)
 {
     int8_t res = 0;
@@ -58,9 +56,9 @@ static rt_err_t joint_write_reg(struct Joint_device *dev, uint8_t *pData, rt_uin
 
     if (dev->bus->type == RT_Device_Class_I2CBUS)
     {
-        msgs.addr  = dev->config.id;	/* slave address */
-        msgs.flags = RT_I2C_WR;			/* write flag */
-        msgs.buf   = buf;				/* Send data pointer */
+        msgs.addr  = dev->config.id;    /* slave address */
+        msgs.flags = RT_I2C_WR;         /* write flag */
+        msgs.buf   = buf;               /* Send data pointer */
         msgs.len   = len;
 
         if (rt_i2c_transfer((struct rt_i2c_bus_device *)dev->bus, &msgs, 1) == 1)
@@ -390,28 +388,33 @@ static int set_torque_to_joint(int argc, const char *argv[])
 }
 MSH_CMD_EXPORT(set_torque_to_joint, set torque to joint)
 
-int joint_angele_test(int argc, const char *argv[])
+static int joint_angle_test(int argc, const char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        LOG_E("error paramter");
+        LOG_E("error paramter:joint_angle_test (1: 2) angle");
         return RT_ERROR;
     }
 
-    float angle = atof(argv[1]);
-	
-	target_angle = (int)angle;
+    float angle = atof(argv[2]);
 
-    LOG_D("set dev1 target angle:%f | current angle:%f", angle, joint[1].config.angle);
-    LOG_D("set dev2 target angle:%f | current angle:%f", angle, joint[2].config.angle);
+    if (rt_strcmp(argv[1], "1") == 0)
+    {
+        UpdateJointAngle_2(&joint[1], angle);
+        LOG_D("set joint1 target angle:%f | joint1 angle:%f", angle, joint[1].config.angle);
+    }
+    else if (rt_strcmp(argv[1], "2") == 0)
+    {
+        UpdateJointAngle_2(&joint[2], angle);
+        LOG_D("set joint2 target angle:%f | joint2 angle:%f", angle, joint[2].config.angle);
+    }
 
     return RT_EOK;
 }
-MSH_CMD_EXPORT(joint_angele_test, joint test: -180 - 180)
+MSH_CMD_EXPORT(joint_angle_test, input: joint_angle_test(1: 2) angle)
 
 static int joint_init(void)
 {
-    // Left arm
     joint[ANY].config.id = 0;
     joint[ANY].config.angleMin = 0;
     joint[ANY].config.angleMax = 180;
@@ -419,8 +422,8 @@ static int joint_init(void)
     joint[ANY].config.modelAngelMin = -90;
     joint[ANY].config.modelAngelMax = 90;
     joint[ANY].config.inverted = RT_FALSE;
-	
-	//right
+
+    //right
     joint[1].config.id = 1;
     joint[1].config.angleMin = 0;
     joint[1].config.angleMax = 95;
@@ -428,8 +431,8 @@ static int joint_init(void)
     joint[1].config.modelAngelMin = -20;
     joint[1].config.modelAngelMax = 90;
     joint[1].config.inverted = RT_FALSE;
-	
-	//left
+
+    //left
     joint[2].config.id = 2;
     joint[2].config.angleMin = 0;
     joint[2].config.angleMax = 90;

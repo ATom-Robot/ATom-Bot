@@ -4,6 +4,6 @@ cwd = GetCurrentDir()
 src = Glob('*.c') + Glob('*.cpp')
 inc = [cwd]
 
-group = DefineGroup('app-control', src, depend = [''], CPPPATH = inc)
+group = DefineGroup('AT-Motor', src, depend = [''], CPPPATH = inc)
 
 Return('group')

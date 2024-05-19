@@ -83,7 +83,7 @@ rt_int32_t distence_sensor_get(void)
     return *dis_sensor_data;
 }
 
-static int rt_hw_vl53l0x_port(void)
+int vl53l0x_port(void)
 {
     struct rt_sensor_config cfg;
     static rt_err_t init_flag;
@@ -110,4 +110,3 @@ static int rt_hw_vl53l0x_port(void)
 
     return RT_EOK;
 }
-INIT_APP_EXPORT(rt_hw_vl53l0x_port);

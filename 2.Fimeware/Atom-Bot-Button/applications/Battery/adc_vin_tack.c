@@ -90,6 +90,11 @@ int ADC_Battery_Detection()
 }
 INIT_APP_EXPORT(ADC_Battery_Detection);
 
+float get_battery_data(void)
+{
+    return battery_voltage;
+}
+
 int Check_Voltage_Data(void)
 {
     battery_voltage = get_battery_voltage() + VOLTAGE_DROP;

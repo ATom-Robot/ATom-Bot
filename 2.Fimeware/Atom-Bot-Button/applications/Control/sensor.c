@@ -1,6 +1,7 @@
 #include "BSP_Joint.h"
-#include "dmp_port_rtt.h"
+#include "bsp_vin.h"
 #include "vl53l0x.h"
+#include "dmp_port_rtt.h"
 #include "drv_sensor.h"
 #include "ano.h"
 
@@ -10,24 +11,25 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-extern int target_angle;
 extern struct Joint_device joint[JOINT_SIZE];
 
 void sensor_entry()
 {
     while (1)
     {
-        UpdateJointAngle_2(&joint[1], target_angle);
-        UpdateJointAngle_2(&joint[2], -target_angle);
+        UpdateServoAngle_1(&joint[1]);
+        UpdateServoAngle_1(&joint[2]);
 
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
 
         distence_sensor_get();
 
-        ano_send_user_data(1, (int)joint[1].config.angle,   \
-                           -(int)joint[2].config.angle,		\
-                           0,                           	\
-                           0);
+        ano_send_user_data(5, (int)joint[1].config.angle,   \
+                           -(int)joint[2].config.angle,     \
+                           (int)robot_imu_dmp_data.pitch,   \
+                           (int)robot_imu_dmp_data.roll,    \
+                           (int)robot_imu_dmp_data.yaw,     \
+                           (int)(get_battery_data() * 100));
 
         rt_thread_mdelay(10);
     }
