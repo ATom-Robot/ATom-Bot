@@ -42,8 +42,14 @@ lv_obj_t * ui_BAITtext;
 void ui_Screen3_screen_init(void);
 lv_obj_t * ui_Screen3;
 lv_obj_t * ui_HeadArc;
-lv_obj_t * ui_ArmSlider;
-lv_obj_t * ui_Chart1;
+lv_obj_t * ui_ArmSliderL;
+lv_obj_t * ui_ArmSliderR;
+lv_obj_t * ui_SensorChart;
+lv_obj_t * ui_PitchLabel;
+lv_obj_t * ui_RollLabel;
+lv_obj_t * ui_YawLabel;
+lv_obj_t * ui_Image1;
+lv_obj_t * ui_Image2;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////

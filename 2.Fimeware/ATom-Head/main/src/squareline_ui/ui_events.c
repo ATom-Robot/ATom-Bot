@@ -8,10 +8,27 @@
 #include <nvs_flash.h>
 #include "esp_log.h"
 #include "app_joint.h"
-#include "app_ui.h"
 #include "app_uart.h"
+#include "app_player.h"
+#include "app_sr_handler.h"
+#include "app_ui.h"
 
 static const char *TAG = "ui_event";
+
+static lv_chart_series_t *ui_SensorChart_series_pitch;
+static lv_chart_series_t *ui_SensorChart_series_roll;
+static lv_chart_series_t *ui_SensorChart_series_yaw;
+
+static void sensor_read_timer(lv_timer_t *timer)
+{
+    lv_chart_set_next_value(ui_SensorChart, ui_SensorChart_series_pitch, chassis.pitch);
+    lv_chart_set_next_value(ui_SensorChart, ui_SensorChart_series_roll, chassis.roll);
+    lv_chart_set_next_value(ui_SensorChart, ui_SensorChart_series_yaw, chassis.yaw);
+
+    lv_label_set_text_fmt(ui_PitchLabel, "x: %d", chassis.pitch);
+    lv_label_set_text_fmt(ui_RollLabel, "Y: %d", chassis.roll);
+    lv_label_set_text_fmt(ui_YawLabel, "Z: %d", chassis.yaw);
+}
 
 void lv_setup_system(lv_event_t *e)
 {
@@ -44,21 +61,30 @@ void lv_setup_system(lv_event_t *e)
     sprintf(uni_base, "%lld", unique_out_id);
     lv_label_set_text(ui_Systext, uni_base);
 
+    // NFS查询
     uint8_t has_conf_flag = 0;
     nvs_handle_t nvs_handle;
     nvs_open("parameter", NVS_READWRITE, &nvs_handle);
     nvs_get_u8(nvs_handle, "test_flag", &has_conf_flag);
 
-    // 需要进入测试模式
+    // 测试模式
     if (has_conf_flag == 0)
     {
         ESP_ERROR_CHECK(nvs_set_u8(nvs_handle, "test_flag", 1));
         ESP_ERROR_CHECK(nvs_commit(nvs_handle));
         _ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 1500, &ui_Screen2_screen_init);
         ESP_ERROR_CHECK(AppJoint_run());
+
+        lv_timer_t *timer = lv_timer_create(sensor_read_timer, 100, NULL);
+
+        ui_SensorChart_series_pitch = lv_chart_add_series(ui_SensorChart, lv_color_hex(0x1675F7),
+                                                          LV_CHART_AXIS_PRIMARY_Y);
+        ui_SensorChart_series_roll = lv_chart_add_series(ui_SensorChart, lv_color_hex(0xEC1E33),
+                                                         LV_CHART_AXIS_PRIMARY_Y);
+        ui_SensorChart_series_yaw = lv_chart_add_series(ui_SensorChart, lv_color_hex(0x1AFA29),
+                                                        LV_CHART_AXIS_PRIMARY_Y);
     }
-    else
-    // 直接进入主界面
+    else // 直接进入主界面
     {
         // enter gif screen
         ui_emoji_create();
@@ -69,7 +95,37 @@ void lv_setup_system(lv_event_t *e)
 
         _ui_screen_delete(&ui_Screen2);
         _ui_screen_delete(&ui_Screen3);
+
+        // 启动语音识别
+        en_sr_detect_task();
     }
 
     nvs_close(nvs_handle);
+}
+
+void ui_main_screen_event(lv_event_t *e)
+{
+    // Your code here
+    static bool is_play_finish = true;
+    lv_event_code_t code = lv_event_get_code(e);
+
+    player_state_t last_player_state = PLAYER_STATE_IDLE;
+
+    // 开始接收shake事件
+    if (code == LV_EVENT_VALUE_CHANGED)
+    {
+        bool shake_flag = lv_event_get_param(e);
+        if (shake_flag && is_play_finish)
+        {
+            ui_shaked_emoji_start();
+            app_player_play_name("shaked.mp3");
+            is_play_finish = false;
+        }
+    }
+    // shake播放完成事件
+    else if (code == LV_EVENT_READY)
+    {
+        is_play_finish = lv_event_get_param(e);
+        ui_shaked_emoji_over();
+    }
 }

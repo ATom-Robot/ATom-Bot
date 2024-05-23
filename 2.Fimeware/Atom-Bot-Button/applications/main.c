@@ -58,7 +58,7 @@ int main(void)
     /* PID Init*/
     Loc_level_PID_Init();
     control_hwtimer();
-//    app_motion_ctrl_init();
+    app_motion_ctrl_init();
 
     while (1)
     {

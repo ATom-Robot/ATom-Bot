@@ -44,12 +44,20 @@ extern lv_obj_t * ui_BAITtext;
 void ui_Screen3_screen_init(void);
 extern lv_obj_t * ui_Screen3;
 extern lv_obj_t * ui_HeadArc;
-extern lv_obj_t * ui_ArmSlider;
-extern lv_obj_t * ui_Chart1;
+extern lv_obj_t * ui_ArmSliderL;
+extern lv_obj_t * ui_ArmSliderR;
+extern lv_obj_t * ui_SensorChart;
+extern lv_obj_t * ui_PitchLabel;
+extern lv_obj_t * ui_RollLabel;
+extern lv_obj_t * ui_YawLabel;
+extern lv_obj_t * ui_Image1;
+extern lv_obj_t * ui_Image2;
 extern lv_obj_t * ui____initial_actions0;
 
 
 LV_IMG_DECLARE(ui_img_connected_png);    // assets/connected.png
+LV_IMG_DECLARE(ui_img_xyz_png);    // assets/xyz.png
+LV_IMG_DECLARE(ui_img_head_png);    // assets/head.png
 LV_IMG_DECLARE(ui_img_connect_fail_png);    // assets/connect_fail.png
 
 

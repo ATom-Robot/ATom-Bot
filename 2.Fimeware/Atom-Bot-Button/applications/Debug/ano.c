@@ -207,6 +207,26 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         }
         }
     }
+	 /* 头部数据解析 */
+	else if (buffer[2] == 0xE7)
+    {
+		static int thro, yaw, angle;
+
+		thro = *((int16_t *)(buffer + 4));
+		yaw = *((int16_t *)(buffer + 6));
+		angle = *((int16_t *)(buffer + 8));
+
+		rec_target_motor_num = thro;
+		rec_target_yaw = yaw;
+		
+		if(thro == 0)
+			rec_target_rpm = 0;
+		else
+			rec_target_rpm = 80;
+
+//		LOG_D("recv thro:%d yaw:%d angle:%d", thro, yaw, angle);
+	}
+	
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);
 }
 

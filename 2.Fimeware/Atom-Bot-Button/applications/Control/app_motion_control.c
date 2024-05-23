@@ -53,8 +53,8 @@ static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
     wheel_dt[LEFT].Reality_Position += wheel_dt[LEFT].Reality_Velocity;
     wheel_dt[RIGHT].Reality_Position += wheel_dt[RIGHT].Reality_Velocity;
 
-//  float left_speed1, left_speed2;
-//  left_speed1 = Motor_Speed(wheel_dt[LEFT].Reality_Velocity, 7, 100, 10);
+//	float left_speed1, left_speed2;
+//	left_speed1 = Motor_Speed(wheel_dt[LEFT].Reality_Velocity, 7, 100, 10);
 
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -88,17 +88,19 @@ static void Motion_Control_20ms(void *parameter)
     {
         for (uint8_t i = 0; i < 2; i++)
         {
+			/* 转速 0-300 */
             wheel_dt[i].Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm, 7, 100, 10);
+			/* 位置 */
             wheel_dt[i].Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
         }
-
+#if ANO_DEBUG
         ano_send_user_data(1, wheel_dt[LEFT].Target_Position,   \
                            wheel_dt[LEFT].Reality_Position,     \
                            wheel_dt[LEFT].Target_Velocity,      \
                            wheel_dt[LEFT].Reality_Velocity,     \
                            0,									\
                            0);
-
+#endif
         rt_thread_mdelay(10);
     }
 }

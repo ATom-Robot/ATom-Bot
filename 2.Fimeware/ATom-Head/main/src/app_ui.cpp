@@ -25,11 +25,13 @@ emoji_list em_list[] =
     {&happy_gif, 1, "happy.mp3"},
     {&hurt_gif, 1, "hurt.mp3"},
     {&angry_gif, 1, "angry.mp3"},
+    {&shake_gif, 1, "shaked.mp3"},
 };
 
 extern bool gReturnFB;
+static bool shake_flag = false;
 static lv_obj_t *gif_anim = NULL;
-static lv_obj_t *ui_screen_main = NULL;
+lv_obj_t *ui_screen_main = NULL;
 
 #if 0
 extern lv_obj_t *camera_obj;
@@ -89,6 +91,7 @@ void next_frame_task_cb(lv_event_t *event)
     lv_event_code_t code = lv_event_get_code(event);
     bool active = (bool) event->param;
     static bool is_wakeup = false;
+    static bool is_play_finish = false;
     static uint8_t normal_cnt = NORMAL_EMOJI;
 
     switch (code)
@@ -106,6 +109,15 @@ void next_frame_task_cb(lv_event_t *event)
             normal_cnt >= 1 ? normal_cnt = 0 : normal_cnt += 1;
             ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
         }
+
+        // 发送shake播放完成事件
+        if (shake_flag)
+        {
+            is_play_finish = true;
+            lv_event_send(ui_screen_main, LV_EVENT_READY, (bool *)is_play_finish);
+            shake_flag = false;
+        }
+
         break;
     }
     case LV_EVENT_VALUE_CHANGED:
@@ -127,11 +139,32 @@ static void getup_voice_cb(lv_timer_t *timer)
     lv_timer_del(timer);
 }
 
+// GIF界面事件回调
+static void ui_event_main_screen(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t *target = lv_event_get_target(e);
+
+    if (event_code == LV_EVENT_VALUE_CHANGED)
+    {
+        shake_flag = true;
+        ui_main_screen_event(e);
+    }
+    // GIF播放完成事件
+    else if (event_code == LV_EVENT_READY)
+    {
+        ui_main_screen_event(e);
+    }
+}
+
 void ui_emoji_create(void)
 {
     ui_screen_main = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_screen_main, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    lv_obj_clear_flag(ui_screen_main, LV_OBJ_FLAG_SCROLLABLE);
     gif_anim = lv_gif_create(ui_screen_main);
+
+    /* add event to gif_anim */
     lv_obj_add_event_cb(gif_anim, next_frame_task_cb, LV_EVENT_ALL, NULL);
 
     lv_gif_set_src(gif_anim, em_list[WAKEUP_EMOJI].gif);
@@ -144,28 +177,41 @@ void ui_emoji_create(void)
     ((lv_gif_t *)gif_anim)->gif->loop_count = 1;
 
     _ui_screen_change(&ui_screen_main, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2500, NULL);
+
+    /* add event to ui_screen_main */
+    lv_obj_add_event_cb(ui_screen_main, ui_event_main_screen, LV_EVENT_ALL, NULL);
 }
 
-/* play wake up voice */
+/* play wake up anim */
 void ui_wakeup_emoji_start(void)
 {
     ui_acquire();
-
     lv_gif_set_src(gif_anim, em_list[LISTEN_EMOJI].gif);
-
     lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) true);
-
     ui_release();
 }
 
 void ui_wakeup_emoji_over(void)
 {
     ui_acquire();
-
     lv_gif_set_src(gif_anim, em_list[LISTEN2NORMAL_EMOJI].gif);
-
     lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) false);
+    ui_release();
+}
 
+void ui_shaked_emoji_start(void)
+{
+    ui_acquire();
+    lv_gif_set_src(gif_anim, em_list[SHAKE_EMOJI].gif);
+    lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) true);
+    ui_release();
+}
+
+void ui_shaked_emoji_over(void)
+{
+    ui_acquire();
+    lv_gif_set_src(gif_anim, em_list[NORMAL_EMOJI].gif);
+    lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) false);
     ui_release();
 }
 

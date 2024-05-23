@@ -321,12 +321,16 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         chassis.target_yaw = yaw >= 100 ? abs(50 - (yaw / 2)) : -abs(50 - (yaw / 2));
 
         ESP_LOGI(TAG, "[thro=%d][yaw=%d]", chassis.target_thro, chassis.target_yaw);
+        // 串口发送数据
+        data_sendto_ChassisData(chassis.target_thro, chassis.target_yaw, chassis.target_angle, 0);
     }
     // 舵机角度
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBC)
     {
         chassis.target_angle = *((uint8_t *)(rx_buffer + 3));
         ESP_LOGI(TAG, "[angle=%d]", chassis.target_angle);
+        // 串口发送数据
+        data_sendto_ChassisData(chassis.target_thro, chassis.yaw, chassis.target_angle, 0);
     }
     // 参数设置
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xAB)
@@ -342,9 +346,6 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         ESP_ERROR_CHECK(nvs_commit(nvs_handle));
         nvs_close(nvs_handle);
     }
-
-    // 串口发送数据
-    data_sendto_ChassisData(chassis.target_thro, chassis.yaw, chassis.target_angle, 0);
 }
 
 esp_err_t APPTcpServer_run(void)
