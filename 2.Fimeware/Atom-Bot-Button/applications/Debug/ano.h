@@ -15,8 +15,11 @@
 #include <rtdevice.h>
 #include "command.h"
 
+// 开启上位机调参模式
+#define USING_ANO_DEBUG		0
+
 extern int rec_target_yaw;
-extern int rec_target_rpm;
+extern int rec_target_rpm[2];
 extern float rec_target_motor_num;
 extern rt_bool_t angel_control;
 

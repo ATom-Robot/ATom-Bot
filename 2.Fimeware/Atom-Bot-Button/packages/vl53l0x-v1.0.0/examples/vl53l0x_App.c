@@ -77,6 +77,7 @@ rt_int32_t distence_sensor_get(void)
     if (res == 0)
     {
         rt_kprintf("read data failed! result is %d\n", res);
+		return 0;
     }
     dis_sensor_data = &temp_data.data.proximity;
 

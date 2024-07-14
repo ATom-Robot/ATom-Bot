@@ -10,6 +10,7 @@
 #include "ano.h"
 #include "bsp_motor.h"
 #include "bsp_pid.h"
+#include "AT_Math.h"
 
 #define DBG_SECTION_NAME  "ano"
 #define DBG_LEVEL         DBG_LOG
@@ -23,7 +24,7 @@
 #define PID_PARAM_FACTOR       1000.0f
 
 // Thread
-#define THREAD_STACK_SIZE      512
+#define THREAD_STACK_SIZE      2048
 #define THREAD_PRIORITY        15
 #define THREAD_TICK            10
 
@@ -31,8 +32,13 @@ static rt_thread_t tid_ano = RT_NULL;
 static rt_device_t dev_ano = RT_NULL;
 static rt_sem_t rx_sem = RT_NULL;
 
+#if USING_ANO_DEBUG == 1
+    int rec_target_rpm;
+#else
+    int rec_target_rpm[2];
+#endif
 int rec_target_yaw = 0;
-int rec_target_rpm = 0;
+
 float rec_target_motor_num = 0;
 /* angel pid will be open or close*/
 rt_bool_t angel_control = RT_FALSE;
@@ -146,6 +152,34 @@ static void ano_sentPar(uint16_t id, int32_t data)
     _send_data(data_to_send, _cnt);
 }
 
+static void calculate_wheel_speeds(int target_rpm, int yaw)
+{
+    // 轮子之间的距离
+    const float L = 120;
+
+    // 轮子的半径
+    const float R = 20;
+
+    // 将期望角度转换为弧度
+    float yaw_rad = yaw * MY_PPPIII / 180.0;
+
+    // 计算线速度 (v) 和角速度 (omega)
+    float v = target_rpm * 2 * MY_PPPIII * R / 60.0; // 转速转为线速度 (m/s)
+    float omega = yaw_rad; // 这里假设角速度与yaw成正比
+
+    // 计算左右轮的线速度
+    float v_left = v - (omega * L / 2.0);
+    float v_right = v + (omega * L / 2.0);
+
+    // 将线速度转换为转速
+    rec_target_rpm[0] = (int)(v_left * 60.0 / (2 * MY_PPPIII * R));
+    rec_target_rpm[1] = (int)(v_right * 60.0 / (2 * MY_PPPIII * R));
+	
+//	rt_kprintf("v_left:%d  v_right:%d\n", (int)v_left, (int)v_right);
+//	rt_kprintf("==============================\n");
+//	rt_kprintf("target1:%d  target2:%d\n", (int)(v_left * 60.0 / (2 * MY_PPPIII * R)), (int)(v_right * 60.0 / (2 * MY_PPPIII * R)));
+}
+
 static void ano_parse_frame(uint8_t *buffer, uint8_t length)
 {
     uint8_t sum = 0;
@@ -163,11 +197,15 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         switch (id)
         {
         case 1:
+#if USING_ANO_DEBUG == 1
             ano_sentPar(id, rec_target_rpm); /* 速度 */
+#endif
             break;
 
         case 2:
+#if USING_ANO_DEBUG == 1
             ano_sentPar(id, rec_target_rpm * 10); /* 圈数放大10倍发送 */
+#endif
             break;
 
         default:
@@ -186,8 +224,10 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         {
             static int Rpm;
             Rpm = *(int *)(&buffer[6]);
+#if USING_ANO_DEBUG == 1
             rec_target_rpm = limit_amplitude(Rpm, RPM_MAX);
             LOG_D("recv rpm speed target:%d", rec_target_rpm);
+#endif
             break;
         }
         /* 位置 */
@@ -200,33 +240,27 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         /* 位置 */
         case 3:
         {
-			angel_control = RT_TRUE;
+            angel_control = RT_TRUE;
             rec_target_yaw = *(int *)(&buffer[6]);
             LOG_D("recv yaw angle target:%d", rec_target_yaw);
             break;
         }
         }
     }
-	 /* 头部数据解析 */
-	else if (buffer[2] == 0xE7)
+    /* 头部数据解析 */
+    else if (buffer[2] == 0xE7)
     {
-		static int thro, yaw, angle;
+        static int thro, yaw, angle;
 
-		thro = *((int16_t *)(buffer + 4));
-		yaw = *((int16_t *)(buffer + 6));
-		angle = *((int16_t *)(buffer + 8));
+        thro = *((int16_t *)(buffer + 4));
+        yaw = *((int16_t *)(buffer + 6));
+        angle = *((int16_t *)(buffer + 8));
 
-		rec_target_motor_num = thro;
-		rec_target_yaw = yaw;
-		
-		if(thro == 0)
-			rec_target_rpm = 0;
-		else
-			rec_target_rpm = 80;
+        rec_target_motor_num = thro;
 
-//		LOG_D("recv thro:%d yaw:%d angle:%d", thro, yaw, angle);
-	}
-	
+        calculate_wheel_speeds(thro, -yaw);
+    }
+
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);
 }
 
