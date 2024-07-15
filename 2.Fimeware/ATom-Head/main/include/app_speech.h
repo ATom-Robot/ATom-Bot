@@ -51,9 +51,17 @@ typedef enum
 typedef enum
 {
     SR_CMD_SET_RED = 0,
-    SR_CMD_NEXT,
-    SR_CMD_PLAY,
-    SR_CMD_PAUSE,
+    SR_CMD_SING,
+    SR_CMD_MUSIC,
+    SR_CMD_PLAY_NEXT,
+    SR_CMD_PLAY_PREV,
+    SR_CMD_PLAY_PAUSE,
+    SR_CMD_PLAY_STOP,
+    SR_CMD_PLAY_POLICE,
+    SR_CMD_PLAY_SCARE,
+    SR_CMD_PLAY_HAPPY,
+    SR_CMD_PLAY_CIRCLE,
+    SR_CMD_PLAY_DANCE,
     SR_CMD_MAX,
 } sr_user_cmd_t;
 
@@ -80,8 +88,8 @@ typedef struct
     int command_id;
 } sr_result_t;
 
-esp_err_t AppSpeech_Init(void);
-esp_err_t AppSpeech_run(void);
+esp_err_t App_Speech_Init(void);
+esp_err_t App_Speech_run(void);
 esp_err_t app_sr_stop(void);
 const sr_cmd_t *app_sr_get_cmd_from_id(uint32_t id);
 esp_err_t app_sr_get_result(sr_result_t *result, TickType_t xTicksToWait);

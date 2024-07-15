@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "esp_heap_caps.h"
@@ -67,7 +67,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
-            NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
+        NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
     {
         ESP_LOGE(TAG, "Header of wav format error");
         return ESP_FAIL;
@@ -94,6 +94,18 @@ bool sr_echo_is_playing(void)
     return b_audio_playing;
 }
 
+// Fisher-Yates洗牌
+void shuffle(int array[], int size)
+{
+    for (int i = size - 1; i > 0; --i)
+    {
+        int j = rand() % (i + 1);
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
 void sr_handler_task(void *pvParam)
 {
 #if !SR_RUN_TEST
@@ -102,9 +114,9 @@ void sr_handler_task(void *pvParam)
     FILE *fp;
     // const sys_param_t *param = settings_get_parameter();
     const char *files[1][3] =
-    {
-        {"/spiffs/wakeup.wav", "/spiffs/wakeup.wav", "/spiffs/wakeup.wav"},
-    };
+        {
+            {"/spiffs/wakeup.wav", "/spiffs/wakeup.wav", "/spiffs/wakeup.wav"},
+        };
     char audio_file[48] = {0};
     for (size_t i = 0; i < AUDIO_MAX; i++)
     {
@@ -122,6 +134,17 @@ void sr_handler_task(void *pvParam)
 #endif
 
     player_state_t last_player_state = PLAYER_STATE_IDLE;
+
+    // 初始化随机数生成器
+    srand(time(NULL));
+
+    // 创建索引数组并初始化为顺序索引
+    int indices[SONG_COUNT];
+    for (int i = 0; i < SONG_COUNT; ++i)
+    {
+        indices[i] = i;
+    }
+
     while (true)
     {
         sr_result_t result;
@@ -134,7 +157,7 @@ void sr_handler_task(void *pvParam)
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_END);
 #endif
-             ui_wakeup_emoji_over();
+            ui_wakeup_emoji_over();
 
             if (PLAYER_STATE_PLAYING == last_player_state)
             {
@@ -177,14 +200,46 @@ void sr_handler_task(void *pvParam)
             {
             case SR_CMD_SET_RED:
                 break;
-            case SR_CMD_NEXT:
-                app_player_play_next();
+            // 下一首
+            case SR_CMD_PLAY_NEXT:
                 break;
-            case SR_CMD_PLAY:
-                app_player_play();
+            // 上一首
+            case SR_CMD_PLAY_PREV:
+                break;
+            case SR_CMD_SING:
+            case SR_CMD_MUSIC:
+            {
+                // 随机打乱索引数组
+                shuffle(indices, SONG_COUNT);
+                app_player_play_name(song_list[indices[0]]);
+                ui_sr_emoji_display(SING2_EMOJI, false);
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
-            case SR_CMD_PAUSE:
+            }
+            case SR_CMD_PLAY_HAPPY:
+            {
+                app_player_play_name("sing2.mp3");
+                ui_sr_emoji_display(HAPPY_EMOJI, false);
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            case SR_CMD_PLAY_SCARE:
+            {
+                app_player_play_name("scared.mp3");  
+                ui_sr_emoji_display(SCARED_EMOJI, false);
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            case SR_CMD_PLAY_POLICE:
+            {
+                app_player_play_name("police.mp3");
+                ui_sr_emoji_display(SHAKE_EMOJI, false);
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            // 暂停
+            case SR_CMD_PLAY_STOP:
+            case SR_CMD_PLAY_PAUSE:
                 app_player_pause();
                 last_player_state = PLAYER_STATE_PAUSE;
                 break;

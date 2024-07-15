@@ -271,9 +271,7 @@ static void tcp_server_task(void *pvParameters)
                 {
                     // Received some data -> echo back
                     // ESP_LOGI(TAG, "[sock=%d]: Received %.*s", sock[i], len, rx_buffer);
-                    pack_data_analysis(len, rx_buffer);
-
-                    len = socket_send(TAG, sock[i], "server", 7);
+                    len = socket_send(TAG, sock[i], "1", 1);
                     if (len < 0)
                     {
                         // Error occurred on write to this socket -> close it and mark invalid
@@ -281,6 +279,7 @@ static void tcp_server_task(void *pvParameters)
                         close(sock[i]);
                         sock[i] = INVALID_SOCK;
                     }
+                    pack_data_analysis(len, rx_buffer);
                 }
 
             } // one client's socket
@@ -330,25 +329,35 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         chassis.target_angle = *((uint8_t *)(rx_buffer + 3));
         ESP_LOGI(TAG, "[angle=%d]", chassis.target_angle);
         // 串口发送数据
-        data_sendto_ChassisData(chassis.target_thro, chassis.yaw, chassis.target_angle, 0);
+        data_sendto_ChassisData(0, 0, chassis.target_angle, 0);
     }
     // 参数设置
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xAB)
     {
-        // int flag = *((uint8_t *)(rx_buffer + 2));
         ESP_LOGI(TAG, "Enter test mode when powering on next time");
 
-        nvs_handle_t nvs_handle;
+        if (rx_buffer[2] == 0x01)
+        {
+            nvs_handle_t nvs_handle;
 
-        // 清空参数
-        nvs_open("parameter", NVS_READWRITE, &nvs_handle);
-        ESP_ERROR_CHECK(nvs_set_u8(nvs_handle, "test_flag", 0));
-        ESP_ERROR_CHECK(nvs_commit(nvs_handle));
-        nvs_close(nvs_handle);
+            // 清空参数
+            nvs_open("parameter", NVS_READWRITE, &nvs_handle);
+            ESP_ERROR_CHECK(nvs_set_u8(nvs_handle, "test_flag", 0));
+            ESP_ERROR_CHECK(nvs_commit(nvs_handle));
+            nvs_close(nvs_handle);
+        }
+        else if (rx_buffer[2] == 0x02)
+        {
+            ESP_LOGI(TAG, "prev");
+        }
+        else if (rx_buffer[2] == 0x03)
+        {
+            ESP_LOGI(TAG, "next");
+        }
     }
 }
 
-esp_err_t APPTcpServer_run(void)
+esp_err_t APP_TcpServer_run(void)
 {
     xSemaphoreHandle server_ready = xSemaphoreCreateBinary();
     assert(server_ready);

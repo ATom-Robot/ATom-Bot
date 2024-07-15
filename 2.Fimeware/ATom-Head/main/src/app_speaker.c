@@ -53,7 +53,7 @@ size_t speaker_write(char *data, int numData)
     return sendSize;
 }
 
-esp_err_t AppSpeaker_Init(void)
+esp_err_t App_Speaker_Init(void)
 {
     esp_err_t ret = ESP_OK;
     if (speaker_initOutput(I2S_BITS_PER_SAMPLE_16BIT, I2S_BCLK, I2S_LRC, I2S_DOUT) == false)

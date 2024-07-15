@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 extern char wifi_ip_address[16];
-esp_err_t app_wifi_main(void);
+esp_err_t App_Wifi_run(void);
 
 #ifdef __cplusplus
 }

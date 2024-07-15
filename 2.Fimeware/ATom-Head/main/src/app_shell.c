@@ -112,7 +112,7 @@ static esp_err_t scli_init()
     return ESP_OK;
 }
 
-esp_err_t AppShell_run(void)
+esp_err_t App_Shell_run(void)
 {
     esp_err_t ret = scli_init();
     if (ret != ESP_OK)

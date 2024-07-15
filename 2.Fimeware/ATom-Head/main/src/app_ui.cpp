@@ -15,17 +15,26 @@ static const char *TAG = "app_ui";
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+const char *song_list[] =
+{
+    "sing1.mp3",
+    "sing2.mp3"
+};
+
 emoji_list em_list[] =
 {
-    {&normal_gif, 1, ""},
-    {&normal2_gif, 1, ""},
+    {&normal_gif, 0, ""},
+    {&normal2_gif, 0, ""},
     {&listen_gif, 0, "listen.mp3"},
     {&listen2normal_gif, 0, ""},
-    {&wakeup_gif, 1, "wakeup.mp3"},
-    {&happy_gif, 1, "happy.mp3"},
-    {&hurt_gif, 1, "hurt.mp3"},
-    {&angry_gif, 1, "angry.mp3"},
-    {&shake_gif, 1, "shaked.mp3"},
+    {&wakeup_gif, 0, "wakeup.mp3"},
+    {&happy_gif, 4000, "happy.mp3"},
+    {&normal2_gif, 2000, "sing1.mp3"},
+    {&happy_gif, 4000, "sing2.mp3"},
+    {&emo_gif, 6000, "emo.mp3"},
+    {&scared_gif, 7000, "scared.mp3"},
+    {&angry_gif, 6000, "angry.mp3"},
+    {&shake_gif, 3000, "shaked.mp3"},
 };
 
 extern bool gReturnFB;
@@ -212,6 +221,14 @@ void ui_shaked_emoji_over(void)
     ui_acquire();
     lv_gif_set_src(gif_anim, em_list[NORMAL_EMOJI].gif);
     lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) false);
+    ui_release();
+}
+
+void ui_sr_emoji_display(emoji_t emoji, bool flag)
+{
+    ui_acquire();
+    lv_gif_set_src(gif_anim, em_list[emoji].gif);
+    lv_event_send(gif_anim, LV_EVENT_VALUE_CHANGED, (void *) flag);
     ui_release();
 }
 

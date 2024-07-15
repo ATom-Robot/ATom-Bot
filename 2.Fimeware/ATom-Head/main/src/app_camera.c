@@ -7,6 +7,7 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "app_camera.h"
+#include "../../components/esp32-camera/driver/private_include/cam_hal.h"
 
 static const char *TAG = "app/camera";
 
@@ -31,10 +32,10 @@ static void camera_task(void *param)
     vTaskDelete(NULL);
 }
 
-esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
-                    const framesize_t frame_size,
-                    const uint8_t fb_count,
-                    const QueueHandle_t queue_o)
+esp_err_t App_Camera_Init(const pixformat_t pixel_fromat,
+                         const framesize_t frame_size,
+                         const uint8_t fb_count,
+                         const QueueHandle_t queue_o)
 {
     ESP_LOGI(TAG, "Camera module is %s", CAMERA_MODULE_NAME);
 
@@ -77,10 +78,10 @@ esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
 
     // camera init
     sensor_t *s = esp_camera_sensor_get();
-    //initial sensors are flipped vertically and colors are a bit saturated
+    // initial sensors are flipped vertically and colors are a bit saturated
     if (s->id.PID == OV3660_PID)
     {
-        s->set_saturation(s, -2);//lower the saturation
+        s->set_saturation(s, -2); // lower the saturation
     }
 
     if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID)
@@ -102,15 +103,27 @@ esp_err_t AppCamera_Init(const pixformat_t pixel_fromat,
     return ESP_OK;
 }
 
-esp_err_t AppCamera_run(void)
+void app_camera_stop()
+{
+    cam_stop();
+}
+
+void app_camera_start()
+{
+    cam_start();
+}
+
+esp_err_t App_Camera_run(void)
 {
     esp_err_t ret = ESP_OK;
-    BaseType_t result  = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 5, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 5, NULL, 0);
     if (result != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to create camera task");
         ret = ESP_FAIL;
     }
+
+    // app_camera_stop();
+
     return ret;
 }
-

@@ -60,7 +60,7 @@ void TransmitAndReceiveI2cPacket(uint8_t _id);
 
 void register_jointcmd(void);
 
-esp_err_t joint_i2c_init(void);
+esp_err_t App_Joint_Init(void);
 
 esp_err_t AppJoint_run(void);
 

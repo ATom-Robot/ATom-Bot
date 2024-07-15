@@ -25,7 +25,7 @@ bool gReturnFB = true;
  **********************/
 static void lv_tick_task(void *arg);
 
-esp_err_t AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
+esp_err_t App_Lcd_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb)
 {
     screen.init();
     screen.setRotation(1);// 1 3 5 7
@@ -110,7 +110,7 @@ static void lv_tick_task(void *arg)
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
-esp_err_t AppLVGL_run(void)
+esp_err_t App_Lvgl_run(void)
 {
     esp_err_t ret = ESP_OK;
     BaseType_t result = xTaskCreatePinnedToCore(guiTask, "gui", 4 * 1024, NULL, 5, &g_lvgl_task_handle, 0);

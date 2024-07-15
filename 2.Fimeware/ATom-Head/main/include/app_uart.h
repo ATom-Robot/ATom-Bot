@@ -23,7 +23,7 @@ typedef struct
 
 extern Chassis_data chassis;
 
-esp_err_t APPUart_Init(void);
+esp_err_t APP_Uart_Init(void);
 void data_sendto_ChassisData(int16_t _a, int16_t _b, int16_t _c, int16_t _d);
 
 #ifdef __cplusplus

@@ -7,7 +7,7 @@ extern "C"
 {
 #endif
 
-esp_err_t AppShell_run(void);
+esp_err_t App_Shell_run(void);
 
 #ifdef __cplusplus
 }

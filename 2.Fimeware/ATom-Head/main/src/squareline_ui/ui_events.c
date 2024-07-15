@@ -25,6 +25,9 @@ static void sensor_read_timer(lv_timer_t *timer)
     lv_chart_set_next_value(ui_SensorChart, ui_SensorChart_series_roll, chassis.roll);
     lv_chart_set_next_value(ui_SensorChart, ui_SensorChart_series_yaw, chassis.yaw);
 
+    lv_slider_set_value(ui_ArmSliderR, chassis.angle_r, LV_ANIM_ON);
+    lv_slider_set_value(ui_ArmSliderL, chassis.angle_l, LV_ANIM_ON);
+
     lv_label_set_text_fmt(ui_PitchLabel, "x: %d", chassis.pitch);
     lv_label_set_text_fmt(ui_RollLabel, "Y: %d", chassis.roll);
     lv_label_set_text_fmt(ui_YawLabel, "Z: %d", chassis.yaw);
@@ -89,7 +92,7 @@ void lv_setup_system(lv_event_t *e)
         // enter gif screen
         ui_emoji_create();
 
-        start_first_action();
+        // start_first_action();
         // delete joint task
         delete_joint_task();
 

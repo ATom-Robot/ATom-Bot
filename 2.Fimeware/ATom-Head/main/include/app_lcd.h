@@ -20,8 +20,8 @@ extern "C"
 extern QueueHandle_t xQueueFrameI;
 extern QueueHandle_t xQueueFrameO;
 
-esp_err_t AppLCD_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
-esp_err_t AppLVGL_run(void);
+esp_err_t App_Lcd_Init(const QueueHandle_t frame_i, const QueueHandle_t frame_o, const bool return_fb);
+esp_err_t App_Lvgl_run(void);
 
 #ifdef __cplusplus
 }

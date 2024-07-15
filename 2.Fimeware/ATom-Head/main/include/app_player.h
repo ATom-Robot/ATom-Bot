@@ -41,7 +41,7 @@ typedef struct
 /* Audio callback function type */
 typedef void (*audio_cb_t)(player_cb_ctx_t *);
 
-esp_err_t app_player_start(char *file_path);
+esp_err_t App_Player_run(const char *file_path);
 esp_err_t app_player_play(void);
 esp_err_t app_player_pause(void);
 player_state_t app_player_get_state(void);

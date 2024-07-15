@@ -25,7 +25,7 @@ static const char *TAG = "uart_events";
 #define UART_RX_PIN GPIO_NUM_21
 
 #define SHAKE_WINDOW_SIZE 4
-#define SHAKE_ANGLE_THRESHOLD 6
+#define SHAKE_ANGLE_THRESHOLD 10
 #define SHAKE_THRESHOLD 2
 
 static void get_ChassisData(uint8_t data);
@@ -122,7 +122,7 @@ static void uart_event_task(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-esp_err_t APPUart_Init(void)
+esp_err_t APP_Uart_Init(void)
 {
     esp_log_level_set(TAG, ESP_LOG_INFO);
 

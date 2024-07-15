@@ -17,11 +17,11 @@
 #define LV_ATTRIBUTE_MEM_ALIGN
 #endif
 
-#ifndef LV_ATTRIBUTE_IMG_HURT_GIF
-#define LV_ATTRIBUTE_IMG_HURT_GIF
+#ifndef LV_ATTRIBUTE_IMG_EMO_GIF
+#define LV_ATTRIBUTE_IMG_EMO_GIF
 #endif
 
-const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_HURT_GIF uint8_t hurt_gif_map[] = {
+const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_EMO_GIF uint8_t emo_gif_map[] = {
     0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0xf0, 0x00, 0x86, 0x00, 0xf7, 0x1f, 0x31, 
     0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x48, 0x00, 0x00, 0x6c, 0x00, 0x00, 0x90, 
     0x00, 0x00, 0xb4, 0x00, 0x00, 0xd8, 0x00, 0x00, 0xfc, 0x00, 0x00, 0x00, 0x24, 
@@ -9718,12 +9718,12 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG_HURT_GIF 
     0x3b
 };
 
-const lv_img_dsc_t hurt_gif = {
+const lv_img_dsc_t emo_gif = {
   .header.cf = LV_IMG_CF_RAW_CHROMA_KEYED,
   .header.always_zero = 0,
   .header.reserved = 0,
   .header.w = 240,
   .header.h = 134,
   .data_size = 126010,
-  .data = hurt_gif_map,
+  .data = emo_gif_map,
 };

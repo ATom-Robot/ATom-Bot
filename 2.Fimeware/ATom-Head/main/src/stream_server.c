@@ -105,7 +105,7 @@ void stophttpServer(void)
     }
 }
 
-esp_err_t start_stream_server(const QueueHandle_t frame_i, const bool return_fb)
+esp_err_t App_Stream_run(const QueueHandle_t frame_i, const bool return_fb)
 {
     xQueueFrameI = frame_i;
     gReturnFB = return_fb;

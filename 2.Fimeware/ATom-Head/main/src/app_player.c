@@ -397,7 +397,7 @@ esp_err_t app_player_play_name(const char *file_name)
 }
 
 /* **************** START AUDIO PLAYER **************** */
-esp_err_t app_player_start(char *file_path)
+esp_err_t App_Player_run(const char *file_path)
 {
     ESP_RETURN_ON_FALSE(NULL != file_path, ESP_ERR_INVALID_ARG, TAG,  "Invalid base path");
     BaseType_t ret_val = xTaskCreatePinnedToCore(audio_task, "Audio Task", 4 * 1024, file_path, configMAX_PRIORITIES - 5, NULL, 1);

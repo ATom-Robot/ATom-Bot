@@ -476,9 +476,9 @@ void register_jointcmd(void)
     register_jointset();
 }
 
-#define SERVO_MIN_ANGLE -15
+#define SERVO_MIN_ANGLE 0
 #define SERVO_MAX_ANGLE 40
-#define SERVO_PERIOD_MS 220
+#define SERVO_PERIOD_MS 250
 #define SERVO_ROTATION_TIME_MS 10000
 
 /* 头部关节动作*/
@@ -573,7 +573,11 @@ static void joint_ui_menu_task(void *parm)
 void start_first_action(void)
 {
     // create timer
-    TimerHandle_t timer = xTimerCreate("servo_timer", pdMS_TO_TICKS(SERVO_PERIOD_MS), pdTRUE, NULL, timer_callback);
+    TimerHandle_t timer = xTimerCreate("servo_timer",
+                                       pdMS_TO_TICKS(SERVO_PERIOD_MS),
+                                       pdTRUE,
+                                       NULL,
+                                       timer_callback);
     if (timer != NULL)
     {
         xTimerStart(timer, 0);
@@ -585,7 +589,7 @@ void start_first_action(void)
     updateJointAngle_2(&joint[ANY], SERVO_MIN_ANGLE);
 }
 
-esp_err_t joint_i2c_init(void)
+esp_err_t App_Joint_Init(void)
 {
     esp_err_t res = ESP_OK;
     res = i2c_master_init();

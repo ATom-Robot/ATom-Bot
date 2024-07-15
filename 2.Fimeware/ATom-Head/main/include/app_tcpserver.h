@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-esp_err_t APPTcpServer_run(void);
+esp_err_t APP_TcpServer_run(void);
 
 #ifdef __cplusplus
 }

@@ -17,6 +17,7 @@
 #include "freertos/event_groups.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "esp_pm.h"
 #include "esp_event.h"
 #include "esp_smartconfig.h"
 #include "esp_log.h"
@@ -24,6 +25,8 @@
 #include "sdkconfig.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
+
+static const char *TAG = "app_wifi";
 
 #include "app_ui.h"
 
@@ -46,8 +49,6 @@ enum
     WIFI_UNCONNECT,
     WIFI_CONNECTED
 };
-
-static const char *TAG = "app_wifi";
 
 esp_netif_t *ap_netif = NULL;
 nvs_handle_t wifi_nvs_handle;
@@ -99,6 +100,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         // show ip address to lcd
         ui_set_ip_address(wifi_ip_address);
 
+        ui_set_info_to_statusbar((char *)wifi_ip_address);
+
         wifi_connected_flag = WIFI_CONNECTED;
         lv_event_send(ui_Screen1, LV_EVENT_VALUE_CHANGED, (bool *)wifi_connected_flag);
 
@@ -118,7 +121,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         char connect_text[48] = {0};
         sprintf(connect_text, "connected:%s", (const char *)event->ssid);
         ui_set_wifi_ssid((const char *)event->ssid);
-        ui_set_info_to_statusbar((char *)connect_text);
     }
     /* Smartconfig mode */
     else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD)
@@ -249,7 +251,7 @@ static void check_wifi_info(void)
     nvs_close(wifi_nvs_handle);
 }
 
-esp_err_t app_wifi_main(void)
+esp_err_t App_Wifi_run(void)
 {
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -275,6 +277,9 @@ esp_err_t app_wifi_main(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_LOGI(TAG, "wifi init finished.");
+
+    ESP_LOGI(TAG, "esp_wifi_set_ps().");
+    esp_wifi_set_ps(WIFI_PS_MAX_MODEM);
 
     check_wifi_info();
 

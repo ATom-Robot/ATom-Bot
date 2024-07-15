@@ -114,12 +114,19 @@ int bsp_get_feed_channel(void)
 /**
  * @brief all default commands
  */
-static const sr_cmd_t g_default_cmd_info[] =
-    {
-        {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
-        {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
-        {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
-        {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
+static const sr_cmd_t g_default_cmd_info[] = {
+    {SR_CMD_SING, SR_LANG_CN, 0, "唱歌", "chang ge", {NULL}},
+    {SR_CMD_MUSIC, SR_LANG_CN, 0, "音乐", "yin yue", {NULL}},
+    {SR_CMD_PLAY_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
+    {SR_CMD_PLAY_PREV, SR_LANG_CN, 0, "上一曲", "shang yi qv", {NULL}},
+    {SR_CMD_PLAY_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
+    {SR_CMD_PLAY_STOP, SR_LANG_CN, 0, "停止", "ting zhi", {NULL}},
+    {SR_CMD_PLAY_POLICE, SR_LANG_CN, 0, "警车", "jing che", {NULL}},
+    {SR_CMD_PLAY_SCARE, SR_LANG_CN, 0, "害怕", "hai pa", {NULL}},
+    {SR_CMD_PLAY_HAPPY, SR_LANG_CN, 0, "开心", "kai xin", {NULL}},
+    {SR_CMD_PLAY_HAPPY, SR_LANG_CN, 0, "高兴", "gao xing", {NULL}},
+    {SR_CMD_PLAY_CIRCLE, SR_LANG_CN, 0, "转圈", "zhuan quan", {NULL}},
+    {SR_CMD_PLAY_DANCE, SR_LANG_CN, 0, "跳舞", "tiao wu", {NULL}},
 };
 
 static void feed_Task(void *pvParam)
@@ -189,7 +196,7 @@ static void detect_Task(void *pvParam)
     {
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group))
         {
-            xEventGroupSetBits(g_sr_data->event_group, DETECT_DELETED); 
+            xEventGroupSetBits(g_sr_data->event_group, DETECT_DELETED);
             vTaskDelete(g_sr_data->handle_task);
             vTaskDelete(NULL);
         }
@@ -257,7 +264,7 @@ static void detect_Task(void *pvParam)
     vTaskDelete(NULL);
 }
 
-esp_err_t AppSpeech_Init(void)
+esp_err_t App_Speech_Init(void)
 {
     esp_err_t res = ESP_OK;
     res = bsp_i2s_init(I2S_NUM_1);
@@ -379,7 +386,7 @@ void en_sr_detect_task(void)
         xSemaphoreGive(sr_detect_semaphore);
 }
 
-esp_err_t AppSpeech_run(void)
+esp_err_t App_Speech_run(void)
 {
     esp_err_t ret = ESP_OK;
 

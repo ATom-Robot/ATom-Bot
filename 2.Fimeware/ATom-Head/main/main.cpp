@@ -24,21 +24,20 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
-    ESP_ERROR_CHECK(AppCamera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 3, xQueueLCDFrame));
-    ESP_ERROR_CHECK(AppLCD_Init(xQueueLCDFrame, NULL, true));
-    ESP_ERROR_CHECK(AppSpeech_Init());
-    ESP_ERROR_CHECK(AppSpeaker_Init());
-    ESP_ERROR_CHECK(APPUart_Init());
-    ESP_ERROR_CHECK(joint_i2c_init());
+    ESP_ERROR_CHECK(App_Camera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 3, xQueueLCDFrame));
+    ESP_ERROR_CHECK(App_Lcd_Init(xQueueLCDFrame, NULL, true));
+    ESP_ERROR_CHECK(App_Speech_Init());
+    ESP_ERROR_CHECK(App_Speaker_Init());
+    ESP_ERROR_CHECK(APP_Uart_Init());
+    ESP_ERROR_CHECK(App_Joint_Init());
 
-    ESP_ERROR_CHECK(AppSpeech_run());
-    ESP_ERROR_CHECK(AppCamera_run());
-    ESP_ERROR_CHECK(AppLVGL_run());
-    ESP_ERROR_CHECK(app_wifi_main());
-    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
-    ESP_ERROR_CHECK(start_stream_server(xQueueLCDFrame, true));
-    ESP_ERROR_CHECK(APPTcpServer_run());
+    ESP_ERROR_CHECK(App_Speech_run());
+    ESP_ERROR_CHECK(App_Camera_run());
+    ESP_ERROR_CHECK(App_Lvgl_run());
+    ESP_ERROR_CHECK(App_Wifi_run());
+    ESP_ERROR_CHECK(APP_TcpServer_run());
+    ESP_ERROR_CHECK(App_Player_run("/spiffs/mp3"));
+    ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
     // // rtsp_server();
-    
-    ESP_ERROR_CHECK(AppShell_run());
+    ESP_ERROR_CHECK(App_Shell_run());
 }
