@@ -12,5 +12,6 @@
 #define DRV_SENSOR_H
 
 int sensor_thread_create(void);
-
+void sensor_acquire(void);
+void sensor_release(void);
 #endif

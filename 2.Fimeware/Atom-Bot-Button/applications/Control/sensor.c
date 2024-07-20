@@ -13,32 +13,57 @@
 
 extern struct Joint_device joint[JOINT_SIZE];
 
+rt_mutex_t i2c_mutex = RT_NULL;
+
+static rt_thread_t sensor_thread;
+
 void sensor_entry()
 {
     while (1)
     {
-        UpdateServoAngle_1(&joint[1]);
-        UpdateServoAngle_1(&joint[2]);
+        if (RT_EOK == rt_mutex_take(i2c_mutex, RT_WAITING_FOREVER))
+        {
+            UpdateServoAngle_1(&joint[1]);
+            UpdateServoAngle_1(&joint[2]);
+
+			rt_mutex_release(i2c_mutex);
+        }
 
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
 
         distence_sensor_get();
 
         ano_send_user_data(5, (int)joint[1].config.angle,   \
-                           -(int)joint[2].config.angle,     \
+                           (int)joint[2].config.angle,		\
                            (int)robot_imu_dmp_data.pitch,   \
                            (int)robot_imu_dmp_data.roll,    \
                            (int)robot_imu_dmp_data.yaw,     \
                            (int)(get_battery_data() * 100));
 
-        rt_thread_mdelay(10);
+        rt_thread_mdelay(20);
+    }
+}
+
+void sensor_acquire(void)
+{
+    rt_thread_t task = rt_thread_self();
+    if (sensor_thread != task)
+    {
+        rt_mutex_take(i2c_mutex, RT_WAITING_FOREVER);
+    }
+}
+
+void sensor_release(void)
+{
+    rt_thread_t task = rt_thread_self();
+    if (sensor_thread != task)
+    {
+        rt_mutex_release(i2c_mutex);
     }
 }
 
 int sensor_thread_create(void)
 {
-    rt_thread_t sensor_thread;
-
     sensor_thread = rt_thread_create("sensor",
                                      sensor_entry,
                                      RT_NULL,
@@ -48,6 +73,13 @@ int sensor_thread_create(void)
     if (sensor_thread != RT_NULL)
     {
         rt_thread_startup(sensor_thread);
+    }
+
+    i2c_mutex = rt_mutex_create("j_mutex", RT_IPC_FLAG_PRIO);
+    if (i2c_mutex == RT_NULL)
+    {
+        rt_kprintf("create dynamic mutex failed.\n");
+        return -1;
     }
 
     return RT_EOK;

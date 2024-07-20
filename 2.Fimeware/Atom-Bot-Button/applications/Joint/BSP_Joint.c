@@ -7,7 +7,7 @@
  * Date           Author        Notes
  * 2023-07-09     Rbb666        First version
  */
-#include "BSP_Joint.h"
+#include "bsp_joint.h"
 #include <rtdevice.h>
 
 #define DBG_SECTION_NAME  "JOINT"
@@ -99,6 +99,17 @@ static rt_err_t joint_read_regs(struct Joint_device *dev, rt_uint8_t len, rt_uin
     return res;
 }
 
+void UpdateServoAngle_1(struct Joint_device  *_joint)
+{
+    uint8_t *b = (unsigned char *) & (_joint->config.angle);
+
+    i2cTxData[0] = 0x11;
+
+    TransmitAndReceiveI2cPacket(_joint);
+
+    _joint->config.angle = *(float *)(i2cRxData + 1);
+}
+
 void UpdateServoAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
 {
     if (_angleSetPoint >= _joint->config.angleMin && _angleSetPoint <= _joint->config.angleMax)
@@ -113,17 +124,6 @@ void UpdateServoAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
 
         _joint->config.angle = *(float *)(i2cRxData + 1);
     }
-}
-
-void UpdateServoAngle_1(struct Joint_device  *_joint)
-{
-    uint8_t *b = (unsigned char *) & (_joint->config.angle);
-
-    i2cTxData[0] = 0x11;
-
-    TransmitAndReceiveI2cPacket(_joint);
-
-    _joint->config.angle = *(float *)(i2cRxData + 1);
 }
 
 void SetJointEnable(struct Joint_device  *_joint, rt_bool_t _enable)
@@ -296,6 +296,38 @@ void UpdateJointAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
 
     _joint->config.angle = jAngle;
 }
+
+static int set_init_angle_to_joint(int argc, const char *argv[])
+{
+    if (argc != 3)
+    {
+        LOG_E("error paramter:set_init_angle_to_joint [1: 2] angle");
+        return RT_ERROR;
+    }
+
+    float angle = atof(argv[2]);
+
+    if (rt_strcmp(argv[1], "1") == 0)
+    {
+		SetJointEnable(&joint[1], RT_FALSE);
+        SetJointInitAngle(&joint[1], angle);
+		SetJointEnable(&joint[1], RT_TRUE);
+        LOG_D("set joint1 angle:%f", angle);
+    }
+    else if (rt_strcmp(argv[1], "2") == 0)
+    {
+		SetJointEnable(&joint[2], RT_FALSE);
+        SetJointInitAngle(&joint[2], angle);
+		SetJointEnable(&joint[2], RT_TRUE);
+        LOG_D("set joint2 angle:%f", angle);
+    }
+
+    rt_thread_mdelay(1000);
+	LOG_D("wait 1s to reset joint...");
+
+    return RT_EOK;
+}
+//MSH_CMD_EXPORT(set_init_angle_to_joint, set init angle to joint)
 
 static int set_id_to_joint(int argc, const char *argv[])
 {
@@ -478,29 +510,29 @@ static int joint_init(void)
 {
     joint[ANY].config.id = 0;
     joint[ANY].config.angleMin = 0;
-    joint[ANY].config.angleMax = 180;
+    joint[ANY].config.angleMax = 90;
     joint[ANY].config.angle = 0;
     joint[ANY].config.modelAngelMin = -90;
     joint[ANY].config.modelAngelMax = 90;
     joint[ANY].config.inverted = RT_FALSE;
 
-    //right
+    // right
     joint[1].config.id = 1;
     joint[1].config.angleMin = 0;
-    joint[1].config.angleMax = 95;
+    joint[1].config.angleMax = 90;
     joint[1].config.angle = 0;
     joint[1].config.modelAngelMin = -20;
     joint[1].config.modelAngelMax = 90;
     joint[1].config.inverted = RT_FALSE;
 
-    //left
+    // left
     joint[2].config.id = 2;
     joint[2].config.angleMin = 0;
     joint[2].config.angleMax = 90;
     joint[2].config.angle = 0;
-    joint[2].config.modelAngelMin = -90;
-    joint[2].config.modelAngelMax = 0;
-    joint[2].config.inverted = RT_FALSE;
+    joint[2].config.modelAngelMin = -20;
+    joint[2].config.modelAngelMax = 90;
+    joint[2].config.inverted = RT_TRUE;
 
     SetJointEnable(&joint[1], RT_TRUE);//right
     SetJointEnable(&joint[2], RT_TRUE);//left

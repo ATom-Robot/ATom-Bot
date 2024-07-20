@@ -11,6 +11,8 @@
 #include "bsp_motor.h"
 #include "bsp_pid.h"
 #include "AT_Math.h"
+#include "bsp_joint.h"
+#include "drv_sensor.h"
 
 #define DBG_SECTION_NAME  "ano"
 #define DBG_LEVEL         DBG_LOG
@@ -180,6 +182,16 @@ static void calculate_wheel_speeds(int target_rpm, int yaw)
 //	rt_kprintf("target1:%d  target2:%d\n", (int)(v_left * 60.0 / (2 * MY_PPPIII * R)), (int)(v_right * 60.0 / (2 * MY_PPPIII * R)));
 }
 
+static void control_joint_angle(int angle)
+{
+	extern struct Joint_device joint[JOINT_SIZE];
+
+	sensor_acquire();
+	UpdateJointAngle_2(&joint[1], angle);
+    UpdateJointAngle_2(&joint[2], angle);
+	sensor_release();
+}
+
 static void ano_parse_frame(uint8_t *buffer, uint8_t length)
 {
     uint8_t sum = 0;
@@ -258,7 +270,10 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
 
         rec_target_motor_num = thro;
 
+		// 计算并设置目标油门和角度
         calculate_wheel_speeds(thro, -yaw);
+		// 设置目标手臂舵机角度
+		control_joint_angle(angle);
     }
 
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);
