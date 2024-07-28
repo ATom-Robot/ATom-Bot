@@ -1,0 +1,30 @@
+# RT-Thread building script for component
+
+from building import *
+
+Import('rtconfig')
+
+cwd     = GetCurrentDir()
+src     = Glob('*.c') + Glob('*.cpp') + Glob('*.S')
+CPPPATH = [cwd]
+
+if GetDepend('RT_USING_OFW') == False:
+    SrcRemove(src, ['setup.c', 'cpu_psci.c', 'psci.c'])
+
+if GetDepend('RT_USING_PIC') == True:
+    SrcRemove(src, ['gicv3.c', 'gic.c', 'gtimer.c', 'interrupt.c'])
+
+group = DefineGroup('libcpu', src, depend = [''], CPPPATH = CPPPATH)
+
+# build for sub-directory
+list = os.listdir(cwd)
+objs = []
+
+for d in list:
+    path = os.path.join(cwd, d)
+    if os.path.isfile(os.path.join(path, 'SConscript')):
+        objs = objs + SConscript(os.path.join(d, 'SConscript'))
+group = group + objs
+
+
+Return('group')
