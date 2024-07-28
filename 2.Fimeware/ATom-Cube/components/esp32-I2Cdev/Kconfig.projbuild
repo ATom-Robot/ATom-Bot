@@ -1,0 +1,13 @@
+menu "I2Cdev library"
+
+    config I2C_BUS_ACCESS_TIMEOUT
+        int
+        prompt "Timeout for waiting for I2C bus mutex to be available"
+        default 100
+
+    config I2C_BUS_DEFAULT_READ_TIMEOUT
+        int
+        prompt "Timeout for reading from I2C bus"
+        default 1000
+        
+endmenu
