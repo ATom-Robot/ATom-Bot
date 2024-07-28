@@ -301,7 +301,7 @@ static int set_init_angle_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_init_angle_to_joint [1: 2] angle");
+        rt_kprintf("error paramter:set_init_angle_to_joint [1: 2] angle\n");
         return RT_ERROR;
     }
 
@@ -312,18 +312,18 @@ static int set_init_angle_to_joint(int argc, const char *argv[])
 		SetJointEnable(&joint[1], RT_FALSE);
         SetJointInitAngle(&joint[1], angle);
 		SetJointEnable(&joint[1], RT_TRUE);
-        LOG_D("set joint1 angle:%f", angle);
+        rt_kprintf("set joint1 angle:%f\n", angle);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
 		SetJointEnable(&joint[2], RT_FALSE);
         SetJointInitAngle(&joint[2], angle);
 		SetJointEnable(&joint[2], RT_TRUE);
-        LOG_D("set joint2 angle:%f", angle);
+        rt_kprintf("set joint2 angle:%f\n", angle);
     }
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -333,7 +333,7 @@ static int set_id_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_id_to_joint [1: 2] id");
+        rt_kprintf("error paramter:set_id_to_joint [1: 2] id\n");
         return RT_ERROR;
     }
 
@@ -344,10 +344,10 @@ static int set_id_to_joint(int argc, const char *argv[])
 	SetJointId(&joint[t_id], s_id);
 	SetJointEnable(&joint[t_id], RT_TRUE);
 	joint[t_id].config.id = s_id;
-	LOG_D("set joint id:%d", s_id);
+	rt_kprintf("set joint id:%d\n", s_id);
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -357,7 +357,7 @@ static int set_kp_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_kp_to_joint [1: 2] kp");
+        rt_kprintf("error paramter:set_kp_to_joint [1: 2] kp\n");
         return RT_ERROR;
     }
 
@@ -368,18 +368,18 @@ static int set_kp_to_joint(int argc, const char *argv[])
 		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKp(&joint[1], kp);
 		SetJointEnable(&joint[1], RT_TRUE);
-        LOG_D("set joint1 kp:%f", kp);
+        rt_kprintf("set joint1 kp:%f\n", kp);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
 		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKp(&joint[2], kp);
 		SetJointEnable(&joint[2], RT_TRUE);
-        LOG_D("set joint2 kp:%f", kp);
+        rt_kprintf("set joint2 kp:%f\n", kp);
     }
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -389,7 +389,7 @@ static int set_ki_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_ki_to_joint [1: 2] ki");
+        rt_kprintf("error paramter:set_ki_to_joint [1: 2] ki\n");
         return RT_ERROR;
     }
 
@@ -400,18 +400,18 @@ static int set_ki_to_joint(int argc, const char *argv[])
 		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKi(&joint[1], ki);
 		SetJointEnable(&joint[1], RT_TRUE);
-        LOG_D("set joint1 ki:%f", ki);
+        rt_kprintf("set joint1 ki:%f\n", ki);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
 		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKi(&joint[2], ki);
 		SetJointEnable(&joint[2], RT_TRUE);
-        LOG_D("set joint2 ki:%f", ki);
+        rt_kprintf("set joint2 ki:%f\n", ki);
     }
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -421,7 +421,7 @@ static int set_kd_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_kd_to_joint [1: 2] kd");
+        rt_kprintf("error paramter:set_kd_to_joint [1: 2] kd\n");
         return RT_ERROR;
     }
 
@@ -432,18 +432,18 @@ static int set_kd_to_joint(int argc, const char *argv[])
 		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKd(&joint[1], kd);
 		SetJointEnable(&joint[1], RT_TRUE);
-        LOG_D("set joint1 kd:%f", kd);
+        rt_kprintf("set joint1 kd:%f\n", kd);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
 		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKd(&joint[2], kd);
 		SetJointEnable(&joint[2], RT_TRUE);
-        LOG_D("set joint2 kd:%f", kd);
+        rt_kprintf("set joint2 kd:%f", kd);
     }
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -453,7 +453,7 @@ static int set_torque_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:set_torque_to_joint [1: 2] torque");
+        rt_kprintf("error paramter:set_torque_to_joint [1: 2] torque\n");
         return RT_ERROR;
     }
 
@@ -464,18 +464,18 @@ static int set_torque_to_joint(int argc, const char *argv[])
 		SetJointEnable(&joint[1], RT_FALSE);
         SetJointTorqueLimit(&joint[1], torque);
 		SetJointEnable(&joint[1], RT_TRUE);
-        LOG_D("set joint1 torque:%f", torque);
+        rt_kprintf("set joint1 torque:%f\n", torque);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
 		SetJointEnable(&joint[2], RT_FALSE);
         SetJointTorqueLimit(&joint[2], torque);
 		SetJointEnable(&joint[2], RT_TRUE);
-        LOG_D("set joint2 torque:%f", torque);
+        rt_kprintf("set joint2 torque:%f\n\n", torque);
     }
 
     rt_thread_mdelay(1000);
-	LOG_D("wait 1s to reset joint...");
+	rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -485,7 +485,7 @@ static int joint_angle_test(int argc, const char *argv[])
 {
     if (argc != 3)
     {
-        LOG_E("error paramter:joint_angle_test [1: 2] angle");
+        rt_kprintf("error paramter:joint_angle_test [1: 2] angle\n");
         return RT_ERROR;
     }
 
@@ -494,12 +494,12 @@ static int joint_angle_test(int argc, const char *argv[])
     if (rt_strcmp(argv[1], "1") == 0)
     {
         UpdateJointAngle_2(&joint[1], angle);
-        LOG_D("set joint1 target angle:%f | joint1 angle:%f", angle, joint[1].config.angle);
+        rt_kprintf("set joint1 target angle:%f | joint1 angle:%f\n", angle, joint[1].config.angle);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
         UpdateJointAngle_2(&joint[2], angle);
-        LOG_D("set joint2 target angle:%f | joint2 angle:%f", angle, joint[2].config.angle);
+        rt_kprintf("set joint2 target angle:%f | joint2 angle:%f\n", angle, joint[2].config.angle);
     }
 
     return RT_EOK;
@@ -552,7 +552,7 @@ int joint_i2c_init(void)
         joint[i].bus = rt_device_find("i2c2");
         if (joint[i].bus == RT_NULL)
         {
-            LOG_D("Can't find device:'%s'", joint[i].bus);
+            rt_kprintf("Can't find device:'%s'\n", joint[i].bus);
             res = -RT_ERROR;
             break;
         }

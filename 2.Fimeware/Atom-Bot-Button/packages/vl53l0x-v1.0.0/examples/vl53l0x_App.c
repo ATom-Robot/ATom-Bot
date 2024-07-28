@@ -31,13 +31,13 @@ static void distance_sensor_probe(void)
     vl5310x_dev = rt_device_find("tof_vl53l0x");
     if (vl5310x_dev == RT_NULL)
     {
-        LOG_E("not found tof_vl53l0x device");
+        rt_kprintf("not found tof_vl53l0x device\n");
         return;
     }
 
     if (rt_device_open(vl5310x_dev, RT_DEVICE_FLAG_RDONLY) != RT_EOK)
     {
-        LOG_E("open tof_vl53l0x failed");
+        rt_kprintf("open tof_vl53l0x failed\n");
         return;
     }
 }
@@ -57,7 +57,7 @@ static void vl_int_callback(void *args)
 
 static int get_distence_sensor_data(void)
 {
-    LOG_D("Distance (mm): %d\n", *dis_sensor_data);
+    rt_kprintf("Distance (mm): %d\n", *dis_sensor_data);
 
     return 0;
 }
@@ -94,10 +94,10 @@ int vl53l0x_port(void)
     init_flag = rt_hw_vl53l0x_init("vl53l0x", &cfg, RT_NULL);/* xshutdown ctrl pin */
     if (init_flag != RT_EOK)
     {
-        LOG_E("Distence sensor init fail!\n");
+        rt_kprintf("Distence sensor init fail!\n");
         return -RT_ERROR;
     }
-    LOG_D("Distence sensor init success\n");
+    rt_kprintf("Distence sensor init success\n");
 
 #if VL53L0X_USING_INT
     rt_pin_mode(INT_PIN, PIN_MODE_INPUT_PULLUP);

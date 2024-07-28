@@ -157,10 +157,10 @@ static void ano_sentPar(uint16_t id, int32_t data)
 static void calculate_wheel_speeds(int target_rpm, int yaw)
 {
     // 轮子之间的距离
-    const float L = 120;
+    const float L = 240;
 
     // 轮子的半径
-    const float R = 20;
+    const float R = 10;
 
     // 将期望角度转换为弧度
     float yaw_rad = yaw * MY_PPPIII / 180.0;
@@ -176,10 +176,8 @@ static void calculate_wheel_speeds(int target_rpm, int yaw)
     // 将线速度转换为转速
     rec_target_rpm[0] = (int)(v_left * 60.0 / (2 * MY_PPPIII * R));
     rec_target_rpm[1] = (int)(v_right * 60.0 / (2 * MY_PPPIII * R));
-	
-//	rt_kprintf("v_left:%d  v_right:%d\n", (int)v_left, (int)v_right);
-//	rt_kprintf("==============================\n");
-//	rt_kprintf("target1:%d  target2:%d\n", (int)(v_left * 60.0 / (2 * MY_PPPIII * R)), (int)(v_right * 60.0 / (2 * MY_PPPIII * R)));
+
+//	rt_kprintf("target1:%d  target2:%d\n", (int)(rec_target_rpm[0]), (int)(rec_target_rpm[1]));
 }
 
 static void control_joint_angle(int angle)

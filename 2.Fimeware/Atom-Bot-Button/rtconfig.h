@@ -23,8 +23,6 @@
 
 /* kservice optimization */
 
-#define RT_DEBUG
-#define RT_DEBUG_COLOR
 
 /* Inter-Thread communication */
 
@@ -84,11 +82,9 @@
 #define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 #define RT_USING_ADC
-#define RT_USING_PWM
 #define RT_USING_SPI
 #define RT_USING_SENSOR
 #define RT_USING_SENSOR_CMD
-#define RT_USING_PULSE_ENCODER
 
 /* Using USB */
 
@@ -105,7 +101,6 @@
 
 /* Socket is in the 'Network' category */
 
-#define RT_USING_CPLUSPLUS
 
 /* Network */
 
@@ -212,8 +207,6 @@
 
 /* touch drivers */
 
-#define PKG_USING_I2C_TOOLS
-#define PKG_USING_I2C_TOOLS_V100
 
 /* AI packages */
 
