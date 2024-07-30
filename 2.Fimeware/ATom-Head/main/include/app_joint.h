@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#define NUM_OF_SCREENS 2
+
 struct Joint_config
 {
     uint8_t id;

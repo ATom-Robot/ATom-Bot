@@ -525,8 +525,6 @@ void checkAngleThreshold(void)
 
 static void joint_ui_menu_task(void *parm)
 {
-#define NUM_OF_SCREENS 2
-
     static uint8_t currentScreen = 1;
     // close control first
     SetJointEnable(&joint[ANY], false);

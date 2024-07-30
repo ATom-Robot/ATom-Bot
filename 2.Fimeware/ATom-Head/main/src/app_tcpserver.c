@@ -8,6 +8,8 @@
 #include "esp_log.h"
 #include "app_wifi.h"
 #include "app_uart.h"
+#include "app_joint.h"
+#include "app_ui.h"
 
 static const char *TAG = "tcp-server";
 
@@ -319,7 +321,7 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         chassis.target_thro = thro >= 100 ? abs(50 - (thro / 2)) : -abs(50 - (thro / 2));
         chassis.target_yaw = yaw >= 100 ? abs(50 - (yaw / 2)) : -abs(50 - (yaw / 2));
 
-        ESP_LOGI(TAG, "[thro=%d][yaw=%d]", chassis.target_thro, chassis.target_yaw);
+        // ESP_LOGI(TAG, "[thro=%d][yaw=%d]", chassis.target_thro, chassis.target_yaw);
         // 串口发送数据
         data_sendto_ChassisData(chassis.target_thro, chassis.target_yaw, chassis.target_angle, 0);
     }
@@ -327,17 +329,18 @@ static void pack_data_analysis(int len, const char *rx_buffer)
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBC)
     {
         chassis.target_angle = *((uint8_t *)(rx_buffer + 3));
-        ESP_LOGI(TAG, "[angle=%d]", chassis.target_angle);
+        // ESP_LOGI(TAG, "[angle=%d]", chassis.target_angle);
         // 串口发送数据
         data_sendto_ChassisData(0, 0, chassis.target_angle, 0);
     }
     // 参数设置
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xAB)
     {
-        ESP_LOGI(TAG, "Enter test mode when powering on next time");
+        static uint8_t currentScreen = 1;
 
         if (rx_buffer[2] == 0x01)
         {
+            ESP_LOGI(TAG, "Enter test mode when powering on next time");
             nvs_handle_t nvs_handle;
 
             // 清空参数
@@ -348,11 +351,21 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         }
         else if (rx_buffer[2] == 0x02)
         {
-            ESP_LOGI(TAG, "prev");
+            ESP_LOGI(TAG, "prev page");
+            if (currentScreen < NUM_OF_SCREENS - 1)
+            {
+                currentScreen++;
+                ui_set_menu(&currentScreen);
+            }
         }
         else if (rx_buffer[2] == 0x03)
         {
-            ESP_LOGI(TAG, "next");
+            ESP_LOGI(TAG, "next page");
+            if (currentScreen > 0)
+            {
+                currentScreen--;
+                ui_set_menu(&currentScreen);
+            }
         }
     }
 }

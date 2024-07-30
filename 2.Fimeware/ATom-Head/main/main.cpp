@@ -38,6 +38,6 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(APP_TcpServer_run());
     ESP_ERROR_CHECK(App_Player_run("/spiffs/mp3"));
     ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
-    // // rtsp_server();
+    // rtsp_server();
     ESP_ERROR_CHECK(App_Shell_run());
 }
