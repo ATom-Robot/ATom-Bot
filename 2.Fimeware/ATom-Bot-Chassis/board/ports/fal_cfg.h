@@ -14,9 +14,8 @@
 #include <rtthread.h>
 #include <board.h>
 
-#define RT_APP_PART_ADDR 0x0800C800
+#define RT_APP_PART_ADDR 0x0800C000
 
-#ifdef RT_USING_FAL
 extern const struct fal_flash_dev stm32_onchip_flash;
 
 /* flash device table */
@@ -30,10 +29,9 @@ extern const struct fal_flash_dev stm32_onchip_flash;
 /* partition table */
 #define FAL_PART_TABLE                                                                      \
 {                                                                                           \
-    {FAL_PART_MAGIC_WORD,        "bl",      "onchip_flash",     0,          50*1024, 0},    \
-    {FAL_PART_MAGIC_WORD,       "app",      "onchip_flash",     50*1024,    110*1024, 0},   \
-    {FAL_PART_MAGIC_WORD,   "download",     "onchip_flash",     160*1024,   94*1024,  0},   \
+    {FAL_PART_MAGIC_WORD,        "bl",      "onchip_flash",     0,          48*1024, 0},    \
+    {FAL_PART_MAGIC_WORD,       "app",      "onchip_flash",     48*1024,    110*1024, 0},   \
+    {FAL_PART_MAGIC_WORD,   "download",     "onchip_flash",     158*1024,   94*1024,  0},   \
 }
 #endif /* FAL_PART_HAS_TABLE_CFG */
 #endif /* _FAL_CFG_H_ */
-#endif /* RT_USING_FAL */

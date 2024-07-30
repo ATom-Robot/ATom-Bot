@@ -470,14 +470,14 @@
           <GroupName>AT-Motor</GroupName>
           <Files>
             <File>
-              <FileName>bsp_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\Motor\bsp_encoder.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\Motor\bsp_motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\Motor\bsp_encoder.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -575,14 +575,14 @@
           <GroupName>cpu_usage</GroupName>
           <Files>
             <File>
-              <FileName>cpu_usage_cmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage_cmd.c</FilePath>
-            </File>
-            <File>
               <FileName>cpu_usage.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\cpu_usage-v1.0.0\cpu_usage.c</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_usage_cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\cpu_usage-v1.0.0\cpu_usage_cmd.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -775,14 +775,14 @@
           <GroupName>i2c-tools</GroupName>
           <Files>
             <File>
-              <FileName>i2c_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>applications\I2C_Tools\i2c_utils.c</FilePath>
-            </File>
-            <File>
               <FileName>i2c_tools.c</FileName>
               <FileType>1</FileType>
               <FilePath>applications\I2C_Tools\i2c_tools.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>applications\I2C_Tools\i2c_utils.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1005,19 +1005,9 @@
           <GroupName>vl53l0x</GroupName>
           <Files>
             <File>
-              <FileName>vl53l0x_api_calibration.c</FileName>
+              <FileName>vl53l0x_api_strings.c</FileName>
               <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_calibration.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\src\vl53l0x.c</FilePath>
-            </File>
-            <File>
-              <FileName>vl53l0x_api_ranging.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_ranging.c</FilePath>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_strings.c</FilePath>
             </File>
             <File>
               <FileName>vl53l0x_App.c</FileName>
@@ -1025,19 +1015,29 @@
               <FilePath>packages\vl53l0x-v1.0.0\examples\vl53l0x_App.c</FilePath>
             </File>
             <File>
-              <FileName>vl53l0x_api_strings.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_strings.c</FilePath>
-            </File>
-            <File>
               <FileName>vl53l0x_api_core.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_core.c</FilePath>
             </File>
             <File>
+              <FileName>vl53l0x_api_ranging.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_ranging.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x_api_calibration.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\core\src\vl53l0x_api_calibration.c</FilePath>
+            </File>
+            <File>
               <FileName>vl53l0x_platform.c</FileName>
               <FileType>1</FileType>
               <FilePath>packages\vl53l0x-v1.0.0\vl53l0x\platform\src\vl53l0x_platform.c</FilePath>
+            </File>
+            <File>
+              <FileName>vl53l0x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>packages\vl53l0x-v1.0.0\src\vl53l0x.c</FilePath>
             </File>
             <File>
               <FileName>vl53l0x_api.c</FileName>
@@ -1055,14 +1055,5 @@
     <components/>
     <files/>
   </RTE>
-
-  <LayerInfo>
-    <Layers>
-      <Layer>
-        <LayName>project</LayName>
-        <LayPrjMark>1</LayPrjMark>
-      </Layer>
-    </Layers>
-  </LayerInfo>
 
 </Project>
