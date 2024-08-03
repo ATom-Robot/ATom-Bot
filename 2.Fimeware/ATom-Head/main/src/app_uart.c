@@ -40,7 +40,8 @@ static int pitchWindow[SHAKE_WINDOW_SIZE] = {0};
 static int yawWindow[SHAKE_WINDOW_SIZE] = {0};
 
 // 发送数据
-uint8_t Data_Buff[32] = {0XAA, 0XFF, 0xE7};
+uint8_t Data_Buff1[32] = {0XAA, 0XFF, 0xE7};
+uint8_t Data_Buff2[32] = {0XAA, 0XFF, 0xE8};
 
 // 底盘数据
 Chassis_data chassis;
@@ -248,37 +249,56 @@ static void get_ChassisData(uint8_t data)
         sta = 0;
 }
 
-void data_sendto_ChassisData(int16_t _a, int16_t _b, int16_t _c, int16_t _d)
+void data_sendwl_ChassisData(int16_t _a, int16_t _b)
 {
     uint8_t i, cnt = 4;
     uint8_t sc = 0, ac = 0;
 
-    Data_Buff[cnt++] = BYTE0(_a);
-    Data_Buff[cnt++] = BYTE1(_a);
+    Data_Buff1[cnt++] = BYTE0(_a);
+    Data_Buff1[cnt++] = BYTE1(_a);
 
-    Data_Buff[cnt++] = BYTE0(_b);
-    Data_Buff[cnt++] = BYTE1(_b);
+    Data_Buff1[cnt++] = BYTE0(_b);
+    Data_Buff1[cnt++] = BYTE1(_b);
 
-    Data_Buff[cnt++] = BYTE0(_c);
-    Data_Buff[cnt++] = BYTE1(_c);
-
-    Data_Buff[cnt++] = BYTE0(_d);
-    Data_Buff[cnt++] = BYTE1(_d);
-
-    Data_Buff[3] = cnt - 4;
+    Data_Buff1[3] = cnt - 4;
 
     for (i = 0; i < cnt; i++)
     {
-        sc += Data_Buff[i];
+        sc += Data_Buff1[i];
         ac += sc;
     }
 
-    Data_Buff[cnt++] = sc;
-    Data_Buff[cnt++] = ac;
+    Data_Buff1[cnt++] = sc;
+    Data_Buff1[cnt++] = ac;
 
     for (i = 0; i < cnt; i++)
     {
-        uart_write_bytes(UART_NUM_1, &Data_Buff[i], 1);
+        uart_write_bytes(UART_NUM_1, &Data_Buff1[i], 1);
+    }
+}
+
+void data_send_al_ChassisData(int16_t _a)
+{
+    uint8_t i, cnt = 4;
+    uint8_t sc = 0, ac = 0;
+
+    Data_Buff2[cnt++] = BYTE0(_a);
+    Data_Buff2[cnt++] = BYTE1(_a);
+
+    Data_Buff2[3] = cnt - 4;
+
+    for (i = 0; i < cnt; i++)
+    {
+        sc += Data_Buff2[i];
+        ac += sc;
+    }
+
+    Data_Buff2[cnt++] = sc;
+    Data_Buff2[cnt++] = ac;
+
+    for (i = 0; i < cnt; i++)
+    {
+        uart_write_bytes(UART_NUM_1, &Data_Buff2[i], 1);
     }
 }
 

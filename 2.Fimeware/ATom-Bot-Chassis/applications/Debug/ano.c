@@ -264,12 +264,19 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
 
         thro = *((int16_t *)(buffer + 4));
         yaw = *((int16_t *)(buffer + 6));
-        angle = *((int16_t *)(buffer + 8));
 
         rec_target_motor_num = thro;
 
 		// 计算并设置目标油门和角度
         calculate_wheel_speeds(thro, -yaw);
+    }
+    else if (buffer[2] == 0xE8)
+    {
+        static int thro, yaw, angle;
+
+        angle = *((int16_t *)(buffer + 4));
+//		rt_kprintf("angle:%d\n", angle);
+
 		// 设置目标手臂舵机角度
 		control_joint_angle(angle);
     }
