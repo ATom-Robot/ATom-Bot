@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,7 +20,7 @@
 #endif
 #include <rtdbg.h>
 
-static rt_size_t i2c_bus_device_read(rt_device_t dev,
+static rt_ssize_t i2c_bus_device_read(rt_device_t dev,
                                      rt_off_t    pos,
                                      void       *buffer,
                                      rt_size_t   count)
@@ -40,7 +40,7 @@ static rt_size_t i2c_bus_device_read(rt_device_t dev,
     return rt_i2c_master_recv(bus, addr, flags, (rt_uint8_t *)buffer, count);
 }
 
-static rt_size_t i2c_bus_device_write(rt_device_t dev,
+static rt_ssize_t i2c_bus_device_write(rt_device_t dev,
                                       rt_off_t    pos,
                                       const void *buffer,
                                       rt_size_t   count)
@@ -67,7 +67,6 @@ static rt_err_t i2c_bus_device_control(rt_device_t dev,
     rt_err_t ret;
     struct rt_i2c_priv_data *priv_data;
     struct rt_i2c_bus_device *bus = (struct rt_i2c_bus_device *)dev->user_data;
-    rt_uint32_t bus_clock;
 
     RT_ASSERT(bus != RT_NULL);
 
@@ -88,16 +87,8 @@ static rt_err_t i2c_bus_device_control(rt_device_t dev,
             return -RT_EIO;
         }
         break;
-    case RT_I2C_DEV_CTRL_CLK:
-        bus_clock = *(rt_uint32_t *)args;
-        ret = rt_i2c_control(bus, cmd, bus_clock);
-        if (ret < 0)
-        {
-            return -RT_EIO;
-        }
-        break;
     default:
-        break;
+        return rt_i2c_control(bus, cmd, args);
     }
 
     return RT_EOK;

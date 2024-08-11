@@ -41,6 +41,7 @@
 |[W25Q128BV](http://www.winbond.com/resource-files/w25q128bv_revh_100313_wo_automotive.pdf)|Winbond|128Mb|104Mhz|支持|四线||
 |[W25Q256FV](http://www.winbond.com/resource-files/w25q256fv%20revi%2002262016%20kms.pdf)|Winbond|256Mb|104Mhz|支持|四线||
 |[MX25L3206E](http://www.macronix.com/Lists/DataSheet/Attachments/3199/MX25L3206E,%203V,%2032Mb,%20v1.5.pdf)|Macronix|32Mb|86MHz|支持|双线||
+|[MX25L3233F](https://www.macronix.com/Lists/Datasheet/Attachments/8754/MX25L3233F,%203V,%2032Mb,%20v1.7.pdf)|Macronix|32Mb|133MHz|支持|未测试|by [JiapengLi](https://github.com/JiapengLi)|
 |[KH25L4006E](http://www.macronix.com.hk/Lists/Datasheet/Attachments/117/KH25L4006E.pdf)|Macronix|4Mb|86Mhz|支持|未测试| by [JiapengLi](https://github.com/JiapengLi)|
 |[KH25L3206E](http://www.macronix.com.hk/Lists/Datasheet/Attachments/131/KH25L3206E.pdf)|Macronix|32Mb|86Mhz|支持|双线||
 |[SST25VF016B](http://ww1.microchip.com/downloads/en/DeviceDoc/20005044C.pdf)|Microchip|16Mb|50MHz|不支持|不支持| SST 已被 Microchip 收购|
@@ -48,7 +49,7 @@
 |[M25P80](https://www.micron.com/~/media/documents/products/data-sheet/nor-flash/serial-nor/m25p/m25p80.pdf)|Micron|8Mb|75Mhz|不支持|未测试| by [redocCheng](https://github.com/redocCheng)|
 |[M25P32](https://www.micron.com/~/media/documents/products/data-sheet/nor-flash/serial-nor/m25p/m25p32.pdf)|Micron|32Mb|75Mhz|不支持|不支持||
 |[EN25Q32B](http://www.kean.com.au/oshw/WR703N/teardown/EN25Q32B%2032Mbit%20SPI%20Flash.pdf)|EON|32Mb|104MHz|不支持|未测试||
-|[GD25Q16B](http://www.gigadevice.com/product/detail/5/410.html)|GigaDevice|16Mb|120Mhz|不支持|未测试| by [TanekLiang](https://github.com/TanekLiang) |
+|[GD25Q16B](http://www.gigadevice.com/product/detail/5/410.html)|GigaDevice|16Mb|120Mhz|不支持|未测试| by [Liang Yongxiang](https://github.com/liangyongxiang) |
 |[GD25Q64B](http://www.gigadevice.com/product/detail/5/364.html)|GigaDevice|64Mb|120Mhz|不支持|双线||
 |[S25FL216K](http://www.cypress.com/file/197346/download)|Cypress|16Mb|65Mhz|不支持|双线||
 |[S25FL032P](http://www.cypress.com/file/196861/download)|Cypress|32Mb|104Mhz|不支持|未测试| by [yc_911](https://gitee.com/yc_911) |
@@ -61,7 +62,7 @@
 
 > 注：QSPI 模式中，双线表示支持双线快读，四线表示支持四线快读。
 >
-> 一般情况下，支持四线快读的 FLASH 也支持两线快读。
+> 一般情况下，支持四线快读的 FLASH 也支持双线快读。
 
 ### 2.2 API 说明
 

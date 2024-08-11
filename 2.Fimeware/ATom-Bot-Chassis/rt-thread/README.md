@@ -4,9 +4,10 @@
 
 **English** | [中文](README_zh.md) | [Español](README_es.md) | [Deutsch](README_de.md)
 
+[![GitHubStars](https://img.shields.io/github/stars/RT-Thread/rt-thread?style=flat-square&logo=GitHub)](https://github.com/RT-Thread/rt-thread/stargazers)
+[![GiteeStars](https://gitee.com/rtthread/rt-thread/badge/star.svg?theme=gvp)](https://gitee.com/rtthread/rt-thread/stargazers)
 [![GitHub](https://img.shields.io/github/license/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/releases)
-[![Build Status](https://travis-ci.org/RT-Thread/rt-thread.svg)](https://travis-ci.org/RT-Thread/rt-thread)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RT-Thread/rt-thread?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub pull-requests](https://img.shields.io/github/issues-pr/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/pulls)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](https://github.com/RT-Thread/rt-thread/pulls)
@@ -33,7 +34,7 @@ It includes:
 
 - Components and Service Layer: Components are based on upper-level software on top of the RT-Thread kernel, such as virtual file systems, FinSH command-line interfaces, network frameworks, device frameworks, and more. Its modular design allows for high internal cohesion inside the components and low coupling between components.
 
-- [RT-Thread software package](https://packages.rt-thread.org/en/index.html): A general-purpose software component running on the RT-Thread IoT operating system platform for different application areas, consisting of description information, source code or library files. RT-Thread provides an open package platform with officially available or developer-supplied packages that provide developers with a choice of reusable packages that are an important part of the RT-Thread ecosystem. The package ecosystem is critical to the choice of an operating system because these packages are highly reusable and modular, making it easy for application developers to build the system they want in the shortest amount of time. RT-Thread supports more than 370 software packages.
+- [RT-Thread software package](https://packages.rt-thread.org/en/index.html): A general-purpose software component running on the RT-Thread IoT operating system platform for different application areas, consisting of description information, source code or library files. RT-Thread provides an open package platform with officially available or developer-supplied packages that provide developers with a choice of reusable packages that are an important part of the RT-Thread ecosystem. The package ecosystem is critical to the choice of an operating system because these packages are highly reusable and modular, making it easy for application developers to build the system they want in the shortest amount of time. RT-Thread supports 450+ software packages.
 
 ## RT-Thread Features
 
@@ -71,7 +72,7 @@ RT-Thread supports many architectures, and has covered the major architectures i
 
 - **ARM Cortex-M0/M0+**：manufacturers like ST
 - **ARM Cortex-M3**：manufacturers like ST、Winner Micro、MindMotion, ect.
-- **ARM Cortex-M4**：manufacturers like ST、Nuvton、NXP、GigaDevice、Realtek、Ambiq Micro, ect.
+- **ARM Cortex-M4**：manufacturers like ST、Infineon、Nuvoton、NXP、[Nordic](https://github.com/RT-Thread/rt-thread/tree/master/bsp/nrf5x)、GigaDevice、Realtek、Ambiq Micro, ect.
 - **ARM Cortex-M7**：manufacturers like ST、NXP
 - **ARM Cortex-M23**：manufacturers like GigaDevice
 - **ARM Cortex-M33**：manufacturers like ST
@@ -81,7 +82,7 @@ RT-Thread supports many architectures, and has covered the major architectures i
 - **ARM9**：manufacturers like Allwinner、Xilinx 、GOKE
 - **ARM11**：manufacturers like Fullhan
 - **MIPS32**：manufacturers like loongson、Ingenic
-- **RISC-V**：manufacturers like Hifive、Kendryte、Nuclei
+- **RISC-V RV32E/RV32I[F]/RV64[D]**：manufacturers like sifive、[Canaan Kendryte](https://github.com/RT-Thread/rt-thread/tree/master/bsp/k210)、[bouffalo_lab](https://github.com/RT-Thread/rt-thread/tree/master/bsp/bouffalo_lab)、[Nuclei](https://nucleisys.com/)、[T-Head](https://www.t-head.cn/)、[HPMicro](https://github.com/RT-Thread/rt-thread/tree/master/bsp/hpmicro)
 - **ARC**：manufacturers like SYNOPSYS
 - **DSP**：manufacturers like TI
 - **C-Sky**
@@ -106,7 +107,7 @@ RT-Thread Studio IDE (a.k.a. RT-Studio) is a one-stop intergrated development en
 
 ## Env Tool
 
-[User Manual](documentation/env/env/) | [Tutorial Videos](https://www.youtube.com/watch?v=dEK94o_YoSo)
+[User Manual](documentation/env/env.md) | [Tutorial Videos](https://www.youtube.com/watch?v=dEK94o_YoSo)
 
 In the early stage, RT-Thread team also created an auxiliary tool called Env. It is an auxiliary tool with a TUI (Text-based user interface). Developers can use Env tool to configure and generate the GCC, Keil MDK, and IAR projects.
 
@@ -125,7 +126,7 @@ RT-Thread BSP can be compiled directly and downloaded to the corresponding devel
 
 # License
 
-RT-Thread is an open source software and has been licensed under Apache License Version 2.0 since v3.1.1. License information and copyright information can generally be seen at the beginning of the code:
+RT-Thread follows the Apache License 2.0 free software license. It's completely open-source, can be used in commercial applications for free, does not require the disclosure of code, and has no potential commercial risk. License information and copyright information can generally be seen at the beginning of the code:
 
 ```c
 /* Copyright (c) 2006-2018, RT-Thread Development Team
@@ -143,5 +144,10 @@ RT-Thread is very grateful for the support from all community developers, and if
 
 # Contribution
 
-If you are interested in RT-Thread and want to join in the development of RT-Thread and become a code contributor,please refer to the [Code Contribution Guide](documentation/contribution_guide/contribution_guide.md).
+If you are interested in RT-Thread and want to join in the development of RT-Thread and become a code contributor,please refer to the [Code Contribution Guide](.github/CONTRIBUTING.md).
 
+## Thanks for the following contributors!
+
+<a href="https://github.com/RT-Thread/rt-thread/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=RT-Thread/rt-thread" />
+</a>

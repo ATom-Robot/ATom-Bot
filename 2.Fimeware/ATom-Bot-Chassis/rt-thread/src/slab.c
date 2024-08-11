@@ -55,7 +55,12 @@
 #include <rthw.h>
 #include <rtthread.h>
 
-#if defined (RT_USING_SLAB)
+#ifdef RT_USING_SLAB
+
+#define DBG_TAG           "kernel.slab"
+#define DBG_LVL           DBG_INFO
+#include <rtdbg.h>
+
 /*
  * slab allocator implementation
  *
@@ -204,7 +209,7 @@ struct rt_slab
 /**
  * @brief Alloc memory size by page.
  *
- * @param slab the slab memory management object.
+ * @param m the slab memory management object.
  *
  * @param npages the number of pages.
  */
@@ -243,7 +248,7 @@ void *rt_slab_page_alloc(rt_slab_t m, rt_size_t npages)
 /**
  * @brief Free memory by page.
  *
- * @param slab the slab memory management object.
+ * @param m the slab memory management object.
  *
  * @param addr is the head address of first page.
  *
@@ -308,8 +313,6 @@ static void rt_slab_page_init(struct rt_slab *slab, void *addr, rt_size_t npages
 /**
  * @brief This function will init slab memory management algorithm
  *
- * @param slab the slab memory management object.
- *
  * @param name is the name of the slab memory management object.
  *
  * @param begin_addr the beginning address of system page.
@@ -338,8 +341,8 @@ rt_slab_t rt_slab_init(const char *name, void *begin_addr, rt_size_t size)
 
     limsize = end_align - begin_align;
     npages  = limsize / RT_MM_PAGE_SIZE;
-    RT_DEBUG_LOG(RT_DEBUG_SLAB, ("heap[0x%x - 0x%x], size 0x%x, 0x%x pages\n",
-                                begin_align, end_align, limsize, npages));
+    LOG_D("heap[0x%x - 0x%x], size 0x%x, 0x%x pages",
+          begin_align, end_align, limsize, npages);
 
     rt_memset(slab, 0, sizeof(*slab));
     /* initialize slab memory object */
@@ -366,16 +369,16 @@ rt_slab_t rt_slab_init(const char *name, void *begin_addr, rt_size_t size)
 
     slab->zone_page_cnt = slab->zone_size / RT_MM_PAGE_SIZE;
 
-    RT_DEBUG_LOG(RT_DEBUG_SLAB, ("zone size 0x%x, zone page count 0x%x\n",
-                                 slab->zone_size, slab->zone_page_cnt));
+    LOG_D("zone size 0x%x, zone page count 0x%x",
+          slab->zone_size, slab->zone_page_cnt);
 
     /* allocate slab->memusage array */
     limsize  = npages * sizeof(struct rt_slab_memusage);
     limsize  = RT_ALIGN(limsize, RT_MM_PAGE_SIZE);
     slab->memusage = rt_slab_page_alloc((rt_slab_t)(&slab->parent), limsize / RT_MM_PAGE_SIZE);
 
-    RT_DEBUG_LOG(RT_DEBUG_SLAB, ("slab->memusage 0x%x, size 0x%x\n",
-                                 (rt_ubase_t)slab->memusage, limsize));
+    LOG_D("slab->memusage 0x%x, size 0x%x",
+          (rt_ubase_t)slab->memusage, limsize);
     return &slab->parent;
 }
 RTM_EXPORT(rt_slab_init);
@@ -513,11 +516,10 @@ void *rt_slab_alloc(rt_slab_t m, rt_size_t size)
         kup->type = PAGE_TYPE_LARGE;
         kup->size = size >> RT_MM_PAGE_BITS;
 
-        RT_DEBUG_LOG(RT_DEBUG_SLAB,
-                     ("alloc a large memory 0x%x, page cnt %d, kup %d\n",
-                      size,
-                      size >> RT_MM_PAGE_BITS,
-                      ((rt_ubase_t)chunk - slab->heap_start) >> RT_MM_PAGE_BITS));
+        LOG_D("alloc a large memory 0x%x, page cnt %d, kup %d",
+              size,
+              size >> RT_MM_PAGE_BITS,
+              ((rt_ubase_t)chunk - slab->heap_start) >> RT_MM_PAGE_BITS);
         /* mem stat */
         slab->parent.used += size;
         if (slab->parent.used > slab->parent.max)
@@ -536,7 +538,7 @@ void *rt_slab_alloc(rt_slab_t m, rt_size_t size)
     zi = zoneindex(&size);
     RT_ASSERT(zi < RT_SLAB_NZONES);
 
-    RT_DEBUG_LOG(RT_DEBUG_SLAB, ("try to alloc 0x%x on zone: %d\n", size, zi));
+    LOG_D("try to alloc 0x%x on zone: %d", size, zi);
 
     if ((z = slab->zone_array[zi]) != RT_NULL)
     {
@@ -602,8 +604,8 @@ void *rt_slab_alloc(rt_slab_t m, rt_size_t size)
                 return RT_NULL;
             }
 
-            RT_DEBUG_LOG(RT_DEBUG_SLAB, ("alloc a new zone: 0x%x\n",
-                                         (rt_ubase_t)z));
+            LOG_D("alloc a new zone: 0x%x",
+                  (rt_ubase_t)z);
 
             /* set message usage */
             for (off = 0, kup = btokup(z); off < slab->zone_page_cnt; off ++)
@@ -745,16 +747,15 @@ void rt_slab_free(rt_slab_t m, void *ptr)
         return ;
 
     /* get memory usage */
-#if RT_DEBUG_SLAB
+#if (DBG_LVL == DBG_LOG)
     {
         rt_ubase_t addr = ((rt_ubase_t)ptr & ~RT_MM_PAGE_MASK);
-        RT_DEBUG_LOG(RT_DEBUG_SLAB,
-                     ("free a memory 0x%x and align to 0x%x, kup index %d\n",
-                      (rt_ubase_t)ptr,
-                      (rt_ubase_t)addr,
-                      ((rt_ubase_t)(addr) - slab->heap_start) >> RT_MM_PAGE_BITS));
+        LOG_D("free a memory 0x%x and align to 0x%x, kup index %d",
+              (rt_ubase_t)ptr,
+              (rt_ubase_t)addr,
+              ((rt_ubase_t)(addr) - slab->heap_start) >> RT_MM_PAGE_BITS);
     }
-#endif /* RT_DEBUG_SLAB */
+#endif /* DBG_LVL == DBG_LOG */
 
     kup = btokup((rt_ubase_t)ptr & ~RT_MM_PAGE_MASK);
     /* release large allocation */
@@ -768,9 +769,8 @@ void rt_slab_free(rt_slab_t m, void *ptr)
         /* mem stats */
         slab->parent.used -= size * RT_MM_PAGE_SIZE;
 
-        RT_DEBUG_LOG(RT_DEBUG_SLAB,
-                     ("free large memory block 0x%x, page count %d\n",
-                      (rt_ubase_t)ptr, size));
+        LOG_D("free large memory block 0x%x, page count %d",
+              (rt_ubase_t)ptr, size);
 
         /* free this page */
         rt_slab_page_free(m, ptr, size);
@@ -810,8 +810,8 @@ void rt_slab_free(rt_slab_t m, void *ptr)
     {
         struct rt_slab_zone **pz;
 
-        RT_DEBUG_LOG(RT_DEBUG_SLAB, ("free zone 0x%x\n",
-                                     (rt_ubase_t)z, z->z_zoneindex));
+        LOG_D("free zone 0x%x",
+              (rt_ubase_t)z, z->z_zoneindex);
 
         /* remove zone from zone array list */
         for (pz = &slab->zone_array[z->z_zoneindex]; z != *pz; pz = &(*pz)->z_next)
@@ -853,4 +853,4 @@ void rt_slab_free(rt_slab_t m, void *ptr)
 }
 RTM_EXPORT(rt_slab_free);
 
-#endif /* defined (RT_USING_SLAB) */
+#endif /* RT_USING_SLAB */

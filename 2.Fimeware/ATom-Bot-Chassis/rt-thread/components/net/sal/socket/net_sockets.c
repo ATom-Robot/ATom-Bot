@@ -26,7 +26,7 @@ int accept(int s, struct sockaddr *addr, socklen_t *addrlen)
     {
         /* this is a new socket, create it in file system fd */
         int fd;
-        struct dfs_fd *d;
+        struct dfs_file *d;
 
         /* allocate a fd */
         fd = fd_new();
@@ -40,21 +40,24 @@ int accept(int s, struct sockaddr *addr, socklen_t *addrlen)
         d = fd_get(fd);
         if(d)
         {
-            /* this is a socket fd */
-            d->type = FT_SOCKET;
-            d->path = NULL;
-
+#ifdef RT_USING_DFS_V2
             d->fops = dfs_net_get_fops();
+#endif
+            /* this is a socket fd */
+            d->vnode = (struct dfs_vnode *)rt_malloc(sizeof(struct dfs_vnode));
+            if (!d->vnode)
+            {
+                /* release fd */
+                fd_release(fd);
+                rt_set_errno(-ENOMEM);
+                return -1;
+            }
 
+            dfs_vnode_init(d->vnode, FT_SOCKET, dfs_net_get_fops());
             d->flags = O_RDWR; /* set flags as read and write */
-            d->size = 0;
-            d->pos = 0;
 
-            /* set socket to the data of dfs_fd */
-            d->data = (void *) new_socket;
-
-            /* release the ref-count of fd */
-            fd_put(d);
+            /* set socket to the data of dfs_file */
+            d->vnode->data = (void *)(size_t)new_socket;
 
             return fd;
         }
@@ -80,7 +83,7 @@ int shutdown(int s, int how)
 {
     int error = 0;
     int socket = -1;
-    struct dfs_fd *d;
+    struct dfs_file *d;
 
     socket = dfs_net_getsocket(s);
     if (socket < 0)
@@ -105,8 +108,6 @@ int shutdown(int s, int how)
         rt_set_errno(-ENOTSOCK);
         error = -1;
     }
-
-    fd_put(d);
 
     return error;
 }
@@ -147,7 +148,6 @@ RTM_EXPORT(setsockopt);
 int connect(int s, const struct sockaddr *name, socklen_t namelen)
 {
     int socket = dfs_net_getsocket(s);
-
     return sal_connect(socket, name, namelen);
 }
 RTM_EXPORT(connect);
@@ -167,6 +167,22 @@ int recv(int s, void *mem, size_t len, int flags)
     return sal_recvfrom(socket, mem, len, flags, NULL, NULL);
 }
 RTM_EXPORT(recv);
+
+int sendmsg(int s, const struct msghdr *message, int flags)
+{
+    int socket = dfs_net_getsocket(s);
+
+    return sal_sendmsg(socket, message, flags);
+}
+RTM_EXPORT(sendmsg);
+
+int recvmsg(int s, struct msghdr *message, int flags)
+{
+    int socket = dfs_net_getsocket(s);
+
+    return sal_recvmsg(socket, message, flags);
+}
+RTM_EXPORT(recvmsg);
 
 int recvfrom(int s, void *mem, size_t len, int flags,
              struct sockaddr *from, socklen_t *fromlen)
@@ -199,7 +215,7 @@ int socket(int domain, int type, int protocol)
     /* create a BSD socket */
     int fd;
     int socket;
-    struct dfs_fd *d;
+    struct dfs_file *d;
 
     /* allocate a fd */
     fd = fd_new();
@@ -211,36 +227,36 @@ int socket(int domain, int type, int protocol)
     }
     d = fd_get(fd);
 
-    /* create socket  and then put it to the dfs_fd */
+#ifdef RT_USING_DFS_V2
+    d->fops = dfs_net_get_fops();
+#endif
+
+    d->vnode = (struct dfs_vnode *)rt_malloc(sizeof(struct dfs_vnode));
+    if (!d->vnode)
+    {
+        /* release fd */
+        fd_release(fd);
+        rt_set_errno(-ENOMEM);
+        return -1;
+    }
+
+    /* create socket  and then put it to the dfs_file */
     socket = sal_socket(domain, type, protocol);
     if (socket >= 0)
     {
-        /* this is a socket fd */
-        d->type = FT_SOCKET;
-        d->path = NULL;
-
-        d->fops = dfs_net_get_fops();
-
+        dfs_vnode_init(d->vnode, FT_SOCKET, dfs_net_get_fops());
         d->flags = O_RDWR; /* set flags as read and write */
-        d->size = 0;
-        d->pos = 0;
 
-        /* set socket to the data of dfs_fd */
-        d->data = (void *) socket;
+        /* set socket to the data of dfs_file */
+        d->vnode->data = (void *)(size_t)socket;
     }
     else
     {
         /* release fd */
-        fd_put(d);
-        fd_put(d);
-
+        fd_release(fd);
         rt_set_errno(-ENOMEM);
-
         return -1;
     }
-
-    /* release the ref-count of fd */
-    fd_put(d);
 
     return fd;
 }
@@ -250,7 +266,7 @@ int closesocket(int s)
 {
     int error = 0;
     int socket = -1;
-    struct dfs_fd *d;
+    struct dfs_file *d;
 
     socket = dfs_net_getsocket(s);
     if (socket < 0)
@@ -261,6 +277,12 @@ int closesocket(int s)
 
     d = fd_get(s);
     if (d == RT_NULL)
+    {
+        rt_set_errno(-EBADF);
+        return -1;
+    }
+
+    if (!d->vnode)
     {
         rt_set_errno(-EBADF);
         return -1;
@@ -277,12 +299,48 @@ int closesocket(int s)
     }
 
     /* socket has been closed, delete it from file system fd */
-    fd_put(d);
-    fd_put(d);
+    fd_release(s);
 
     return error;
 }
 RTM_EXPORT(closesocket);
+
+
+int socketpair(int domain, int type, int protocol, int *fds)
+{
+    rt_err_t ret = 0;
+    int sock_fds[2];
+
+    fds[0] = socket(domain, type, protocol);
+    if (fds[0] < 0)
+    {
+        fds[0] = 0;
+        return -1;
+    }
+
+    fds[1] = socket(domain, type, protocol);
+    if (fds[1] < 0)
+    {
+        closesocket(fds[0]);
+        fds[0] = 0;
+        fds[1] = 0;
+        return -1;
+    }
+
+    sock_fds[0] = dfs_net_getsocket(fds[0]);
+    sock_fds[1] = dfs_net_getsocket(fds[1]);
+
+    ret = sal_socketpair(domain, type, protocol, sock_fds);
+
+    if (ret < 0)
+    {
+        closesocket(fds[0]);
+        closesocket(fds[1]);
+    }
+
+    return ret;
+}
+RTM_EXPORT(socketpair);
 
 int ioctlsocket(int s, long cmd, void *arg)
 {

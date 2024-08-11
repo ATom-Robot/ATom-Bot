@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -12,6 +12,10 @@
 #include <dfs_fs.h>
 #include <drivers/usb_host.h>
 #include "mass.h"
+
+#define DBG_TAG    "usbhost.udisk"
+#define DBG_LVL           DBG_INFO
+#include <rtdbg.h>
 
 #ifdef RT_USBH_MSTORAGE
 
@@ -64,7 +68,7 @@ static rt_err_t rt_udisk_init(rt_device_t dev)
  *
  * @return the actually read size on successful, otherwise negative returned.
  */
-static rt_size_t rt_udisk_read(rt_device_t dev, rt_off_t pos, void* buffer,
+static rt_ssize_t rt_udisk_read(rt_device_t dev, rt_off_t pos, void* buffer,
     rt_size_t size)
 {
     rt_err_t ret;
@@ -102,7 +106,7 @@ static rt_size_t rt_udisk_read(rt_device_t dev, rt_off_t pos, void* buffer,
  *
  * @return the actually written size on successful, otherwise negative returned.
  */
-static rt_size_t rt_udisk_write (rt_device_t dev, rt_off_t pos, const void* buffer,
+static rt_ssize_t rt_udisk_write (rt_device_t dev, rt_off_t pos, const void* buffer,
     rt_size_t size)
 {
     rt_err_t ret;
@@ -277,8 +281,8 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
     stor->capicity[1] = uswap_32(stor->capicity[1]);
     stor->capicity[0] += 1;
 
-    RT_DEBUG_LOG(RT_DEBUG_USB, ("capicity %d, block size %d\n",
-        stor->capicity[0], stor->capicity[1]));
+    LOG_D("capicity %d, block size %d",
+        stor->capicity[0], stor->capicity[1]);
 
     /* get the first sector to read partition table */
     sector = (rt_uint8_t*) rt_malloc (SECTOR_SIZE);
@@ -290,7 +294,7 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
 
     rt_memset(sector, 0, SECTOR_SIZE);
 
-    RT_DEBUG_LOG(RT_DEBUG_USB, ("read partition table\n"));
+    LOG_D("read partition table");
 
     /* get the partition table */
     ret = rt_usbh_storage_read10(intf, sector, 0, 1, USB_TIMEOUT_LONG);
@@ -302,7 +306,7 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
         return -RT_ERROR;
     }
 
-    RT_DEBUG_LOG(RT_DEBUG_USB, ("finished reading partition\n"));
+    LOG_D("finished reading partition");
 
     for(i=0; i<MAX_PARTITION_COUNT; i++)
     {
@@ -311,6 +315,11 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
         if (ret == RT_EOK)
         {
             struct ustor_data* data = rt_malloc(sizeof(struct ustor_data));
+            if (data == RT_NULL)
+            {
+                LOG_E("Allocate partition data buffer failed.");
+                continue;
+            }
             rt_memset(data, 0, sizeof(struct ustor_data));
             data->intf = intf;
             data->udisk_id = udisk_get_id();
@@ -337,11 +346,11 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
             if (dfs_mount(stor->dev[i].parent.name, UDISK_MOUNTPOINT, "elm",
                 0, 0) == 0)
             {
-                RT_DEBUG_LOG(RT_DEBUG_USB, ("udisk part %d mount successfully\n", i));
+                LOG_D("udisk part %d mount successfully", i);
             }
             else
             {
-                RT_DEBUG_LOG(RT_DEBUG_USB, ("udisk part %d mount failed\n", i));
+                LOG_D("udisk part %d mount failed", i);
             }
         }
         else
@@ -349,6 +358,11 @@ rt_err_t rt_udisk_run(struct uhintf* intf)
             if(i == 0)
             {
                 struct ustor_data* data = rt_malloc(sizeof(struct ustor_data));
+                if (data == RT_NULL)
+                {
+                    LOG_E("Allocate partition data buffer failed.");
+                    break;
+                }
                 rt_memset(data, 0, sizeof(struct ustor_data));
                 data->udisk_id = udisk_get_id();
 

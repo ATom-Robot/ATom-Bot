@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -57,6 +57,9 @@ static rt_err_t alarm_set(struct rt_alarm *alarm)
     wkalarm.tm_sec = alarm->wktime.tm_sec;
     wkalarm.tm_min = alarm->wktime.tm_min;
     wkalarm.tm_hour = alarm->wktime.tm_hour;
+    wkalarm.tm_mday = alarm->wktime.tm_mday;
+    wkalarm.tm_mon = alarm->wktime.tm_mon;
+    wkalarm.tm_year = alarm->wktime.tm_year;
 
     ret = rt_device_control(device, RT_DEVICE_CTRL_RTC_SET_ALARM, &wkalarm);
     if ((ret == RT_EOK) && wkalarm.enable)
@@ -71,6 +74,9 @@ static rt_err_t alarm_set(struct rt_alarm *alarm)
             alarm->wktime.tm_sec = wkalarm.tm_sec;
             alarm->wktime.tm_min = wkalarm.tm_min;
             alarm->wktime.tm_hour = wkalarm.tm_hour;
+            alarm->wktime.tm_mday = wkalarm.tm_mday;
+            alarm->wktime.tm_mon = wkalarm.tm_mon;
+            alarm->wktime.tm_year = wkalarm.tm_year;
         }
     }
 
@@ -281,7 +287,11 @@ static void alarm_update(rt_uint32_t event)
         else
         {
             if (_container.current != RT_NULL)
+            {
                 alarm_set(_container.current);
+                if (!(_container.current->flag & RT_ALARM_STATE_START))
+                    _container.current = RT_NULL;
+            }
         }
     }
     rt_mutex_release(&_container.mutex);
@@ -331,7 +341,7 @@ static rt_bool_t is_valid_date(struct tm *date)
 
 static rt_err_t alarm_setup(rt_alarm_t alarm, struct tm *wktime)
 {
-    rt_err_t ret = RT_ERROR;
+    rt_err_t ret = -RT_ERROR;
     time_t timestamp = (time_t)0;
     struct tm *setup, now;
 
@@ -502,7 +512,7 @@ void rt_alarm_update(rt_device_t dev, rt_uint32_t event)
  */
 rt_err_t rt_alarm_control(rt_alarm_t alarm, int cmd, void *arg)
 {
-    rt_err_t ret = RT_ERROR;
+    rt_err_t ret = -RT_ERROR;
 
     RT_ASSERT(alarm != RT_NULL);
 
@@ -548,7 +558,7 @@ rt_err_t rt_alarm_start(rt_alarm_t alarm)
     {
         if (alarm_setup(alarm, &alarm->wktime) != RT_EOK)
         {
-            ret = RT_ERROR;
+            ret = -RT_ERROR;
             goto _exit;
         }
 
@@ -642,7 +652,7 @@ rt_err_t rt_alarm_delete(rt_alarm_t alarm)
     rt_err_t ret = RT_EOK;
 
     if (alarm == RT_NULL)
-        return RT_ERROR;
+        return -RT_ERROR;
     rt_mutex_take(&_container.mutex, RT_WAITING_FOREVER);
     /* stop the alarm */
     alarm->flag &= ~RT_ALARM_STATE_START;

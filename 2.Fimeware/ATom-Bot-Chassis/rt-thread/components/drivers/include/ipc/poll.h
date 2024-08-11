@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -10,6 +10,9 @@
  */
 #ifndef IPC_POLL_H__
 #define IPC_POLL_H__
+
+#include <rtdef.h>
+#include <rtconfig.h>
 
 #ifdef __cplusplus
 extern "C" {

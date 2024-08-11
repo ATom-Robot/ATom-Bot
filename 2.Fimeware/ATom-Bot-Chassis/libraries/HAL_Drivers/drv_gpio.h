@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -14,7 +14,7 @@
 #ifndef __DRV_GPIO_H__
 #define __DRV_GPIO_H__
 
-#include <drv_common.h>
+#include <rtdevice.h>
 #include <board.h>
 
 #ifdef __cplusplus

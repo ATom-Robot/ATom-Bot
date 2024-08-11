@@ -11,7 +11,7 @@
 #ifndef SENSOR_INVEN_MPU6XXX_H__
 #define SENSOR_INVEN_MPU6XXX_H__
 
-#include "sensor.h"
+#include "drivers/sensor.h"
 #include "mpu6xxx.h"
 
 #define MPU6XXX_ADDRESS_AD0_LOW                 0x68 // address pin low (GND), default for InvenSense evaluation board

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -11,6 +11,7 @@
  */
 #include <rtthread.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef RT_USING_FINSH
 
@@ -31,7 +32,7 @@
 
 typedef int (*cmd_function_t)(int argc, char **argv);
 
-int msh_help(int argc, char **argv)
+static int msh_help(int argc, char **argv)
 {
     rt_kprintf("RT-Thread shell commands:\n");
     {
@@ -52,10 +53,10 @@ int msh_help(int argc, char **argv)
 
     return 0;
 }
-MSH_CMD_EXPORT_ALIAS(msh_help, help, RT-Thread shell help.);
+MSH_CMD_EXPORT_ALIAS(msh_help, help, RT-Thread shell help);
 
 #ifdef MSH_USING_BUILT_IN_COMMANDS
-int cmd_ps(int argc, char **argv)
+static int cmd_ps(int argc, char **argv)
 {
     extern long list_thread(void);
     extern int list_module(void);
@@ -65,13 +66,13 @@ int cmd_ps(int argc, char **argv)
         list_module();
     else
 #endif
-        list_thread();
+    list_thread();
     return 0;
 }
-MSH_CMD_EXPORT_ALIAS(cmd_ps, ps, List threads in the system.);
+MSH_CMD_EXPORT_ALIAS(cmd_ps, ps, List threads in the system);
 
 #ifdef RT_USING_HEAP
-int cmd_free(int argc, char **argv)
+static int cmd_free(int argc, char **argv)
 {
 #ifdef RT_USING_MEMHEAP_AS_HEAP
     extern void list_memheap(void);
@@ -87,7 +88,7 @@ int cmd_free(int argc, char **argv)
 #endif
     return 0;
 }
-MSH_CMD_EXPORT_ALIAS(cmd_free, free, Show the memory usage in the system.);
+MSH_CMD_EXPORT_ALIAS(cmd_free, free, Show the memory usage in the system);
 #endif /* RT_USING_HEAP */
 #endif /* MSH_USING_BUILT_IN_COMMANDS */
 
@@ -210,7 +211,7 @@ int msh_exec_module(const char *cmd_line, int size)
     length = cmd_length + 32;
 
     /* allocate program name memory */
-    pg_name = (char *) rt_malloc(length);
+    pg_name = (char *) rt_malloc(length + 3);
     if (pg_name == RT_NULL)
         return -RT_ENOMEM;
 
@@ -261,7 +262,7 @@ int msh_exec_module(const char *cmd_line, int size)
     rt_free(pg_name);
     return ret;
 }
-#endif /* defined(RT_USING_MODULE) && defined(DFS_USING_POSIX) */
+#endif
 
 static int _msh_exec_cmd(char *cmd, rt_size_t length, int *retp)
 {
@@ -274,7 +275,7 @@ static int _msh_exec_cmd(char *cmd, rt_size_t length, int *retp)
     RT_ASSERT(retp);
 
     /* find the size of first command */
-    while ((cmd[cmd0_size] != ' ' && cmd[cmd0_size] != '\t') && cmd0_size < length)
+    while (cmd0_size < length && (cmd[cmd0_size] != ' ' && cmd[cmd0_size] != '\t'))
         cmd0_size ++;
     if (cmd0_size == 0)
         return -RT_ERROR;
@@ -294,16 +295,138 @@ static int _msh_exec_cmd(char *cmd, rt_size_t length, int *retp)
     return 0;
 }
 
-#if defined(RT_USING_LWP) && defined(DFS_USING_POSIX)
-static int _msh_exec_lwp(char *cmd, rt_size_t length)
+#if defined(RT_USING_SMART) && defined(DFS_USING_POSIX)
+#include <lwp.h>
+/* check whether a file of the given path exits */
+static rt_bool_t _msh_lwp_cmd_exists(const char *path)
+{
+    int fd = -1;
+    fd = open(path, O_RDONLY, 0);
+    if (fd < 0)
+    {
+        return RT_FALSE;
+    }
+    close(fd);
+    return RT_TRUE;
+}
+
+/*
+ * search for the file named "pg_name" or "pg_name.elf" at the given directory,
+ * and return its path. return NULL when not found.
+ */
+static char *_msh_exec_search_path(const char *path, const char *pg_name)
+{
+    char *path_buffer = RT_NULL;
+    ssize_t pg_len = strlen(pg_name);
+    ssize_t base_len = 0;
+
+    if (path)
+    {
+        base_len = strlen(path);
+    }
+
+    path_buffer = rt_malloc(base_len + pg_len + 6);
+    if (path_buffer == RT_NULL)
+    {
+        return RT_NULL; /* no mem */
+    }
+
+    if (base_len > 0)
+    {
+        memcpy(path_buffer, path, base_len);
+        path_buffer[base_len] = '/';
+        path_buffer[base_len + 1] = '\0';
+    }
+    else
+    {
+        *path_buffer = '\0';
+    }
+    strcat(path_buffer, pg_name);
+
+    if (_msh_lwp_cmd_exists(path_buffer))
+    {
+        return path_buffer;
+    }
+
+    if (strstr(path_buffer, ".elf") != NULL)
+    {
+        goto not_found;
+    }
+
+    strcat(path_buffer, ".elf");
+    if (_msh_lwp_cmd_exists(path_buffer))
+    {
+        return path_buffer;
+    }
+
+not_found:
+    rt_free(path_buffer);
+    return RT_NULL;
+}
+
+/*
+ * search for the file named "pg_name" or "pg_name.elf" at each env path,
+ * and return its path. return NULL when not found.
+ */
+static char *_msh_exec_search_env(const char *pg_name)
+{
+    char *result = RT_NULL;
+    char *exec_path = RT_NULL;
+    char *search_path = RT_NULL;
+    char *pos = RT_NULL;
+    char tmp_ch = '\0';
+
+    if (!(exec_path = getenv("PATH")))
+    {
+        return RT_NULL;
+    }
+
+    /* exec path may need to be modified */
+    if (!(exec_path = strdup(exec_path)))
+    {
+        return RT_NULL;
+    }
+
+    pos = exec_path;
+    search_path = exec_path;
+
+    /* walk through the entire exec_path until finding the program wanted
+       or hitting its end */
+    while (1)
+    {
+        /* env paths are seperated by ':' */
+        if (*pos == ':' || *pos == '\0')
+        {
+            tmp_ch = *pos;
+            *pos = '\0';
+
+            result = _msh_exec_search_path(search_path, pg_name);
+            if (result || tmp_ch == '\0')
+            {
+                goto ret;
+            }
+
+            pos++;
+            search_path = pos;
+            continue;
+        }
+
+        pos++;
+    }
+
+    /* release the duplicated exec_path and return */
+ret:
+    rt_free(exec_path);
+    return result;
+}
+
+int _msh_exec_lwp(int debug, char *cmd, rt_size_t length)
 {
     int argc;
     int cmd0_size = 0;
     char *argv[FINSH_ARG_MAX];
-    int fd = -1;
     char *pg_name;
-
-    extern int exec(char *, int, char **);
+    int ret;
 
     /* find the size of first command */
     while ((cmd[cmd0_size] != ' ' && cmd[cmd0_size] != '\t') && cmd0_size < length)
@@ -317,24 +440,50 @@ static int _msh_exec_lwp(char *cmd, rt_size_t length)
     if (argc == 0)
         return -1;
 
-    pg_name = argv[0];
-    /* try to open program */
-    fd = open(pg_name, O_RDONLY, 0);
+    /* try to find program in working directory */
+    pg_name = _msh_exec_search_path("", argv[0]);
+    if (pg_name)
+    {
+        goto found_program;
+    }
 
-    if (fd < 0)
+    /* only check these paths when the first argument doesn't contain path
+       seperator */
+    if (strstr(argv[0], "/"))
+    {
         return -1;
+    }
+
+    /* try to find program in /bin */
+    pg_name = _msh_exec_search_path("/bin", argv[0]);
+    if (pg_name)
+    {
+        goto found_program;
+    }
+
+    /* try to find program in dirs registered to env path */
+    pg_name = _msh_exec_search_env(argv[0]);
+    if (pg_name)
+    {
+        goto found_program;
+    }
+
+    /* not found in anywhere */
+    return -1;
 
     /* found program */
-    close(fd);
-    exec(pg_name, argc, argv);
+found_program:
+    ret = exec(pg_name, debug, argc, argv);
+    rt_free(pg_name);
 
-    return 0;
+    return ret;
 }
-#endif /* defined(RT_USING_LWP) && defined(DFS_USING_POSIX) */
+#endif
+
 
 int msh_exec(char *cmd, rt_size_t length)
 {
-    int cmd_ret;
+    int cmd_ret = 0;
 
     /* strim the beginning of command */
     while ((length > 0) && (*cmd  == ' ' || *cmd == '\t'))
@@ -369,12 +518,15 @@ int msh_exec(char *cmd, rt_size_t length)
     }
 #endif /* RT_USING_MODULE */
 
-#ifdef RT_USING_LWP
-    if (_msh_exec_lwp(cmd, length) == 0)
+#ifdef RT_USING_SMART
+    /* exec from msh_exec , debug = 0*/
+    /* _msh_exec_lwp return is pid , <= 0 means failed */
+    cmd_ret = _msh_exec_lwp(0, cmd, length);
+    if (cmd_ret > 0)
     {
         return 0;
     }
-#endif /* RT_USING_LWP */
+#endif /* RT_USING_SMART */
 #endif /* DFS_USING_POSIX */
 
     /* truncate the cmd at the first space. */
@@ -387,7 +539,16 @@ int msh_exec(char *cmd, rt_size_t length)
         }
         *tcmd = '\0';
     }
-    rt_kprintf("%s: command not found.\n", cmd);
+#ifdef RT_USING_SMART
+    if (cmd_ret == -EACCES)
+    {
+        rt_kprintf("%s: Permission denied.\n", cmd);
+    }
+    else
+#endif
+    {
+        rt_kprintf("%s: command not found.\n", cmd);
+    }
     return -1;
 }
 
@@ -472,6 +633,7 @@ void msh_auto_complete_path(char *path)
     }
     else
     {
+        int multi = 0;
         rt_size_t length, min_length;
 
         min_length = 0;
@@ -483,6 +645,7 @@ void msh_auto_complete_path(char *path)
             /* matched the prefix string */
             if (strncmp(index, dirent->d_name, rt_strlen(index)) == 0)
             {
+                multi ++;
                 if (min_length == 0)
                 {
                     min_length = rt_strlen(dirent->d_name);
@@ -501,7 +664,7 @@ void msh_auto_complete_path(char *path)
 
         if (min_length)
         {
-            if (min_length < rt_strlen(full_path))
+            if (multi > 1)
             {
                 /* list the candidate */
                 rewinddir(dir);
@@ -519,6 +682,28 @@ void msh_auto_complete_path(char *path)
             length = index - path;
             rt_memcpy(index, full_path, min_length);
             path[length + min_length] = '\0';
+
+            /* try to locate folder */
+            if (multi == 1)
+            {
+                struct stat buffer = {0};
+                if ((stat(path, &buffer) == 0))
+                {
+                    if (S_ISDIR(buffer.st_mode))
+                    {
+                        strcat(path, "/");
+                    }
+                    else if (S_ISLNK(buffer.st_mode))
+                    {
+                        DIR *dir = opendir(path);
+                        if (dir)
+                        {
+                            closedir(dir);
+                            strcat(path, "/");
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -558,7 +743,7 @@ void msh_auto_complete(char *prefix)
 
             ptr --;
         }
-#ifdef RT_USING_MODULE
+#if defined(RT_USING_MODULE) || defined(RT_USING_SMART)
         /* There is a chance that the user want to run the module directly. So
          * try to complete the file names. If the completed path is not a
          * module, the system won't crash anyway. */
@@ -603,4 +788,164 @@ void msh_auto_complete(char *prefix)
 
     return ;
 }
+
+#ifdef FINSH_USING_OPTION_COMPLETION
+static msh_cmd_opt_t *msh_get_cmd_opt(char *opt_str)
+{
+    struct finsh_syscall *index;
+    msh_cmd_opt_t *opt = RT_NULL;
+    char *ptr;
+    int len;
+
+    ptr = strchr(opt_str, ' ');
+    if (ptr)
+    {
+        len = ptr - opt_str;
+    }
+    else
+    {
+        len = strlen(opt_str);
+    }
+
+    for (index = _syscall_table_begin;
+            index < _syscall_table_end;
+            FINSH_NEXT_SYSCALL(index))
+    {
+        if (strncmp(index->name, opt_str, len) == 0 && index->name[len] == '\0')
+        {
+            opt = index->opt;
+            break;
+        }
+    }
+
+    return opt;
+}
+
+static int msh_get_argc(char *prefix, char **last_argv)
+{
+    int argc = 0;
+    char *ch = prefix;
+
+    while (*ch)
+    {
+        if ((*ch == ' ') && *(ch + 1) && (*(ch + 1) != ' '))
+        {
+            *last_argv = ch + 1;
+            argc++;
+        }
+        ch++;
+    }
+
+    return argc;
+}
+
+static void msh_opt_complete(char *opts_str, struct msh_cmd_opt *cmd_opt)
+{
+    struct msh_cmd_opt *opt = cmd_opt;
+    const char *name_ptr = RT_NULL;
+    int min_length = 0, length, opts_str_len;
+
+    opts_str_len = strlen(opts_str);
+
+    for (opt = cmd_opt; opt->id; opt++)
+    {
+        if (!strncmp(opt->name, opts_str, opts_str_len))
+        {
+            if (min_length == 0)
+            {
+                /* set name_ptr */
+                name_ptr = opt->name;
+                /* set initial length */
+                min_length = strlen(name_ptr);
+            }
+
+            length = str_common(name_ptr, opt->name);
+            if (length < min_length)
+            {
+                min_length = length;
+            }
+
+            rt_kprintf("%s\n", opt->name);
+        }
+    }
+    rt_kprintf("\n");
+
+    if (name_ptr != NULL)
+    {
+        strncpy(opts_str, name_ptr, min_length);
+    }
+}
+
+static void msh_opt_help(msh_cmd_opt_t *cmd_opt)
+{
+    msh_cmd_opt_t *opt = cmd_opt;
+
+    for (; opt->id; opt++)
+    {
+        rt_kprintf("%-16s - %s\n", opt->name, opt->des);
+    }
+    rt_kprintf("\n");
+}
+
+void msh_opt_auto_complete(char *prefix)
+{
+    int argc;
+    char *opt_str = RT_NULL;
+    msh_cmd_opt_t *opt = RT_NULL;
+
+    argc = msh_get_argc(prefix, &opt_str);
+    if (argc)
+    {
+        opt = msh_get_cmd_opt(prefix);
+    }
+    else if (!msh_get_cmd(prefix, strlen(prefix)) && (' ' == prefix[strlen(prefix) - 1]))
+    {
+        opt = msh_get_cmd_opt(prefix);
+    }
+
+    if (opt && opt->id)
+    {
+        switch (argc)
+        {
+        case 0:
+            msh_opt_help(opt);
+            break;
+
+        case 1:
+            msh_opt_complete(opt_str, opt);
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
+int msh_cmd_opt_id_get(int argc, char *argv[], void *options)
+{
+    msh_cmd_opt_t *opt = (msh_cmd_opt_t *) options;
+    int opt_id;
+
+    for (opt_id = 0; (argc >= 2) && opt && opt->id; opt++)
+    {
+        if (!strcmp(opt->name, argv[1]))
+        {
+            opt_id = opt->id;
+            break;
+        }
+    }
+
+    return opt_id;
+}
+
+void msh_opt_list_dump(void *options)
+{
+    msh_cmd_opt_t *opt = (msh_cmd_opt_t *) options;
+
+    for (; opt && opt->id; opt++)
+    {
+        rt_kprintf("    %-16s - %s\n", opt->name, opt->des);
+    }
+}
+#endif /* FINSH_USING_OPTION_COMPLETION */
 #endif /* RT_USING_FINSH */

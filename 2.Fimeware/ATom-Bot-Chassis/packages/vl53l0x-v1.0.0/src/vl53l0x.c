@@ -12,7 +12,7 @@
 #include <string.h>
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "sensor.h"
+#include "drivers/sensor.h"
 #include "vl53l0x.h"
 #include "vl53l0x_platform.h"
 #include "vl53l0x_api.h"
@@ -228,7 +228,7 @@ static rt_size_t vl53l0x_polling_get_data(rt_sensor_t psensor, struct rt_sensor_
     return 1;
 }
 
-static rt_size_t vl53l0x_fetch_data(struct rt_sensor_device *psensor, void *buf, rt_size_t len)
+static rt_ssize_t vl53l0x_fetch_data(struct rt_sensor_device *psensor, void *buf, rt_size_t len)
 {
     RT_ASSERT(buf);
     RT_ASSERT(psensor);

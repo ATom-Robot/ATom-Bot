@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -10,6 +10,9 @@
 
 #ifndef _RINGBLK_BUF_H_
 #define _RINGBLK_BUF_H_
+
+#include <rtdef.h>
+#include <rtconfig.h>
 
 /*
  * Introduction:
@@ -75,6 +78,7 @@ struct rt_rbb
     rt_slist_t *tail;
     /* free node list */
     rt_slist_t free_list;
+    struct rt_spinlock spinlock;
 };
 typedef struct rt_rbb *rt_rbb_t;
 

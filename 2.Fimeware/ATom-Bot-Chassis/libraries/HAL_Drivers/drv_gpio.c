@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -15,16 +15,16 @@
 #include <board.h>
 #include "drv_gpio.h"
 
-#ifdef RT_USING_PIN
+#ifdef BSP_USING_GPIO
 
-#define PIN_NUM(port, no) (((((port) & 0xFu) << 4) | ((no) & 0xFu)))
+#define PIN_NUM(port, no) (((((port)&0xFu) << 4) | ((no)&0xFu)))
 #define PIN_PORT(pin) ((uint8_t)(((pin) >> 4) & 0xFu))
-#define PIN_NO(pin) ((uint8_t)((pin) & 0xFu))
+#define PIN_NO(pin) ((uint8_t)((pin)&0xFu))
 
 #if defined(SOC_SERIES_STM32MP1)
 #if defined(GPIOZ)
 #define gpioz_port_base (175) /* PIN_STPORT_MAX * 16 - 16 */
-#define PIN_STPORT(pin) ((pin > gpioz_port_base) ? ((GPIO_TypeDef *)(GPIOZ_BASE )) : ((GPIO_TypeDef *)(GPIOA_BASE + (0x1000u * PIN_PORT(pin)))))
+#define PIN_STPORT(pin) ((pin > gpioz_port_base) ? ((GPIO_TypeDef *)(GPIOZ_BASE)) : ((GPIO_TypeDef *)(GPIOA_BASE + (0x1000u * PIN_PORT(pin)))))
 #else
 #define PIN_STPORT(pin) ((GPIO_TypeDef *)(GPIOA_BASE + (0x1000u * PIN_PORT(pin))))
 #endif /* GPIOZ */
@@ -35,6 +35,14 @@
 #define PIN_STPIN(pin) ((uint16_t)(1u << PIN_NO(pin)))
 
 #if defined(GPIOZ)
+#define __STM32_PORT_MAX 16u
+#elif defined(GPIOP)
+#define __STM32_PORT_MAX 15u
+#elif defined(GPIOO)
+#define __STM32_PORT_MAX 14u
+#elif defined(GPION)
+#define __STM32_PORT_MAX 13u
+#elif defined(GPIOM)
 #define __STM32_PORT_MAX 12u
 #elif defined(GPIOK)
 #define __STM32_PORT_MAX 11u
@@ -68,94 +76,95 @@
 static const struct pin_irq_map pin_irq_map[] =
 {
 #if defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32L0) || defined(SOC_SERIES_STM32G0)
-    {GPIO_PIN_0, EXTI0_1_IRQn},
-    {GPIO_PIN_1, EXTI0_1_IRQn},
-    {GPIO_PIN_2, EXTI2_3_IRQn},
-    {GPIO_PIN_3, EXTI2_3_IRQn},
-    {GPIO_PIN_4, EXTI4_15_IRQn},
-    {GPIO_PIN_5, EXTI4_15_IRQn},
-    {GPIO_PIN_6, EXTI4_15_IRQn},
-    {GPIO_PIN_7, EXTI4_15_IRQn},
-    {GPIO_PIN_8, EXTI4_15_IRQn},
-    {GPIO_PIN_9, EXTI4_15_IRQn},
-    {GPIO_PIN_10, EXTI4_15_IRQn},
-    {GPIO_PIN_11, EXTI4_15_IRQn},
-    {GPIO_PIN_12, EXTI4_15_IRQn},
-    {GPIO_PIN_13, EXTI4_15_IRQn},
-    {GPIO_PIN_14, EXTI4_15_IRQn},
-    {GPIO_PIN_15, EXTI4_15_IRQn},
-#elif defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32L5) || defined(SOC_SERIES_STM32U5)
-    {GPIO_PIN_0, EXTI0_IRQn},
-    {GPIO_PIN_1, EXTI1_IRQn},
-    {GPIO_PIN_2, EXTI2_IRQn},
-    {GPIO_PIN_3, EXTI3_IRQn},
-    {GPIO_PIN_4, EXTI4_IRQn},
-    {GPIO_PIN_5, EXTI5_IRQn},
-    {GPIO_PIN_6, EXTI6_IRQn},
-    {GPIO_PIN_7, EXTI7_IRQn},
-    {GPIO_PIN_8, EXTI8_IRQn},
-    {GPIO_PIN_9, EXTI9_IRQn},
-    {GPIO_PIN_10, EXTI10_IRQn},
-    {GPIO_PIN_11, EXTI11_IRQn},
-    {GPIO_PIN_12, EXTI12_IRQn},
-    {GPIO_PIN_13, EXTI13_IRQn},
-    {GPIO_PIN_14, EXTI14_IRQn},
-    {GPIO_PIN_15, EXTI15_IRQn},
+        {GPIO_PIN_0, EXTI0_1_IRQn},
+        {GPIO_PIN_1, EXTI0_1_IRQn},
+        {GPIO_PIN_2, EXTI2_3_IRQn},
+        {GPIO_PIN_3, EXTI2_3_IRQn},
+        {GPIO_PIN_4, EXTI4_15_IRQn},
+        {GPIO_PIN_5, EXTI4_15_IRQn},
+        {GPIO_PIN_6, EXTI4_15_IRQn},
+        {GPIO_PIN_7, EXTI4_15_IRQn},
+        {GPIO_PIN_8, EXTI4_15_IRQn},
+        {GPIO_PIN_9, EXTI4_15_IRQn},
+        {GPIO_PIN_10, EXTI4_15_IRQn},
+        {GPIO_PIN_11, EXTI4_15_IRQn},
+        {GPIO_PIN_12, EXTI4_15_IRQn},
+        {GPIO_PIN_13, EXTI4_15_IRQn},
+        {GPIO_PIN_14, EXTI4_15_IRQn},
+        {GPIO_PIN_15, EXTI4_15_IRQn},
+#elif defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32L5) || defined(SOC_SERIES_STM32U5) \
+                || defined(SOC_SERIES_STM32H5) || defined(SOC_SERIES_STM32H7RS)
+        {GPIO_PIN_0, EXTI0_IRQn},
+        {GPIO_PIN_1, EXTI1_IRQn},
+        {GPIO_PIN_2, EXTI2_IRQn},
+        {GPIO_PIN_3, EXTI3_IRQn},
+        {GPIO_PIN_4, EXTI4_IRQn},
+        {GPIO_PIN_5, EXTI5_IRQn},
+        {GPIO_PIN_6, EXTI6_IRQn},
+        {GPIO_PIN_7, EXTI7_IRQn},
+        {GPIO_PIN_8, EXTI8_IRQn},
+        {GPIO_PIN_9, EXTI9_IRQn},
+        {GPIO_PIN_10, EXTI10_IRQn},
+        {GPIO_PIN_11, EXTI11_IRQn},
+        {GPIO_PIN_12, EXTI12_IRQn},
+        {GPIO_PIN_13, EXTI13_IRQn},
+        {GPIO_PIN_14, EXTI14_IRQn},
+        {GPIO_PIN_15, EXTI15_IRQn},
 #elif defined(SOC_SERIES_STM32F3)
-    {GPIO_PIN_0, EXTI0_IRQn},
-    {GPIO_PIN_1, EXTI1_IRQn},
-    {GPIO_PIN_2, EXTI2_TSC_IRQn},
-    {GPIO_PIN_3, EXTI3_IRQn},
-    {GPIO_PIN_4, EXTI4_IRQn},
-    {GPIO_PIN_5, EXTI9_5_IRQn},
-    {GPIO_PIN_6, EXTI9_5_IRQn},
-    {GPIO_PIN_7, EXTI9_5_IRQn},
-    {GPIO_PIN_8, EXTI9_5_IRQn},
-    {GPIO_PIN_9, EXTI9_5_IRQn},
-    {GPIO_PIN_10, EXTI15_10_IRQn},
-    {GPIO_PIN_11, EXTI15_10_IRQn},
-    {GPIO_PIN_12, EXTI15_10_IRQn},
-    {GPIO_PIN_13, EXTI15_10_IRQn},
-    {GPIO_PIN_14, EXTI15_10_IRQn},
-    {GPIO_PIN_15, EXTI15_10_IRQn},
+        {GPIO_PIN_0, EXTI0_IRQn},
+        {GPIO_PIN_1, EXTI1_IRQn},
+        {GPIO_PIN_2, EXTI2_TSC_IRQn},
+        {GPIO_PIN_3, EXTI3_IRQn},
+        {GPIO_PIN_4, EXTI4_IRQn},
+        {GPIO_PIN_5, EXTI9_5_IRQn},
+        {GPIO_PIN_6, EXTI9_5_IRQn},
+        {GPIO_PIN_7, EXTI9_5_IRQn},
+        {GPIO_PIN_8, EXTI9_5_IRQn},
+        {GPIO_PIN_9, EXTI9_5_IRQn},
+        {GPIO_PIN_10, EXTI15_10_IRQn},
+        {GPIO_PIN_11, EXTI15_10_IRQn},
+        {GPIO_PIN_12, EXTI15_10_IRQn},
+        {GPIO_PIN_13, EXTI15_10_IRQn},
+        {GPIO_PIN_14, EXTI15_10_IRQn},
+        {GPIO_PIN_15, EXTI15_10_IRQn},
 #else
-    {GPIO_PIN_0, EXTI0_IRQn},
-    {GPIO_PIN_1, EXTI1_IRQn},
-    {GPIO_PIN_2, EXTI2_IRQn},
-    {GPIO_PIN_3, EXTI3_IRQn},
-    {GPIO_PIN_4, EXTI4_IRQn},
-    {GPIO_PIN_5, EXTI9_5_IRQn},
-    {GPIO_PIN_6, EXTI9_5_IRQn},
-    {GPIO_PIN_7, EXTI9_5_IRQn},
-    {GPIO_PIN_8, EXTI9_5_IRQn},
-    {GPIO_PIN_9, EXTI9_5_IRQn},
-    {GPIO_PIN_10, EXTI15_10_IRQn},
-    {GPIO_PIN_11, EXTI15_10_IRQn},
-    {GPIO_PIN_12, EXTI15_10_IRQn},
-    {GPIO_PIN_13, EXTI15_10_IRQn},
-    {GPIO_PIN_14, EXTI15_10_IRQn},
-    {GPIO_PIN_15, EXTI15_10_IRQn},
+        {GPIO_PIN_0, EXTI0_IRQn},
+        {GPIO_PIN_1, EXTI1_IRQn},
+        {GPIO_PIN_2, EXTI2_IRQn},
+        {GPIO_PIN_3, EXTI3_IRQn},
+        {GPIO_PIN_4, EXTI4_IRQn},
+        {GPIO_PIN_5, EXTI9_5_IRQn},
+        {GPIO_PIN_6, EXTI9_5_IRQn},
+        {GPIO_PIN_7, EXTI9_5_IRQn},
+        {GPIO_PIN_8, EXTI9_5_IRQn},
+        {GPIO_PIN_9, EXTI9_5_IRQn},
+        {GPIO_PIN_10, EXTI15_10_IRQn},
+        {GPIO_PIN_11, EXTI15_10_IRQn},
+        {GPIO_PIN_12, EXTI15_10_IRQn},
+        {GPIO_PIN_13, EXTI15_10_IRQn},
+        {GPIO_PIN_14, EXTI15_10_IRQn},
+        {GPIO_PIN_15, EXTI15_10_IRQn},
 #endif
 };
 
 static struct rt_pin_irq_hdr pin_irq_hdr_tab[] =
 {
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
-    {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
+        {-1, 0, RT_NULL, RT_NULL},
 };
 static uint32_t pin_irq_enable_mask = 0;
 
@@ -172,11 +181,11 @@ static rt_base_t stm32_pin_get(const char *name)
 
     if ((name_len < 4) || (name_len >= 6))
     {
-        return -RT_EINVAL;
+        goto out;
     }
     if ((name[0] != 'P') || (name[2] != '.'))
     {
-        return -RT_EINVAL;
+        goto out;
     }
 
     if ((name[1] >= 'A') && (name[1] <= 'Z'))
@@ -185,7 +194,7 @@ static rt_base_t stm32_pin_get(const char *name)
     }
     else
     {
-        return -RT_EINVAL;
+        goto out;
     }
 
     for (i = 3; i < name_len; i++)
@@ -197,9 +206,13 @@ static rt_base_t stm32_pin_get(const char *name)
     pin = PIN_NUM(hw_port_num, hw_pin_num);
 
     return pin;
+
+out:
+    rt_kprintf("Px.y  x:A~Z  y:0-15, e.g. PA.0\n");
+    return -RT_EINVAL;
 }
 
-static void stm32_pin_write(rt_device_t dev, rt_base_t pin, rt_base_t value)
+static void stm32_pin_write(rt_device_t dev, rt_base_t pin, rt_uint8_t value)
 {
     GPIO_TypeDef *gpio_port;
     uint16_t gpio_pin;
@@ -213,23 +226,27 @@ static void stm32_pin_write(rt_device_t dev, rt_base_t pin, rt_base_t value)
     }
 }
 
-static int stm32_pin_read(rt_device_t dev, rt_base_t pin)
+static rt_ssize_t stm32_pin_read(rt_device_t dev, rt_base_t pin)
 {
     GPIO_TypeDef *gpio_port;
     uint16_t gpio_pin;
-    int value = PIN_LOW;
+    GPIO_PinState state = GPIO_PIN_RESET;
 
     if (PIN_PORT(pin) < PIN_STPORT_MAX)
     {
         gpio_port = PIN_STPORT(pin);
         gpio_pin = PIN_STPIN(pin);
-        value = HAL_GPIO_ReadPin(gpio_port, gpio_pin);
+        state = HAL_GPIO_ReadPin(gpio_port, gpio_pin);
+    }
+    else
+    {
+        return -RT_EINVAL;
     }
 
-    return value;
+    return (state == GPIO_PIN_RESET) ? PIN_LOW : PIN_HIGH;
 }
 
-static void stm32_pin_mode(rt_device_t dev, rt_base_t pin, rt_base_t mode)
+static void stm32_pin_mode(rt_device_t dev, rt_base_t pin, rt_uint8_t mode)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -241,7 +258,6 @@ static void stm32_pin_mode(rt_device_t dev, rt_base_t pin, rt_base_t mode)
     /* Configure GPIO_InitStructure */
     GPIO_InitStruct.Pin = PIN_STPIN(pin);
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 
     if (mode == PIN_MODE_OUTPUT)
@@ -301,8 +317,8 @@ rt_inline const struct pin_irq_map *get_pin_irq_map(uint32_t pinbit)
     return &pin_irq_map[mapindex];
 };
 
-static rt_err_t stm32_pin_attach_irq(struct rt_device *device, rt_int32_t pin,
-                                     rt_uint32_t mode, void (*hdr)(void *args), void *args)
+static rt_err_t stm32_pin_attach_irq(struct rt_device *device, rt_base_t pin,
+                                     rt_uint8_t mode, void (*hdr)(void *args), void *args)
 {
     rt_base_t level;
     rt_int32_t irqindex = -1;
@@ -341,7 +357,7 @@ static rt_err_t stm32_pin_attach_irq(struct rt_device *device, rt_int32_t pin,
     return RT_EOK;
 }
 
-static rt_err_t stm32_pin_dettach_irq(struct rt_device *device, rt_int32_t pin)
+static rt_err_t stm32_pin_dettach_irq(struct rt_device *device, rt_base_t pin)
 {
     rt_base_t level;
     rt_int32_t irqindex = -1;
@@ -373,7 +389,7 @@ static rt_err_t stm32_pin_dettach_irq(struct rt_device *device, rt_int32_t pin)
 }
 
 static rt_err_t stm32_pin_irq_enable(struct rt_device *device, rt_base_t pin,
-                                     rt_uint32_t enabled)
+                                     rt_uint8_t enabled)
 {
     const struct pin_irq_map *irqmap;
     rt_base_t level;
@@ -517,7 +533,7 @@ rt_inline void pin_irq_hdr(int irqno)
     }
 }
 
-#if defined(SOC_SERIES_STM32G0) || defined(SOC_SERIES_STM32MP1)
+#if defined(SOC_SERIES_STM32G0) || defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32U5)
 void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
 {
     pin_irq_hdr(bit2bitno(GPIO_Pin));
@@ -568,7 +584,7 @@ void EXTI4_15_IRQHandler(void)
     rt_interrupt_leave();
 }
 
-#elif defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32U5)
+#elif defined(SOC_SERIES_STM32MP1) || defined(SOC_SERIES_STM32U5) || defined(SOC_SERIES_STM32H7RS)
 void EXTI0_IRQHandler(void)
 {
     rt_interrupt_enter();
@@ -769,9 +785,9 @@ int rt_hw_pin_init(void)
 #endif
 
 #if defined(__HAL_RCC_GPIOG_CLK_ENABLE)
-    #ifdef SOC_SERIES_STM32L4
-        HAL_PWREx_EnableVddIO2();
-    #endif
+#ifdef SOC_SERIES_STM32L4
+    HAL_PWREx_EnableVddIO2();
+#endif
     __HAL_RCC_GPIOG_CLK_ENABLE();
 #endif
 
@@ -791,7 +807,23 @@ int rt_hw_pin_init(void)
     __HAL_RCC_GPIOK_CLK_ENABLE();
 #endif
 
+#if defined(__HAL_RCC_GPIOM_CLK_ENABLE)
+    __HAL_RCC_GPIOM_CLK_ENABLE();
+#endif
+
+#if defined(__HAL_RCC_GPION_CLK_ENABLE)
+    __HAL_RCC_GPION_CLK_ENABLE();
+#endif
+
+#if defined(__HAL_RCC_GPIOO_CLK_ENABLE)
+    __HAL_RCC_GPIOO_CLK_ENABLE();
+#endif
+
+#if defined(__HAL_RCC_GPIOP_CLK_ENABLE)
+    __HAL_RCC_GPIOP_CLK_ENABLE();
+#endif
+
     return rt_device_pin_register("pin", &_stm32_pin_ops, RT_NULL);
 }
 
-#endif /* RT_USING_PIN */
+#endif /* BSP_USING_GPIO */

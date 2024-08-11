@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -127,7 +127,10 @@ struct rt_sdio_function {
 
 #define SDIO_MAX_FUNCTIONS      7
 
-
+struct rt_mmc_ext_csd
+{
+    rt_uint32_t cache_size;
+};
 
 struct rt_mmcsd_card {
     struct rt_mmcsd_host *host;
@@ -141,6 +144,7 @@ struct rt_mmcsd_card {
     rt_uint32_t max_data_rate;  /* max data transfer rate */
     rt_uint32_t card_capacity;  /* card capacity, unit:KB */
     rt_uint32_t card_blksize;   /* card block size */
+    rt_uint32_t card_sec_cnt;   /* card sector count*/
     rt_uint32_t erase_size; /* erase size in sectors */
     rt_uint16_t card_type;
 #define CARD_TYPE_MMC                   0 /* MMC card */
@@ -152,7 +156,8 @@ struct rt_mmcsd_card {
 #define CARD_FLAG_HIGHSPEED  (1 << 0)   /* SDIO bus speed 50MHz */
 #define CARD_FLAG_SDHC       (1 << 1)   /* SDHC card */
 #define CARD_FLAG_SDXC       (1 << 2)   /* SDXC card */
-
+#define CARD_FLAG_HIGHSPEED_DDR  (1 << 3)   /*HIGH SPEED DDR*/
+#define CARD_FLAG_HS200      (1 << 4)   /* BUS SPEED 200mHz*/
     struct rt_sd_scr    scr;
     struct rt_mmcsd_csd csd;
     rt_uint32_t     hs_max_data_rate;  /* max data transfer rate in high speed mode */
@@ -162,6 +167,8 @@ struct rt_mmcsd_card {
     struct rt_sdio_cis     cis;  /* common tuple info */
     struct rt_sdio_function *sdio_function[SDIO_MAX_FUNCTIONS + 1]; /* SDIO functions (devices) */
     rt_list_t blk_devices;  /* for block device list */
+
+    struct rt_mmc_ext_csd ext_csd;
 };
 
 #ifdef __cplusplus

@@ -87,6 +87,7 @@ def IARProject(target, script):
 
     CPPPATH = []
     CPPDEFINES = []
+    LOCAL_CPPDEFINES = []
     LINKFLAGS = ''
     CFLAGS = ''
     Libs = []
@@ -114,6 +115,9 @@ def IARProject(target, script):
         # get each group's definitions
         if 'CPPDEFINES' in group and group['CPPDEFINES']:
             CPPDEFINES += group['CPPDEFINES']
+
+        if 'LOCAL_CPPDEFINES' in group and group['LOCAL_CPPDEFINES']:
+            LOCAL_CPPDEFINES += group['LOCAL_CPPDEFINES']
 
         # get each group's link flags
         if 'LINKFLAGS' in group and group['LINKFLAGS']:
@@ -154,6 +158,10 @@ def IARProject(target, script):
                 state = SubElement(option, 'state')
                 state.text = define
 
+            for define in LOCAL_CPPDEFINES:
+                state = SubElement(option, 'state')
+                state.text = define
+
         if name.text == 'IlinkAdditionalLibs':
             for path in Libs:
                 state = SubElement(option, 'state')
@@ -169,34 +177,33 @@ def IARProject(target, script):
 
     IARWorkspace(target)
 
+def IARPath():
+    import rtconfig
+
+    # backup environ
+    old_environ = os.environ
+    os.environ['RTT_CC'] = 'iar'
+    utils.ReloadModule(rtconfig)
+
+    # get iar path
+    path = rtconfig.EXEC_PATH
+
+    # restore environ
+    os.environ = old_environ
+    utils.ReloadModule(rtconfig)
+
+    return path
+
 def IARVersion():
     import subprocess
     import re
-
-    def IARPath():
-        import rtconfig
-
-        # backup environ
-        old_environ = os.environ
-        os.environ['RTT_CC'] = 'iar'
-        utils.ReloadModule(rtconfig)
-
-        # get iar path
-        path = rtconfig.EXEC_PATH
-
-        # restore environ
-        os.environ = old_environ
-        utils.ReloadModule(rtconfig)
-
-        return path
 
     path = IARPath()
 
     if os.path.exists(path):
         cmd = os.path.join(path, 'iccarm.exe')
     else:
-        print('Error: get IAR version failed. Please update the IAR installation path in rtconfig.py!')
-        exit(-1)
+        return "0.0"
 
     child = subprocess.Popen([cmd, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     stdout, stderr = child.communicate()
@@ -204,6 +211,4 @@ def IARVersion():
         stdout = str(stdout, 'utf8') # Patch for Python 3
     # example stdout: IAR ANSI C/C++ Compiler V8.20.1.14183/W32 for ARM
     iar_version = re.search('[\d\.]+', stdout).group(0)
-    if GetOption('verbose'):
-        print("IAR version: %s" % iar_version)
     return iar_version

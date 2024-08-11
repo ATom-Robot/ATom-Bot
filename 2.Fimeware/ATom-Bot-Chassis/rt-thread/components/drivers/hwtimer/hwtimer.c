@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -14,6 +14,24 @@
 #define DBG_TAG "hwtimer"
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
+
+#ifdef RT_USING_DM
+void (*rt_device_hwtimer_us_delay)(rt_uint32_t us) = RT_NULL;
+
+void rt_hw_us_delay(rt_uint32_t us)
+{
+    if (rt_device_hwtimer_us_delay)
+    {
+        rt_device_hwtimer_us_delay(us);
+    }
+    else
+    {
+        LOG_E("Implemented at least in the libcpu");
+
+        RT_ASSERT(0);
+    }
+}
+#endif /* RT_USING_DM */
 
 rt_inline rt_uint32_t timeout_calc(rt_hwtimer_t *timer, rt_hwtimerval_t *tv)
 {
@@ -143,7 +161,7 @@ static rt_err_t rt_hwtimer_close(struct rt_device *dev)
     return result;
 }
 
-static rt_size_t rt_hwtimer_read(struct rt_device *dev, rt_off_t pos, void *buffer, rt_size_t size)
+static rt_ssize_t rt_hwtimer_read(struct rt_device *dev, rt_off_t pos, void *buffer, rt_size_t size)
 {
     rt_hwtimer_t *timer;
     rt_hwtimerval_t tv;
@@ -165,6 +183,10 @@ static rt_size_t rt_hwtimer_read(struct rt_device *dev, rt_off_t pos, void *buff
     {
         cnt = (rt_uint32_t)(timer->freq * timer->period_sec) - cnt;
     }
+    if (timer->mode == HWTIMER_MODE_ONESHOT)
+    {
+        overflow = 0;
+    }
 
     t = overflow * timer->period_sec + cnt/(float)timer->freq;
     tv.sec = (rt_int32_t)t;
@@ -175,7 +197,7 @@ static rt_size_t rt_hwtimer_read(struct rt_device *dev, rt_off_t pos, void *buff
     return size;
 }
 
-static rt_size_t rt_hwtimer_write(struct rt_device *dev, rt_off_t pos, const void *buffer, rt_size_t size)
+static rt_ssize_t rt_hwtimer_write(struct rt_device *dev, rt_off_t pos, const void *buffer, rt_size_t size)
 {
     rt_base_t level;
     rt_uint32_t t;
@@ -231,7 +253,7 @@ static rt_err_t rt_hwtimer_control(struct rt_device *dev, int cmd, void *args)
     break;
     case HWTIMER_CTRL_FREQ_SET:
     {
-        rt_uint32_t *f;
+        rt_int32_t *f;
 
         if (args == RT_NULL)
         {
@@ -239,7 +261,7 @@ static rt_err_t rt_hwtimer_control(struct rt_device *dev, int cmd, void *args)
             break;
         }
 
-        f = (rt_uint32_t*)args;
+        f = (rt_int32_t*)args;
         if ((*f > timer->info->maxfreq) || (*f < timer->info->minfreq))
         {
             LOG_W("frequency setting out of range! It will maintain at %d Hz", timer->freq);

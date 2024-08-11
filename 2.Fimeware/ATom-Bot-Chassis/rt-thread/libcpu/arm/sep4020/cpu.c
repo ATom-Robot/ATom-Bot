@@ -152,7 +152,7 @@ rt_base_t rt_hw_cpu_dcache_status()
  * reset cpu by dog's time-out
  *
  */
-RT_WEAK void rt_hw_cpu_reset()
+void rt_hw_cpu_reset()
 {
 
     /* enable watchdog */
@@ -167,22 +167,6 @@ RT_WEAK void rt_hw_cpu_reset()
     while(1);   /* loop forever and wait for reset to happen */
 
     /* NEVER REACHED */
-}
-
-/**
- *  shutdown CPU
- *
- */
-RT_WEAK void rt_hw_cpu_shutdown()
-{
-    rt_base_t level;
-    rt_kprintf("shutdown...\n");
-
-    level = rt_hw_interrupt_disable();
-    while (level)
-    {
-        RT_ASSERT(RT_NULL);
-    }
 }
 
 /*@}*/

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2018-08-06     tyx          the first version
+ * 2023-12-12     Evlers       add the wlan join scan function
  */
 
 #include <rthw.h>
@@ -837,12 +838,11 @@ rt_wlan_mode_t rt_wlan_get_mode(const char *dev_name)
     return mode;
 }
 
-
+#ifdef RT_WLAN_JOIN_SCAN_BY_MGNT
 static void rt_wlan_join_scan_callback(int event, struct rt_wlan_buff *buff, void *parameter)
 {
     struct rt_wlan_info *info = RT_NULL;
     struct rt_wlan_info *tgt_info = RT_NULL;
-    int ret = RT_EOK;
 
     RT_ASSERT(event == RT_WLAN_EVT_SCAN_REPORT);
     RT_ASSERT(buff != RT_NULL);
@@ -859,7 +859,7 @@ static void rt_wlan_join_scan_callback(int event, struct rt_wlan_buff *buff, voi
             info->ssid.len == tgt_info->ssid.len)
     {
         /*Get the rssi the max ap*/
-        if(info->rssi > tgt_info->rssi)
+        if((info->rssi > tgt_info->rssi) || (tgt_info->rssi == 0))
         {
             tgt_info->security  = info->security;
             tgt_info->band      = info->band;
@@ -868,10 +868,11 @@ static void rt_wlan_join_scan_callback(int event, struct rt_wlan_buff *buff, voi
             tgt_info->rssi      = info->rssi;
             tgt_info->hidden    = info->hidden;
             /* hwaddr */
-            rt_memcmp(tgt_info->bssid,info->bssid,RT_WLAN_BSSID_MAX_LENGTH);
+            rt_memcpy(tgt_info->bssid,info->bssid,RT_WLAN_BSSID_MAX_LENGTH);
         }
     }
 }
+#endif
 
 rt_err_t rt_wlan_connect(const char *ssid, const char *password)
 {
@@ -880,7 +881,6 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
     struct rt_wlan_info info;
     struct rt_wlan_complete_des *complete;
     rt_uint32_t set = 0, recved = 0;
-    rt_uint32_t scan_retry = RT_WLAN_SCAN_RETRY_CNT;
 
     /* sta dev Can't be NULL */
     if (_sta_is_null())
@@ -1584,7 +1584,6 @@ rt_err_t rt_wlan_scan_with_info(struct rt_wlan_info *info)
     rt_err_t err = RT_EOK;
     struct rt_wlan_complete_des *complete;
     rt_uint32_t set = 0, recved = 0;
-    static struct rt_wlan_info scan_filter_info;
 
     if (_sta_is_null())
     {
@@ -1670,7 +1669,7 @@ rt_err_t rt_wlan_register_event_handler(rt_wlan_event_t event, rt_wlan_event_han
 
     if (event >= RT_WLAN_EVT_MAX)
     {
-        return RT_EINVAL;
+        return -RT_EINVAL;
     }
     RT_WLAN_LOG_D("%s is run event:%d", __FUNCTION__, event);
 
@@ -1690,7 +1689,7 @@ rt_err_t rt_wlan_unregister_event_handler(rt_wlan_event_t event)
 
     if (event >= RT_WLAN_EVT_MAX)
     {
-        return RT_EINVAL;
+        return -RT_EINVAL;
     }
     RT_WLAN_LOG_D("%s is run event:%d", __FUNCTION__, event);
     MGNT_LOCK();

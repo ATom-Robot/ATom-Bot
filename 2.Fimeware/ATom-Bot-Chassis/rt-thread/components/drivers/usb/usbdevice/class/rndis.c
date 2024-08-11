@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -53,20 +53,20 @@ struct rt_rndis_eth
     struct rt_timer timer;
 #endif /* RNDIS_DELAY_LINK_UP */
 
-    ALIGN(4)
+    rt_align(4)
     rt_uint8_t rx_pool[512];
-    ALIGN(4)
+    rt_align(4)
     rt_uint8_t tx_pool[512];
 
     rt_uint32_t cmd_pool[2];
-    ALIGN(4)
+    rt_align(4)
     char rx_buffer[sizeof(struct rndis_packet_msg) + USB_ETH_MTU + 14];
     rt_size_t rx_offset;
     rt_size_t rx_length;
     rt_bool_t rx_flag;
     rt_bool_t rx_frist;
 
-    ALIGN(4)
+    rt_align(4)
     char tx_buffer[sizeof(struct rndis_packet_msg) + USB_ETH_MTU + 14];
     struct rt_semaphore tx_buffer_free;
 
@@ -77,7 +77,7 @@ struct rt_rndis_eth
 typedef struct rt_rndis_eth * rt_rndis_eth_t;
 static rt_uint32_t oid_packet_filter = 0x0000000;
 
-ALIGN(4)
+rt_align(4)
 static struct udevice_descriptor _dev_desc =
 {
     USB_DESC_LENGTH_DEVICE,   /* bLength */
@@ -97,7 +97,7 @@ static struct udevice_descriptor _dev_desc =
 };
 
 /* communcation interface descriptor */
-ALIGN(4)
+rt_align(4)
 const static struct ucdc_comm_descriptor _comm_desc =
 {
 #ifdef RT_USB_DEVICE_COMPOSITE
@@ -171,7 +171,7 @@ const static struct ucdc_comm_descriptor _comm_desc =
 };
 
 /* data interface descriptor */
-ALIGN(4)
+rt_align(4)
 const static struct ucdc_data_descriptor _data_desc =
 {
     /* interface descriptor */
@@ -206,7 +206,7 @@ const static struct ucdc_data_descriptor _data_desc =
     },
 };
 
-ALIGN(4)
+rt_align(4)
 const static char* _ustring[] =
 {
     "Language",                 /* LANGID */
@@ -218,7 +218,7 @@ const static char* _ustring[] =
     USB_STRING_OS
 };
 
-ALIGN(4)
+rt_align(4)
 struct usb_os_function_comp_id_descriptor rndis_func_comp_id_desc =
 {
     .bFirstInterfaceNumber = USB_DYNAMIC,
@@ -229,7 +229,7 @@ struct usb_os_function_comp_id_descriptor rndis_func_comp_id_desc =
 };
 
 //FS and HS needed
-ALIGN(4)
+rt_align(4)
 static struct usb_qualifier_descriptor dev_qualifier =
 {
     sizeof(dev_qualifier),          //bLength
@@ -244,7 +244,7 @@ static struct usb_qualifier_descriptor dev_qualifier =
 };
 
 /* supported OIDs */
-ALIGN(4)
+rt_align(4)
 const static rt_uint32_t oid_supported_list[] =
 {
     /* General OIDs */
@@ -1083,13 +1083,13 @@ static rt_err_t rt_rndis_eth_close(rt_device_t dev)
     return RT_EOK;
 }
 
-static rt_size_t rt_rndis_eth_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
+static rt_ssize_t rt_rndis_eth_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
 {
     rt_set_errno(-RT_ENOSYS);
     return 0;
 }
 
-static rt_size_t rt_rndis_eth_write (rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
+static rt_ssize_t rt_rndis_eth_write (rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
 {
     rt_set_errno(-RT_ENOSYS);
     return 0;
@@ -1331,6 +1331,13 @@ ufunction_t rt_usbd_function_rndis_create(udevice_t device)
     cdc = rt_usbd_function_new(device, &_dev_desc, &ops);
     rt_usbd_device_set_qualifier(device, &dev_qualifier);
     _rndis= rt_malloc(sizeof(struct rt_rndis_eth));
+
+    if(_rndis == RT_NULL)
+    {
+        LOG_E("%s,%d: no memory!", __func__, __LINE__);
+        return RT_NULL;
+    }
+
     rt_memset(_rndis, 0, sizeof(struct rt_rndis_eth));
     cdc->user_data = _rndis;
 
@@ -1340,6 +1347,19 @@ ufunction_t rt_usbd_function_rndis_create(udevice_t device)
     /* create a cdc communication interface and a cdc data interface */
     intf_comm = rt_usbd_interface_new(device, _interface_handler);
     intf_data = rt_usbd_interface_new(device, _interface_handler);
+
+    if((intf_comm == RT_NULL) || (intf_data == RT_NULL))
+    {
+        LOG_E("%s,%d: no memory!", __func__, __LINE__);
+
+        if(intf_comm != RT_NULL)
+            rt_free(intf_comm);
+
+        if(intf_data != RT_NULL)
+            rt_free(intf_data);
+
+        return RT_NULL;
+    }
 
     /* create a communication alternate setting and a data alternate setting */
     comm_setting = rt_usbd_altsetting_new(sizeof(struct ucdc_comm_descriptor));

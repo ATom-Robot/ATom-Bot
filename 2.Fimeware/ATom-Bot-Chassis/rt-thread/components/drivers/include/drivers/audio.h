@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -105,7 +105,7 @@ struct rt_audio_ops
     rt_err_t (*init)(struct rt_audio_device *audio);
     rt_err_t (*start)(struct rt_audio_device *audio, int stream);
     rt_err_t (*stop)(struct rt_audio_device *audio, int stream);
-    rt_size_t (*transmit)(struct rt_audio_device *audio, const void *writeBuf, void *readBuf, rt_size_t size);
+    rt_ssize_t (*transmit)(struct rt_audio_device *audio, const void *writeBuf, void *readBuf, rt_size_t size);
     /* get page size of codec or private buffer's info */
     void (*buffer_info)(struct rt_audio_device *audio, struct rt_audio_buf_info *info);
 };

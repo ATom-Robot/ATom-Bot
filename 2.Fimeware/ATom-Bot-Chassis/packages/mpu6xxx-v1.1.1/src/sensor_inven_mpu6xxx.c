@@ -155,7 +155,7 @@ static rt_size_t _mpu6xxx_polling_get_data(rt_sensor_t sensor, struct rt_sensor_
     return 1;
 }
 
-static rt_size_t mpu6xxx_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
+static rt_ssize_t mpu6xxx_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
 {
     RT_ASSERT(buf);
 

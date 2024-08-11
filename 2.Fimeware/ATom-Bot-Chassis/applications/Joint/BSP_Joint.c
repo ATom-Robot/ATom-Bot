@@ -521,7 +521,7 @@ void joint_ctrl_entry()
 
     while (1)
     {
-        if (rt_mq_recv(angle_queue.RT_MQ, &received_angle, sizeof(int), RT_WAITING_FOREVER) == RT_EOK)
+        if (rt_mq_recv(angle_queue.RT_MQ, &received_angle, sizeof(received_angle), RT_WAITING_FOREVER) > 0)
         {
             joint_enable_all(RT_TRUE);
             UpdateJointAngle_2(&joint[1], received_angle);
@@ -538,7 +538,7 @@ int joint_thread_create(void)
                                     joint_ctrl_entry,
                                     RT_NULL,
                                     1024,
-                                    28,
+                                    20,
                                     20);
     if (joint_thread != RT_NULL)
     {

@@ -11,7 +11,7 @@
 #include <rtdevice.h>
 #include <board.h>
 
-#include "sensor.h"
+#include "drivers/sensor.h"
 #include "vl53l0x.h"
 #include "vl53l0x_api.h"
 

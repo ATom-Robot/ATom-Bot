@@ -7,9 +7,12 @@ Import('rtconfig')
 cwd     = GetCurrentDir()
 src     = Split('''
 cache.c
-cpu.c
+cpuport.c
+gtimer.c
 mmu.c
+pmu.c
 stack.c
+backtrace.c
 ''')
 CPPPATH = [cwd]
 
@@ -36,6 +39,6 @@ if rtconfig.PLATFORM in ['iccarm']:
 if rtconfig.PLATFORM in ['iccarm']:
     src += Glob('*_iar.S')
 
-group = DefineGroup('CPU', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('libcpu', src, depend = [''], CPPPATH = CPPPATH)
 
 Return('group')

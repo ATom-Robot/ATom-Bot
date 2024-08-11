@@ -108,7 +108,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *contex)
     rt_kprintf("r01: 0x%08x\n", contex->r1);
     rt_kprintf("r00: 0x%08x\n", contex->r0);
 
-    rt_kprintf("hard fault on thread: %s\n", rt_current_thread->name);
+    rt_kprintf("hard fault on thread: %s\n", rt_current_thread->parent.name);
 
 #if defined(RT_USING_FINSH) && defined(MSH_USING_BUILT_IN_COMMANDS)
     list_thread();
@@ -131,7 +131,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *contex)
 /**
  * reset CPU
  */
-RT_WEAK void rt_hw_cpu_reset(void)
+void rt_hw_cpu_reset(void)
 {
     SCB_AIRCR  = SCB_RESET_VALUE;//((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |SCB_AIRCR_SYSRESETREQ_Msk);
 }

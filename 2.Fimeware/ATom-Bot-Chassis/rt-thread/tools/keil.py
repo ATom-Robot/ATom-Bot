@@ -186,7 +186,7 @@ def MDK4AddGroup(ProjectFiles, parent, name, files, project_path, group_scons):
             MiscControls_text = MiscControls_text + group_scons['LOCAL_CXXFLAGS']
         if 'LOCAL_CCFLAGS' in group_scons:
             MiscControls_text = MiscControls_text + group_scons['LOCAL_CCFLAGS']
-        if MiscControls_text != ' ':
+        if MiscControls_text != ' ' or ('LOCAL_CPPDEFINES' in group_scons):
             FileOption     = SubElement(file,  'FileOption')
             FileArmAds     = SubElement(FileOption, 'FileArmAds')
             Cads            = SubElement(FileArmAds, 'Cads')
@@ -219,6 +219,8 @@ def MDK45Project(tree, target, script):
     CPPPATH = []
     CPPDEFINES = []
     LINKFLAGS = ''
+    CXXFLAGS = ''
+    CCFLAGS = ''
     CFLAGS = ''
     ProjectFiles = []
 
@@ -251,6 +253,28 @@ def MDK45Project(tree, target, script):
             else:
                 LINKFLAGS += group['LINKFLAGS']
 
+        # get each group's CXXFLAGS flags
+        if 'CXXFLAGS' in group and group['CXXFLAGS']:
+            if CXXFLAGS:
+                CXXFLAGS += ' ' + group['CXXFLAGS']
+            else:
+                CXXFLAGS += group['CXXFLAGS']
+
+        # get each group's CCFLAGS flags
+        if 'CCFLAGS' in group and group['CCFLAGS']:
+            if CCFLAGS:
+                CCFLAGS += ' ' + group['CCFLAGS']
+            else:
+                CCFLAGS += group['CCFLAGS']
+
+        # get each group's CFLAGS flags
+        if 'CFLAGS' in group and group['CFLAGS']:
+            if CFLAGS:
+                CFLAGS += ' ' + group['CFLAGS']
+            else:
+                CFLAGS += group['CFLAGS']
+
+        # get each group's LIBS flags
         if 'LIBS' in group and group['LIBS']:
             for item in group['LIBS']:
                 lib_path = ''
@@ -268,10 +292,18 @@ def MDK45Project(tree, target, script):
 
     # write include path, definitions and link flags
     IncludePath = tree.find('Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/IncludePath')
-    IncludePath.text = ';'.join([_make_path_relative(project_path, os.path.normpath(i)) for i in CPPPATH])
+    IncludePath.text = ';'.join([_make_path_relative(project_path, os.path.normpath(i)) for i in set(CPPPATH)])
 
     Define = tree.find('Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/Define')
     Define.text = ', '.join(set(CPPDEFINES))
+
+    if 'c99' in CXXFLAGS or 'c99' in CCFLAGS or 'c99' in CFLAGS:
+        uC99 = tree.find('Targets/Target/TargetOption/TargetArmAds/Cads/uC99')
+        uC99.text = '1'
+
+    if 'gnu' in CXXFLAGS or 'gnu' in CCFLAGS or 'gnu' in CFLAGS:
+        uGnu = tree.find('Targets/Target/TargetOption/TargetArmAds/Cads/uGnu')
+        uGnu.text = '1'
 
     Misc = tree.find('Targets/Target/TargetOption/TargetArmAds/LDads/Misc')
     Misc.text = LINKFLAGS
@@ -298,7 +330,7 @@ def MDK4Project(target, script):
     # copy uvopt file
     if os.path.exists('template.uvopt'):
         import shutil
-        shutil.copy2('template.uvopt', 'project.uvopt')
+        shutil.copy2('template.uvopt', '{}.uvopt'.format(os.path.splitext(target)[0]))
 
 def MDK5Project(target, script):
 
@@ -317,9 +349,9 @@ def MDK5Project(target, script):
     # copy uvopt file
     if os.path.exists('template.uvoptx'):
         import shutil
-        shutil.copy2('template.uvoptx', 'project.uvoptx')
+        shutil.copy2('template.uvoptx', '{}.uvoptx'.format(os.path.splitext(target)[0]))
 
-def MDKProject(target, script):
+def MDK2Project(target, script):
     template = open('template.Uv2', "r")
     lines = template.readlines()
 
@@ -425,12 +457,14 @@ def ARMCC_Version():
     import re
 
     path = rtconfig.EXEC_PATH
-    path = os.path.join(path, 'armcc.exe')
+    if(rtconfig.PLATFORM == 'armcc'):
+        path = os.path.join(path, 'armcc.exe')
+    elif(rtconfig.PLATFORM == 'armclang'):
+        path = os.path.join(path, 'armlink.exe')
 
     if os.path.exists(path):
         cmd = path
     else:
-        print('Error: get armcc version failed. Please update the KEIL MDK installation path in rtconfig.py!')
         return "0.0"
 
     child = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -444,7 +478,8 @@ def ARMCC_Version():
 
     return version: MDK Plus 5.24/ARM Compiler 5.06 update 5 (build 528)/armcc [4d3621]
     '''
-
+    if not isinstance(stdout, str):
+        stdout = str(stdout, 'utf8') # Patch for Python 3
     version_Product = re.search(r'Product: (.+)', stdout).group(1)
     version_Product = version_Product[:-1]
     version_Component = re.search(r'Component: (.*)', stdout).group(1)
@@ -453,5 +488,4 @@ def ARMCC_Version():
     version_Tool = version_Tool[:-1]
     version_str_format = '%s/%s/%s'
     version_str = version_str_format % (version_Product, version_Component, version_Tool)
-    #print('version_str:' + version_str)
     return version_str

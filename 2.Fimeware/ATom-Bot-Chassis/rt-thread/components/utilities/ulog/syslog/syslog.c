@@ -168,7 +168,7 @@ static const char *get_month_str(uint8_t month)
     }
 }
 
-RT_WEAK rt_size_t syslog_formater(char *log_buf, int level, const char *tag, rt_bool_t newline, const char *format, va_list args)
+rt_weak rt_size_t syslog_formater(char *log_buf, int level, const char *tag, rt_bool_t newline, const char *format, va_list args)
 {
     extern rt_size_t ulog_strcpy(rt_size_t cur_len, char *dst, const char *src);
 
@@ -213,7 +213,7 @@ RT_WEAK rt_size_t syslog_formater(char *log_buf, int level, const char *tag, rt_
         /* is not in interrupt context */
         if (rt_interrupt_get_nest() == 0)
         {
-            log_len += ulog_strcpy(log_len, log_buf + log_len, rt_thread_self()->name);
+            log_len += ulog_strcpy(log_len, log_buf + log_len, rt_thread_self()->parent.name);
         }
         else
         {

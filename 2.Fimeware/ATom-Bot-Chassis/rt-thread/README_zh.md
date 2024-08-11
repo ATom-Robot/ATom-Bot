@@ -4,9 +4,10 @@
 
 [English](README.md) | **中文** | [Español](README_es.md) | [Deutsch](README_de.md)
 
+[![GitHubStars](https://img.shields.io/github/stars/RT-Thread/rt-thread?style=flat-square&logo=GitHub)](https://github.com/RT-Thread/rt-thread/stargazers)
+[![GiteeStars](https://gitee.com/rtthread/rt-thread/badge/star.svg?theme=gvp)](https://gitee.com/rtthread/rt-thread/stargazers)
 [![GitHub](https://img.shields.io/github/license/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/releases)
-[![Build Status](https://travis-ci.org/RT-Thread/rt-thread.svg)](https://travis-ci.org/RT-Thread/rt-thread)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/RT-Thread/rt-thread?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub pull-requests](https://img.shields.io/github/issues-pr/RT-Thread/rt-thread.svg)](https://github.com/RT-Thread/rt-thread/pulls)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](https://github.com/RT-Thread/rt-thread/pulls)
@@ -31,7 +32,7 @@ RT-Thread是一个集实时操作系统（RTOS）内核、中间件组件的物�
 - 组件与服务层：组件是基于 RT-Thread内核之上的上层软件，例如虚拟文件系统、FinSH命令行界面、网络框架、设备框架等。采用模块化设计，做到组件内部高内聚，组件之间低耦合。
 
 
-- RT-Thread软件包：运行于 RT-Thread物联网操作系统平台上，面向不同应用领域的通用软件组件，由描述信息、源代码或库文件组成。RT-Thread提供了开放的软件包平台，这里存放了官方提供或开发者提供的软件包，该平台为开发者提供了众多可重用软件包的选择，这也是 RT-Thread生态的重要组成部分。软件包生态对于一个操作系统的选择至关重要，因为这些软件包具有很强的可重用性，模块化程度很高，极大的方便应用开发者在最短时间内，打造出自己想要的系统。RT-Thread已经支持的软件包数量已经达到 180+。
+- RT-Thread软件包：运行于 RT-Thread物联网操作系统平台上，面向不同应用领域的通用软件组件，由描述信息、源代码或库文件组成。RT-Thread提供了开放的软件包平台，这里存放了官方提供或开发者提供的软件包，该平台为开发者提供了众多可重用软件包的选择，这也是 RT-Thread生态的重要组成部分。软件包生态对于一个操作系统的选择至关重要，因为这些软件包具有很强的可重用性，模块化程度很高，极大的方便应用开发者在最短时间内，打造出自己想要的系统。RT-Thread已经支持的软件包数量已经达到450+。
 
 
 
@@ -69,7 +70,7 @@ RT-Thread源代码目录结构如下图所示：
 
 Env 是RT-Thread推出的开发辅助工具，针对基于RT-Thread操作系统的项目工程，提供编译构建环境、图形化系统配置及软件包管理功能。其内置的 menuconfig 提供了简单易用的配置剪裁工具，可对内核、组件和软件包进行自由裁剪，使系统以搭积木的方式进行构建。
 
-[下载 Env 工具](https://www.rt-thread.org/page/download.html)
+[下载 Env 工具](https://www.rt-thread.org/download.html#download-rt-thread-env-tool)
 
 [Env 用户手册](https://www.rt-thread.org/document/site/#/development-tools/env/env)
 
@@ -82,7 +83,7 @@ RT-Thread RTOS 支持许多架构，并且已经涵盖了当前应用中的主�
 
 - ARM Cortex-M0/M0+：如芯片制造商 ST
 - ARM Cortex-M3：如芯片制造商 ST、全志、灵动等.
-- ARM Cortex-M4：如芯片制造商 ST、Nuvton、NXP、GigaDevice、Realtek、Ambiq Micro等
+- ARM Cortex-M4：如芯片制造商 ST、Infineon、Nuvoton、NXP、[Nordic](https://github.com/RT-Thread/rt-thread/tree/master/bsp/nrf5x)、GigaDevice、Realtek、Ambiq Micro等
 - ARM Cortex-M7：如芯片制造商 ST、NXP
 - ARM Cortex-M23：如芯片制造商 GigaDevice
 - ARM Cortex-M33：如芯片制造商 ST
@@ -92,7 +93,7 @@ RT-Thread RTOS 支持许多架构，并且已经涵盖了当前应用中的主�
 - ARM9：如芯片制造商Allwinner、Xilinx 、GOKE
 - ARM11：如芯片制造商Fullhan
 - MIPS32：如芯片制造商loongson、Ingenic
-- RISC-V：如芯片制造商Hifive、Kendryte、[芯来Nuclei](https://nucleisys.com/)
+- RISC-V RV32E/RV32I[F]/RV64[D]：如芯片制造商sifive、[嘉楠Kendryte](https://github.com/RT-Thread/rt-thread/tree/master/bsp/k210)、[博流](https://github.com/RT-Thread/rt-thread/tree/master/bsp/bouffalo_lab)、[芯来Nuclei](https://nucleisys.com/)、[平头哥T-Head](https://www.t-head.cn/)、[先楫](https://github.com/RT-Thread/rt-thread/tree/master/bsp/hpmicro)
 - ARC：如芯片制造商SYNOPSYS
 - DSP：如芯片制造商 TI
 - C-Sky
@@ -130,9 +131,9 @@ RT-Thread BSP可以直接编译并下载到相应的开发板使用。此外，R
 
 ## 文档
 
-[文档中心](https://www.rt-thread.org/document/site/ ) | [编程指南](https://www.rt-thread.org/document/site/programming-manual/basic/basic/ )
+[文档中心](https://www.rt-thread.org/document/site/ ) | [编程指南](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/basic/basic )
 
-[应用 RT-Thread 实现蜂鸣器播放器教程](https://www.rt-thread.org/document/site/tutorial/beep-player/) | [分布式温度监控系统教程](https://www.rt-thread.org/document/site/tutorial/temperature-system/ ) | [智能车连载教程](https://www.rt-thread.org/document/site/tutorial/smart-car/ )
+[应用 RT-Thread 实现蜂鸣器播放器教程](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/tutorial/beep-player/README?id=%e5%ba%94%e7%94%a8-rt-thread-%e5%ae%9e%e7%8e%b0%e8%9c%82%e9%b8%a3%e5%99%a8%e6%92%ad%e6%94%be%e5%99%a8) | [分布式温度监控系统教程](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/tutorial/temperature-system/README?id=%e5%88%86%e5%b8%83%e5%bc%8f%e6%b8%a9%e5%ba%a6%e7%9b%91%e6%8e%a7%e7%b3%bb%e7%bb%9f ) | [智能车连载教程](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/tutorial/smart-car/README?id=%e6%99%ba%e8%83%bd%e8%bd%a6%e8%bf%9e%e8%bd%bd%e6%95%99%e7%a8%8b%e7%ae%80%e4%bb%8b )
 
 ## 例程
 
@@ -150,7 +151,7 @@ RT-Thread视频中心提供了一系列RT-Thread相关教程及分享内容。
 
 # **许可协议**
 
-RT-Thread系统完全开源，3.1.0 及以前的版本遵循 GPL V2 + 开源许可协议。从 3.1.0 以后的版本遵循Apache License 2.0开源许可协议，可以免费在商业产品中使用，并且不需要公开私有代码。
+RT-Thread 系统完全开源，遵循 Apache License 2.0 开源许可协议，可以免费在商业产品中使用，并且不需要公开私有代码，没有潜在商业风险。
 
 ```
 /*
@@ -173,5 +174,10 @@ RT-Thread微信公众号：
 
 # 贡献代码
 
-如果您对RT-Thread感兴趣，并希望参与RT-Thread的开发并成为代码贡献者，请参阅[代码贡献指南](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/development-guide/github/githubd)。
+如果您对RT-Thread感兴趣，并希望参与RT-Thread的开发并成为代码贡献者，请参阅[代码贡献指南](https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/development-guide/github/github)。
 
+## 感谢以下小伙伴对本仓库的贡献！
+
+<a href="https://github.com/RT-Thread/rt-thread/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=RT-Thread/rt-thread" />
+</a>

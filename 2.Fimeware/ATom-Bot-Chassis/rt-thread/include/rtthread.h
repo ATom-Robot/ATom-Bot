@@ -17,29 +17,42 @@
  * 2021-02-28     Meco Man     add RT_KSERVICE_USING_STDLIB
  * 2021-11-14     Meco Man     add rtlegacy.h for compatibility
  * 2022-06-04     Meco Man     remove strnlen
+ * 2023-05-20     Bernard      add rtatomic.h header file to included files.
+ * 2023-06-30     ChuShicheng  move debug check from the rtdebug.h
+ * 2023-10-16     Shell        Support a new backtrace framework
+ * 2023-12-10     xqyjlj       fix spinlock in up
+ * 2024-01-25     Shell        Add rt_susp_list for IPC primitives
+ * 2024-03-10     Meco Man     move std libc related functions to rtklibc
  */
 
 #ifndef __RT_THREAD_H__
 #define __RT_THREAD_H__
 
 #include <rtconfig.h>
-#include <rtdebug.h>
 #include <rtdef.h>
 #include <rtservice.h>
 #include <rtm.h>
+#include <rtatomic.h>
+#include <rtklibc.h>
 #ifdef RT_USING_LEGACY
 #include <rtlegacy.h>
 #endif
+#ifdef RT_USING_FINSH
+#include <finsh.h>
+#endif /* RT_USING_FINSH */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifdef __GNUC__
+int entry(void);
+#endif
+
 /**
  * @addtogroup KernelObject
+ * @{
  */
-
-/**@{*/
 
 /*
  * kernel object interface
@@ -54,13 +67,16 @@ void rt_object_init(struct rt_object         *object,
                     const char               *name);
 void rt_object_detach(rt_object_t object);
 #ifdef RT_USING_HEAP
-rt_object_t rt_object_allocate(enum rt_object_class_type type,
-                               const char               *name);
+rt_object_t rt_object_allocate(enum rt_object_class_type type, const char *name);
 void rt_object_delete(rt_object_t object);
-#endif
+/* custom object */
+rt_object_t rt_custom_object_create(const char *name, void *data, rt_err_t (*data_destroy)(void *));
+rt_err_t rt_custom_object_destroy(rt_object_t obj);
+#endif /* RT_USING_HEAP */
 rt_bool_t rt_object_is_systemobject(rt_object_t object);
 rt_uint8_t rt_object_get_type(rt_object_t object);
 rt_object_t rt_object_find(const char *name, rt_uint8_t type);
+rt_err_t rt_object_get_name(rt_object_t object, char *name, rt_uint8_t name_size);
 
 #ifdef RT_USING_HOOK
 void rt_object_attach_sethook(void (*hook)(struct rt_object *object));
@@ -68,15 +84,14 @@ void rt_object_detach_sethook(void (*hook)(struct rt_object *object));
 void rt_object_trytake_sethook(void (*hook)(struct rt_object *object));
 void rt_object_take_sethook(void (*hook)(struct rt_object *object));
 void rt_object_put_sethook(void (*hook)(struct rt_object *object));
-#endif
+#endif /* RT_USING_HOOK */
 
 /**@}*/
 
 /**
  * @addtogroup Clock
+ * @{
  */
-
-/**@{*/
 
 /*
  * clock & timer interface
@@ -88,7 +103,7 @@ rt_tick_t  rt_tick_from_millisecond(rt_int32_t ms);
 rt_tick_t rt_tick_get_millisecond(void);
 #ifdef RT_USING_HOOK
 void rt_tick_sethook(void (*hook)(void));
-#endif
+#endif /* RT_USING_HOOK */
 
 void rt_system_timer_init(void);
 void rt_system_timer_thread_init(void);
@@ -107,26 +122,23 @@ rt_timer_t rt_timer_create(const char *name,
                            rt_tick_t   time,
                            rt_uint8_t  flag);
 rt_err_t rt_timer_delete(rt_timer_t timer);
-#endif
+#endif /* RT_USING_HEAP */
 rt_err_t rt_timer_start(rt_timer_t timer);
 rt_err_t rt_timer_stop(rt_timer_t timer);
 rt_err_t rt_timer_control(rt_timer_t timer, int cmd, void *arg);
-
 rt_tick_t rt_timer_next_timeout_tick(void);
 void rt_timer_check(void);
-
 #ifdef RT_USING_HOOK
 void rt_timer_enter_sethook(void (*hook)(struct rt_timer *timer));
 void rt_timer_exit_sethook(void (*hook)(struct rt_timer *timer));
-#endif
+#endif /* RT_USING_HOOK */
 
 /**@}*/
 
 /**
  * @addtogroup Thread
+ * @{
  */
-
-/**@{*/
 
 /*
  * thread interface
@@ -148,7 +160,7 @@ rt_thread_t rt_thread_create(const char *name,
                              rt_uint8_t  priority,
                              rt_uint32_t tick);
 rt_err_t rt_thread_delete(rt_thread_t thread);
-#endif
+#endif /* RT_USING_HEAP */
 rt_thread_t rt_thread_self(void);
 rt_thread_t rt_thread_find(char *name);
 rt_err_t rt_thread_startup(rt_thread_t thread);
@@ -158,19 +170,31 @@ rt_err_t rt_thread_delay_until(rt_tick_t *tick, rt_tick_t inc_tick);
 rt_err_t rt_thread_mdelay(rt_int32_t ms);
 rt_err_t rt_thread_control(rt_thread_t thread, int cmd, void *arg);
 rt_err_t rt_thread_suspend(rt_thread_t thread);
+rt_err_t rt_thread_suspend_with_flag(rt_thread_t thread, int suspend_flag);
 rt_err_t rt_thread_resume(rt_thread_t thread);
-
+#ifdef RT_USING_SMART
+rt_err_t rt_thread_wakeup(rt_thread_t thread);
+void rt_thread_wakeup_set(struct rt_thread *thread, rt_wakeup_func_t func, void* user_data);
+#endif /* RT_USING_SMART */
+rt_err_t rt_thread_get_name(rt_thread_t thread, char *name, rt_uint8_t name_size);
 #ifdef RT_USING_SIGNALS
 void rt_thread_alloc_sig(rt_thread_t tid);
 void rt_thread_free_sig(rt_thread_t tid);
 int  rt_thread_kill(rt_thread_t tid, int sig);
-#endif
-
+#endif /* RT_USING_SIGNALS */
 #ifdef RT_USING_HOOK
 void rt_thread_suspend_sethook(void (*hook)(rt_thread_t thread));
 void rt_thread_resume_sethook (void (*hook)(rt_thread_t thread));
-void rt_thread_inited_sethook (void (*hook)(rt_thread_t thread));
-#endif
+
+/**
+ * @brief Sets a hook function when a thread is initialized.
+ *
+ * @param thread is the target thread that initializing
+ */
+typedef void (*rt_thread_inited_hookproto_t)(rt_thread_t thread);
+RT_OBJECT_HOOKLIST_DECLARE(rt_thread_inited_hookproto_t, rt_thread_inited);
+
+#endif /* RT_USING_HOOK */
 
 /*
  * idle thread interface
@@ -179,7 +203,7 @@ void rt_thread_idle_init(void);
 #if defined(RT_USING_HOOK) || defined(RT_USING_IDLE_HOOK)
 rt_err_t rt_thread_idle_sethook(void (*hook)(void));
 rt_err_t rt_thread_idle_delhook(void (*hook)(void));
-#endif
+#endif /* defined(RT_USING_HOOK) || defined(RT_USING_IDLE_HOOK) */
 rt_thread_t rt_thread_idle_gethandler(void);
 
 /*
@@ -189,21 +213,33 @@ void rt_system_scheduler_init(void);
 void rt_system_scheduler_start(void);
 
 void rt_schedule(void);
-void rt_schedule_insert_thread(struct rt_thread *thread);
-void rt_schedule_remove_thread(struct rt_thread *thread);
+void rt_scheduler_do_irq_switch(void *context);
 
-void rt_enter_critical(void);
+#ifdef RT_USING_OVERFLOW_CHECK
+void rt_scheduler_stack_check(struct rt_thread *thread);
+
+#define RT_SCHEDULER_STACK_CHECK(thr) rt_scheduler_stack_check(thr)
+
+#else /* !RT_USING_OVERFLOW_CHECK */
+
+#define RT_SCHEDULER_STACK_CHECK(thr)
+
+#endif /* RT_USING_OVERFLOW_CHECK */
+
+rt_base_t rt_enter_critical(void);
 void rt_exit_critical(void);
+void rt_exit_critical_safe(rt_base_t critical_level);
 rt_uint16_t rt_critical_level(void);
 
 #ifdef RT_USING_HOOK
 void rt_scheduler_sethook(void (*hook)(rt_thread_t from, rt_thread_t to));
 void rt_scheduler_switch_sethook(void (*hook)(struct rt_thread *tid));
-#endif
+#endif /* RT_USING_HOOK */
 
 #ifdef RT_USING_SMP
+void rt_secondary_cpu_entry(void);
 void rt_scheduler_ipi_handler(int vector, void *param);
-#endif
+#endif /* RT_USING_SMP */
 
 /**@}*/
 
@@ -216,16 +252,14 @@ void rt_signal_mask(int signo);
 void rt_signal_unmask(int signo);
 rt_sighandler_t rt_signal_install(int signo, rt_sighandler_t handler);
 int rt_signal_wait(const rt_sigset_t *set, rt_siginfo_t *si, rt_int32_t timeout);
-
 int rt_system_signal_init(void);
-#endif
-/*@}*/
+#endif /* RT_USING_SIGNALS */
+/**@}*/
 
 /**
  * @addtogroup MM
+ * @{
  */
-
-/**@{*/
 
 /*
  * memory management interface
@@ -245,17 +279,15 @@ rt_mp_t rt_mp_create(const char *name,
                      rt_size_t   block_count,
                      rt_size_t   block_size);
 rt_err_t rt_mp_delete(rt_mp_t mp);
-#endif
-
+#endif /* RT_USING_HEAP */
 void *rt_mp_alloc(rt_mp_t mp, rt_int32_t time);
 void rt_mp_free(void *block);
-
 #ifdef RT_USING_HOOK
 void rt_mp_alloc_sethook(void (*hook)(struct rt_mempool *mp, void *block));
 void rt_mp_free_sethook(void (*hook)(struct rt_mempool *mp, void *block));
-#endif
+#endif /* RT_USING_HOOK */
 
-#endif
+#endif /* RT_USING_MEMPOOL */
 
 #ifdef RT_USING_HEAP
 /*
@@ -263,9 +295,9 @@ void rt_mp_free_sethook(void (*hook)(struct rt_mempool *mp, void *block));
  */
 void rt_system_heap_init(void *begin_addr, void *end_addr);
 
-void *rt_malloc(rt_size_t nbytes);
+void *rt_malloc(rt_size_t size);
 void rt_free(void *ptr);
-void *rt_realloc(void *ptr, rt_size_t nbytes);
+void *rt_realloc(void *ptr, rt_size_t newsize);
 void *rt_calloc(rt_size_t count, rt_size_t size);
 void *rt_malloc_align(rt_size_t size, rt_size_t align);
 void rt_free_align(void *ptr);
@@ -277,14 +309,16 @@ void rt_memory_info(rt_size_t *total,
 #if defined(RT_USING_SLAB) && defined(RT_USING_SLAB_AS_HEAP)
 void *rt_page_alloc(rt_size_t npages);
 void rt_page_free(void *addr, rt_size_t npages);
-#endif
+#endif /* defined(RT_USING_SLAB) && defined(RT_USING_SLAB_AS_HEAP) */
 
 #ifdef RT_USING_HOOK
-void rt_malloc_sethook(void (*hook)(void *ptr, rt_size_t size));
-void rt_free_sethook(void (*hook)(void *ptr));
-#endif
+void rt_malloc_sethook(void (*hook)(void **ptr, rt_size_t size));
+void rt_realloc_set_entry_hook(void (*hook)(void **ptr, rt_size_t size));
+void rt_realloc_set_exit_hook(void (*hook)(void **ptr, rt_size_t size));
+void rt_free_sethook(void (*hook)(void **ptr));
+#endif /* RT_USING_HOOK */
 
-#endif
+#endif /* RT_USING_HEAP */
 
 #ifdef RT_USING_SMALL_MEM
 /**
@@ -297,7 +331,7 @@ rt_err_t rt_smem_detach(rt_smem_t m);
 void *rt_smem_alloc(rt_smem_t m, rt_size_t size);
 void *rt_smem_realloc(rt_smem_t m, void *rmem, rt_size_t newsize);
 void rt_smem_free(void *rmem);
-#endif
+#endif /* RT_USING_SMALL_MEM */
 
 #ifdef RT_USING_MEMHEAP
 /**
@@ -315,6 +349,15 @@ void rt_memheap_info(struct rt_memheap *heap,
                      rt_size_t *total,
                      rt_size_t *used,
                      rt_size_t *max_used);
+#endif /* RT_USING_MEMHEAP */
+
+#ifdef RT_USING_MEMHEAP_AS_HEAP
+/**
+ * memory heap as heap
+ */
+void *_memheap_alloc(struct rt_memheap *heap, rt_size_t size);
+void _memheap_free(void *rmem);
+void *_memheap_realloc(struct rt_memheap *heap, void *rmem, rt_size_t newsize);
 #endif
 
 #ifdef RT_USING_SLAB
@@ -328,15 +371,34 @@ void rt_slab_page_free(rt_slab_t m, void *addr, rt_size_t npages);
 void *rt_slab_alloc(rt_slab_t m, rt_size_t size);
 void *rt_slab_realloc(rt_slab_t m, void *ptr, rt_size_t size);
 void rt_slab_free(rt_slab_t m, void *ptr);
-#endif
+#endif /* RT_USING_SLAB */
 
 /**@}*/
 
 /**
  * @addtogroup IPC
+ * @{
  */
 
-/**@{*/
+/**
+ * Suspend list - A basic building block for IPC primitives which interacts with
+ *                scheduler directly. Its API is similar to a FIFO list.
+ *
+ * Note: don't use in application codes directly
+ */
+void rt_susp_list_print(rt_list_t *list);
+/* reserve thread error while resuming it */
+#define RT_THREAD_RESUME_RES_THR_ERR (-1)
+struct rt_thread *rt_susp_list_dequeue(rt_list_t *susp_list, rt_err_t thread_error);
+rt_err_t rt_susp_list_resume_all(rt_list_t *susp_list, rt_err_t thread_error);
+rt_err_t rt_susp_list_resume_all_irq(rt_list_t *susp_list,
+                                     rt_err_t thread_error,
+                                     struct rt_spinlock *lock);
+
+/* suspend and enqueue */
+rt_err_t rt_thread_suspend_to_list(rt_thread_t thread, rt_list_t *susp_list, int ipc_flags, int suspend_flag);
+/* only for a suspended thread, and caller must hold the scheduler lock */
+rt_err_t rt_susp_list_enqueue(rt_list_t *susp_list, rt_thread_t thread, int ipc_flags);
 
 #ifdef RT_USING_SEMAPHORE
 /*
@@ -350,13 +412,15 @@ rt_err_t rt_sem_detach(rt_sem_t sem);
 #ifdef RT_USING_HEAP
 rt_sem_t rt_sem_create(const char *name, rt_uint32_t value, rt_uint8_t flag);
 rt_err_t rt_sem_delete(rt_sem_t sem);
-#endif
+#endif /* RT_USING_HEAP */
 
 rt_err_t rt_sem_take(rt_sem_t sem, rt_int32_t timeout);
+rt_err_t rt_sem_take_interruptible(rt_sem_t sem, rt_int32_t timeout);
+rt_err_t rt_sem_take_killable(rt_sem_t sem, rt_int32_t timeout);
 rt_err_t rt_sem_trytake(rt_sem_t sem);
 rt_err_t rt_sem_release(rt_sem_t sem);
 rt_err_t rt_sem_control(rt_sem_t sem, int cmd, void *arg);
-#endif
+#endif /* RT_USING_SEMAPHORE */
 
 #ifdef RT_USING_MUTEX
 /*
@@ -367,13 +431,28 @@ rt_err_t rt_mutex_detach(rt_mutex_t mutex);
 #ifdef RT_USING_HEAP
 rt_mutex_t rt_mutex_create(const char *name, rt_uint8_t flag);
 rt_err_t rt_mutex_delete(rt_mutex_t mutex);
-#endif
+#endif /* RT_USING_HEAP */
+void rt_mutex_drop_thread(rt_mutex_t mutex, rt_thread_t thread);
+rt_uint8_t rt_mutex_setprioceiling(rt_mutex_t mutex, rt_uint8_t priority);
+rt_uint8_t rt_mutex_getprioceiling(rt_mutex_t mutex);
 
 rt_err_t rt_mutex_take(rt_mutex_t mutex, rt_int32_t timeout);
 rt_err_t rt_mutex_trytake(rt_mutex_t mutex);
+rt_err_t rt_mutex_take_interruptible(rt_mutex_t mutex, rt_int32_t time);
+rt_err_t rt_mutex_take_killable(rt_mutex_t mutex, rt_int32_t time);
 rt_err_t rt_mutex_release(rt_mutex_t mutex);
 rt_err_t rt_mutex_control(rt_mutex_t mutex, int cmd, void *arg);
-#endif
+
+rt_inline rt_thread_t rt_mutex_get_owner(rt_mutex_t mutex)
+{
+    return mutex->owner;
+}
+rt_inline rt_ubase_t rt_mutex_get_hold(rt_mutex_t mutex)
+{
+    return mutex->hold;
+}
+
+#endif /* RT_USING_MUTEX */
 
 #ifdef RT_USING_EVENT
 /*
@@ -384,7 +463,7 @@ rt_err_t rt_event_detach(rt_event_t event);
 #ifdef RT_USING_HEAP
 rt_event_t rt_event_create(const char *name, rt_uint8_t flag);
 rt_err_t rt_event_delete(rt_event_t event);
-#endif
+#endif /* RT_USING_HEAP */
 
 rt_err_t rt_event_send(rt_event_t event, rt_uint32_t set);
 rt_err_t rt_event_recv(rt_event_t   event,
@@ -392,8 +471,18 @@ rt_err_t rt_event_recv(rt_event_t   event,
                        rt_uint8_t   opt,
                        rt_int32_t   timeout,
                        rt_uint32_t *recved);
+rt_err_t rt_event_recv_interruptible(rt_event_t   event,
+                       rt_uint32_t  set,
+                       rt_uint8_t   opt,
+                       rt_int32_t   timeout,
+                       rt_uint32_t *recved);
+rt_err_t rt_event_recv_killable(rt_event_t   event,
+                       rt_uint32_t  set,
+                       rt_uint8_t   opt,
+                       rt_int32_t   timeout,
+                       rt_uint32_t *recved);
 rt_err_t rt_event_control(rt_event_t event, int cmd, void *arg);
-#endif
+#endif /* RT_USING_EVENT */
 
 #ifdef RT_USING_MAILBOX
 /*
@@ -408,18 +497,41 @@ rt_err_t rt_mb_detach(rt_mailbox_t mb);
 #ifdef RT_USING_HEAP
 rt_mailbox_t rt_mb_create(const char *name, rt_size_t size, rt_uint8_t flag);
 rt_err_t rt_mb_delete(rt_mailbox_t mb);
-#endif
+#endif /* RT_USING_HEAP */
 
 rt_err_t rt_mb_send(rt_mailbox_t mb, rt_ubase_t value);
+rt_err_t rt_mb_send_interruptible(rt_mailbox_t mb, rt_ubase_t value);
+rt_err_t rt_mb_send_killable(rt_mailbox_t mb, rt_ubase_t value);
 rt_err_t rt_mb_send_wait(rt_mailbox_t mb,
+                         rt_ubase_t  value,
+                         rt_int32_t   timeout);
+rt_err_t rt_mb_send_wait_interruptible(rt_mailbox_t mb,
+                         rt_ubase_t  value,
+                         rt_int32_t   timeout);
+rt_err_t rt_mb_send_wait_killable(rt_mailbox_t mb,
                          rt_ubase_t  value,
                          rt_int32_t   timeout);
 rt_err_t rt_mb_urgent(rt_mailbox_t mb, rt_ubase_t value);
 rt_err_t rt_mb_recv(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout);
+rt_err_t rt_mb_recv_interruptible(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout);
+rt_err_t rt_mb_recv_killable(rt_mailbox_t mb, rt_ubase_t *value, rt_int32_t timeout);
 rt_err_t rt_mb_control(rt_mailbox_t mb, int cmd, void *arg);
-#endif
+#endif /* RT_USING_MAILBOX */
 
 #ifdef RT_USING_MESSAGEQUEUE
+
+struct rt_mq_message
+{
+    struct rt_mq_message *next;
+    rt_ssize_t length;
+#ifdef RT_USING_MESSAGEQUEUE_PRIORITY
+    rt_int32_t prio;
+#endif /* RT_USING_MESSAGEQUEUE_PRIORITY */
+};
+
+#define RT_MQ_BUF_SIZE(msg_size, max_msgs) \
+((RT_ALIGN((msg_size), RT_ALIGN_SIZE) + sizeof(struct rt_mq_message)) * (max_msgs))
+
 /*
  * message queue interface
  */
@@ -436,20 +548,53 @@ rt_mq_t rt_mq_create(const char *name,
                      rt_size_t   max_msgs,
                      rt_uint8_t  flag);
 rt_err_t rt_mq_delete(rt_mq_t mq);
-#endif
+#endif /* RT_USING_HEAP */
 
 rt_err_t rt_mq_send(rt_mq_t mq, const void *buffer, rt_size_t size);
+rt_err_t rt_mq_send_interruptible(rt_mq_t mq, const void *buffer, rt_size_t size);
+rt_err_t rt_mq_send_killable(rt_mq_t mq, const void *buffer, rt_size_t size);
 rt_err_t rt_mq_send_wait(rt_mq_t     mq,
                          const void *buffer,
                          rt_size_t   size,
                          rt_int32_t  timeout);
+rt_err_t rt_mq_send_wait_interruptible(rt_mq_t     mq,
+                         const void *buffer,
+                         rt_size_t   size,
+                         rt_int32_t  timeout);
+rt_err_t rt_mq_send_wait_killable(rt_mq_t     mq,
+                         const void *buffer,
+                         rt_size_t   size,
+                         rt_int32_t  timeout);
 rt_err_t rt_mq_urgent(rt_mq_t mq, const void *buffer, rt_size_t size);
-rt_err_t rt_mq_recv(rt_mq_t    mq,
+rt_ssize_t rt_mq_recv(rt_mq_t    mq,
+                    void      *buffer,
+                    rt_size_t  size,
+                    rt_int32_t timeout);
+rt_ssize_t rt_mq_recv_interruptible(rt_mq_t    mq,
+                    void      *buffer,
+                    rt_size_t  size,
+                    rt_int32_t timeout);
+rt_ssize_t rt_mq_recv_killable(rt_mq_t    mq,
                     void      *buffer,
                     rt_size_t  size,
                     rt_int32_t timeout);
 rt_err_t rt_mq_control(rt_mq_t mq, int cmd, void *arg);
-#endif
+
+#ifdef RT_USING_MESSAGEQUEUE_PRIORITY
+rt_err_t rt_mq_send_wait_prio(rt_mq_t mq,
+                              const void *buffer,
+                              rt_size_t size,
+                              rt_int32_t prio,
+                              rt_int32_t timeout,
+                              int suspend_flag);
+rt_ssize_t rt_mq_recv_prio(rt_mq_t mq,
+                           void *buffer,
+                           rt_size_t size,
+                           rt_int32_t *prio,
+                           rt_int32_t timeout,
+                           int suspend_flag);
+#endif /* RT_USING_MESSAGEQUEUE_PRIORITY */
+#endif /* RT_USING_MESSAGEQUEUE */
 
 /* defunct */
 void rt_thread_defunct_enqueue(rt_thread_t thread);
@@ -458,32 +603,52 @@ rt_thread_t rt_thread_defunct_dequeue(void);
 /*
  * spinlock
  */
-#ifdef RT_USING_SMP
 struct rt_spinlock;
+#ifdef RT_USING_SMP
 
 void rt_spin_lock_init(struct rt_spinlock *lock);
 void rt_spin_lock(struct rt_spinlock *lock);
 void rt_spin_unlock(struct rt_spinlock *lock);
 rt_base_t rt_spin_lock_irqsave(struct rt_spinlock *lock);
 void rt_spin_unlock_irqrestore(struct rt_spinlock *lock, rt_base_t level);
-
 #else
-#define rt_spin_lock_init(lock)                 /* nothing */
-#define rt_spin_lock(lock)                      rt_enter_critical()
-#define rt_spin_unlock(lock)                    rt_exit_critical()
-#define rt_spin_lock_irqsave(lock)              rt_hw_interrupt_disable()
-#define rt_spin_unlock_irqrestore(lock, level)  rt_hw_interrupt_enable(level)
 
-#endif
+rt_inline void rt_spin_lock_init(struct rt_spinlock *lock)
+{
+    RT_UNUSED(lock);
+}
+rt_inline void rt_spin_lock(struct rt_spinlock *lock)
+{
+    RT_UNUSED(lock);
+    rt_enter_critical();
+}
+rt_inline void rt_spin_unlock(struct rt_spinlock *lock)
+{
+    RT_UNUSED(lock);
+    rt_exit_critical();
+}
+rt_inline rt_base_t rt_spin_lock_irqsave(struct rt_spinlock *lock)
+{
+    rt_base_t level;
+    RT_UNUSED(lock);
+    level = rt_hw_interrupt_disable();
+    return level;
+}
+rt_inline void rt_spin_unlock_irqrestore(struct rt_spinlock *lock, rt_base_t level)
+{
+    RT_UNUSED(lock);
+    rt_hw_interrupt_enable(level);
+}
+
+#endif /* RT_USING_SMP */
 
 /**@}*/
 
 #ifdef RT_USING_DEVICE
 /**
  * @addtogroup Device
+ * @{
  */
-
-/**@{*/
 
 /*
  * device (I/O) system interface
@@ -498,7 +663,7 @@ rt_err_t rt_device_unregister(rt_device_t dev);
 #ifdef RT_USING_HEAP
 rt_device_t rt_device_create(int type, int attach_size);
 void rt_device_destroy(rt_device_t device);
-#endif
+#endif /* RT_USING_HEAP */
 
 rt_err_t
 rt_device_set_rx_indicate(rt_device_t dev,
@@ -510,18 +675,18 @@ rt_device_set_tx_complete(rt_device_t dev,
 rt_err_t  rt_device_init (rt_device_t dev);
 rt_err_t  rt_device_open (rt_device_t dev, rt_uint16_t oflag);
 rt_err_t  rt_device_close(rt_device_t dev);
-rt_size_t rt_device_read (rt_device_t dev,
+rt_ssize_t rt_device_read(rt_device_t dev,
                           rt_off_t    pos,
                           void       *buffer,
                           rt_size_t   size);
-rt_size_t rt_device_write(rt_device_t dev,
+rt_ssize_t rt_device_write(rt_device_t dev,
                           rt_off_t    pos,
                           const void *buffer,
                           rt_size_t   size);
 rt_err_t  rt_device_control(rt_device_t dev, int cmd, void *arg);
 
 /**@}*/
-#endif
+#endif /* RT_USING_DEVICE */
 
 /*
  * interrupt service
@@ -545,7 +710,9 @@ void rt_cpus_unlock(rt_base_t level);
 struct rt_cpu *rt_cpu_self(void);
 struct rt_cpu *rt_cpu_index(int index);
 
-#endif
+void rt_cpus_lock_status_restore(struct rt_thread *thread);
+
+#endif /* RT_USING_SMP */
 
 /*
  * the number of nested interrupts.
@@ -555,18 +722,17 @@ rt_uint8_t rt_interrupt_get_nest(void);
 #ifdef RT_USING_HOOK
 void rt_interrupt_enter_sethook(void (*hook)(void));
 void rt_interrupt_leave_sethook(void (*hook)(void));
-#endif
+#endif /* RT_USING_HOOK */
 
 #ifdef RT_USING_COMPONENTS_INIT
 void rt_components_init(void);
 void rt_components_board_init(void);
-#endif
+#endif /* RT_USING_COMPONENTS_INIT */
 
 /**
  * @addtogroup KernelService
+ * @{
  */
-
-/**@{*/
 
 /*
  * general kernel service
@@ -577,75 +743,116 @@ void rt_components_board_init(void);
 #else
 int rt_kprintf(const char *fmt, ...);
 void rt_kputs(const char *str);
-#endif
+#endif /* RT_USING_CONSOLE */
 
-int rt_vsprintf(char *dest, const char *format, va_list arg_ptr);
-int rt_vsnprintf(char *buf, rt_size_t size, const char *fmt, va_list args);
-int rt_sprintf(char *buf, const char *format, ...);
-int rt_snprintf(char *buf, rt_size_t size, const char *format, ...);
+rt_err_t rt_backtrace(void);
+rt_err_t rt_backtrace_thread(rt_thread_t thread);
+rt_err_t rt_backtrace_frame(struct rt_hw_backtrace_frame *frame);
 
 #if defined(RT_USING_DEVICE) && defined(RT_USING_CONSOLE)
 rt_device_t rt_console_set_device(const char *name);
 rt_device_t rt_console_get_device(void);
-#endif
+#ifdef RT_USING_THREADSAFE_PRINTF
+    rt_thread_t rt_console_current_user(void);
+#else
+    rt_inline void *rt_console_current_user(void) { return RT_NULL; }
+#endif /* RT_USING_THREADSAFE_PRINTF */
+#endif /* defined(RT_USING_DEVICE) && defined(RT_USING_CONSOLE) */
 
 rt_err_t rt_get_errno(void);
 void rt_set_errno(rt_err_t no);
 int *_rt_errno(void);
 const char *rt_strerror(rt_err_t error);
-#if !defined(RT_USING_NEWLIB) && !defined(_WIN32)
+#if !defined(RT_USING_NEWLIBC) && !defined(_WIN32)
 #ifndef errno
 #define errno    *_rt_errno()
 #endif
-#endif
+#endif /* !defined(RT_USING_NEWLIBC) && !defined(_WIN32) */
 
 int __rt_ffs(int value);
 
-#ifndef RT_KSERVICE_USING_STDLIB_MEMORY
-void *rt_memset(void *src, int c, rt_ubase_t n);
-void *rt_memcpy(void *dest, const void *src, rt_ubase_t n);
-void *rt_memmove(void *dest, const void *src, rt_size_t n);
-rt_int32_t rt_memcmp(const void *cs, const void *ct, rt_size_t count);
-#endif /* RT_KSERVICE_USING_STDLIB_MEMORY */
-char *rt_strdup(const char *s);
-rt_size_t rt_strnlen(const char *s, rt_ubase_t maxlen);
-#ifndef RT_KSERVICE_USING_STDLIB
-char *rt_strstr(const char *str1, const char *str2);
-rt_int32_t rt_strcasecmp(const char *a, const char *b);
-char *rt_strcpy(char *dst, const char *src);
-char *rt_strncpy(char *dest, const char *src, rt_size_t n);
-rt_int32_t rt_strncmp(const char *cs, const char *ct, rt_size_t count);
-rt_int32_t rt_strcmp(const char *cs, const char *ct);
-rt_size_t rt_strlen(const char *src);
-#else
-#include <string.h>
-#ifdef RT_KSERVICE_USING_STDLIB_MEMORY
-#define rt_memset(s, c, count)      memset(s, c, count)
-#define rt_memcpy(dst, src, count)  memcpy(dst, src, count)
-#define rt_memmove(dest, src, n)    memmove(dest, src, n)
-#define rt_memcmp(cs, ct, count)    memcmp(cs, ct, count)
-#endif /* RT_KSERVICE_USING_STDLIB_MEMORY */
-#define rt_strstr(str1, str2)       strstr(str1, str2)
-#define rt_strcasecmp(a, b)         strcasecmp(a, b)
-#define rt_strcpy(dest, src)        strcpy(dest, src)
-#define rt_strncpy(dest, src, n)    strncpy(dest, src, n)
-#define rt_strncmp(cs, ct, count)   strncmp(cs, ct, count)
-#define rt_strcmp(cs, ct)           strcmp(cs, ct)
-#define rt_strlen(src)              strlen(src)
-#endif /*RT_KSERVICE_USING_STDLIB*/
-
 void rt_show_version(void);
 
-#ifdef RT_DEBUG
+#ifdef RT_USING_DEBUG
 extern void (*rt_assert_hook)(const char *ex, const char *func, rt_size_t line);
 void rt_assert_set_hook(void (*hook)(const char *ex, const char *func, rt_size_t line));
-
 void rt_assert_handler(const char *ex, const char *func, rt_size_t line);
-#endif /* RT_DEBUG */
 
-#ifdef RT_USING_FINSH
-#include <finsh.h>
-#endif
+#define RT_ASSERT(EX)                                                         \
+if (!(EX))                                                                    \
+{                                                                             \
+    rt_assert_handler(#EX, __FUNCTION__, __LINE__);                           \
+}
+#else
+#define RT_ASSERT(EX)
+#endif /* RT_USING_DEBUG */
+
+#ifdef RT_DEBUGING_CONTEXT
+/* Macro to check current context */
+#define RT_DEBUG_NOT_IN_INTERRUPT                                             \
+do                                                                            \
+{                                                                             \
+    if (rt_interrupt_get_nest() != 0)                                         \
+    {                                                                         \
+        rt_kprintf("Function[%s] shall not be used in ISR\n", __FUNCTION__);  \
+        RT_ASSERT(0)                                                          \
+    }                                                                         \
+}                                                                             \
+while (0)
+
+/* "In thread context" means:
+ *     1) the scheduler has been started
+ *     2) not in interrupt context.
+ */
+#define RT_DEBUG_IN_THREAD_CONTEXT                                            \
+do                                                                            \
+{                                                                             \
+    if (rt_thread_self() == RT_NULL)                                          \
+    {                                                                         \
+        rt_kprintf("Function[%s] shall not be used before scheduler start\n", \
+                   __FUNCTION__);                                             \
+        RT_ASSERT(0)                                                          \
+    }                                                                         \
+    RT_DEBUG_NOT_IN_INTERRUPT;                                                \
+}                                                                             \
+while (0)
+
+/* "scheduler available" means:
+ *     1) the scheduler has been started.
+ *     2) not in interrupt context.
+ *     3) scheduler is not locked.
+ *     4) interrupt is not disabled.
+ */
+#define RT_DEBUG_SCHEDULER_AVAILABLE(need_check)                              \
+do                                                                            \
+{                                                                             \
+    if (need_check)                                                           \
+    {                                                                         \
+        if (rt_critical_level() != 0)                                         \
+        {                                                                     \
+            rt_kprintf("Function[%s]: scheduler is not available\n",          \
+                    __FUNCTION__);                                            \
+            RT_ASSERT(0)                                                      \
+        }                                                                     \
+        RT_DEBUG_IN_THREAD_CONTEXT;                                           \
+    }                                                                         \
+}                                                                             \
+while (0)
+#else
+#define RT_DEBUG_NOT_IN_INTERRUPT
+#define RT_DEBUG_IN_THREAD_CONTEXT
+#define RT_DEBUG_SCHEDULER_AVAILABLE(need_check)
+#endif /* RT_DEBUGING_CONTEXT */
+
+rt_inline rt_bool_t rt_in_thread_context(void)
+{
+    return rt_thread_self() != RT_NULL && rt_interrupt_get_nest() == 0;
+}
+
+rt_inline rt_bool_t rt_scheduler_is_available(void)
+{
+    return !rt_hw_interrupt_is_disabled() && rt_critical_level() == 0 && rt_in_thread_context();
+}
 
 /**@}*/
 
@@ -653,4 +860,4 @@ void rt_assert_handler(const char *ex, const char *func, rt_size_t line);
 }
 #endif
 
-#endif
+#endif /* __RT_THREAD_H__ */

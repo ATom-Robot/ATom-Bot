@@ -19,9 +19,16 @@
 extern "C" {
 #endif
 
+#define _POSIX_VDISABLE 0
+
 #define STDIN_FILENO    0       /* standard input file descriptor */
 #define STDOUT_FILENO   1       /* standard output file descriptor */
 #define STDERR_FILENO   2       /* standard error file descriptor */
+
+#define F_OK 0
+#define X_OK 1
+#define W_OK 2
+#define R_OK 4
 
 unsigned alarm(unsigned __secs);
 ssize_t read(int fd, void *buf, size_t len);

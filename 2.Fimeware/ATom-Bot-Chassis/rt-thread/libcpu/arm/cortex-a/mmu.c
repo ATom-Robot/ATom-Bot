@@ -1,133 +1,51 @@
 /*
- * Copyright (c) 2006-2021, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2012-01-10     bernard      porting to AM1808
+ * 2023-10-10     Shell        Add permission control API
  */
 
-#include <rtthread.h>
 #include <rthw.h>
+#include <rtthread.h>
+
+#define DBG_TAG "hw.mmu"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
+
 #include <board.h>
-
 #include "cp15.h"
+#include "mm_page.h"
 #include "mmu.h"
+#include <mm_aspace.h>
+#include <tlb.h>
 
-/* dump 2nd level page table */
-void rt_hw_cpu_dump_page_table_2nd(rt_uint32_t *ptb)
-{
-    int i;
-    int fcnt = 0;
-
-    for (i = 0; i < 256; i++)
-    {
-        rt_uint32_t pte2 = ptb[i];
-        if ((pte2 & 0x3) == 0)
-        {
-            if (fcnt == 0)
-                rt_kprintf("    ");
-            rt_kprintf("%04x: ", i);
-            fcnt++;
-            if (fcnt == 16)
-            {
-                rt_kprintf("fault\n");
-                fcnt = 0;
-            }
-            continue;
-        }
-        if (fcnt != 0)
-        {
-            rt_kprintf("fault\n");
-            fcnt = 0;
-        }
-
-        rt_kprintf("    %04x: %x: ", i, pte2);
-        if ((pte2 & 0x3) == 0x1)
-        {
-            rt_kprintf("L,ap:%x,xn:%d,texcb:%02x\n",
-                       ((pte2 >> 7) | (pte2 >> 4))& 0xf,
-                       (pte2 >> 15) & 0x1,
-                       ((pte2 >> 10) | (pte2 >> 2)) & 0x1f);
-        }
-        else
-        {
-            rt_kprintf("S,ap:%x,xn:%d,texcb:%02x\n",
-                       ((pte2 >> 7) | (pte2 >> 4))& 0xf, pte2 & 0x1,
-                       ((pte2 >> 4) | (pte2 >> 2)) & 0x1f);
-        }
-    }
-}
-
-void rt_hw_cpu_dump_page_table(rt_uint32_t *ptb)
-{
-    int i;
-    int fcnt = 0;
-
-    rt_kprintf("page table@%p\n", ptb);
-    for (i = 0; i < 1024*4; i++)
-    {
-        rt_uint32_t pte1 = ptb[i];
-        if ((pte1 & 0x3) == 0)
-        {
-            rt_kprintf("%03x: ", i);
-            fcnt++;
-            if (fcnt == 16)
-            {
-                rt_kprintf("fault\n");
-                fcnt = 0;
-            }
-            continue;
-        }
-        if (fcnt != 0)
-        {
-            rt_kprintf("fault\n");
-            fcnt = 0;
-        }
-
-        rt_kprintf("%03x: %08x: ", i, pte1);
-        if ((pte1 & 0x3) == 0x3)
-        {
-            rt_kprintf("LPAE\n");
-        }
-        else if ((pte1 & 0x3) == 0x1)
-        {
-            rt_kprintf("pte,ns:%d,domain:%d\n",
-                       (pte1 >> 3) & 0x1, (pte1 >> 5) & 0xf);
-            /*
-             *rt_hw_cpu_dump_page_table_2nd((void*)((pte1 & 0xfffffc000)
-             *                               - 0x80000000 + 0xC0000000));
-             */
-        }
-        else if (pte1 & (1 << 18))
-        {
-            rt_kprintf("super section,ns:%d,ap:%x,xn:%d,texcb:%02x\n",
-                       (pte1 >> 19) & 0x1,
-                       ((pte1 >> 13) | (pte1 >> 10))& 0xf,
-                       (pte1 >> 4) & 0x1,
-                       ((pte1 >> 10) | (pte1 >> 2)) & 0x1f);
-        }
-        else
-        {
-            rt_kprintf("section,ns:%d,ap:%x,"
-                       "xn:%d,texcb:%02x,domain:%d\n",
-                       (pte1 >> 19) & 0x1,
-                       ((pte1 >> 13) | (pte1 >> 10))& 0xf,
-                       (pte1 >> 4) & 0x1,
-                       (((pte1 & (0x7 << 12)) >> 10) |
-                        ((pte1 &        0x0c) >>  2)) & 0x1f,
-                       (pte1 >> 5) & 0xf);
-        }
-    }
-}
+#ifdef RT_USING_SMART
+#include <lwp_mm.h>
+#include <lwp_arch.h>
+#include "ioremap.h"
+#else
+#define KERNEL_VADDR_START 0
+#endif
 
 /* level1 page table, each entry for 1MB memory. */
-volatile static unsigned long MMUTable[4*1024] __attribute__((aligned(16*1024)));
-void rt_hw_mmu_setmtt(rt_uint32_t vaddrStart,
-                      rt_uint32_t vaddrEnd,
-                      rt_uint32_t paddrStart,
-                      rt_uint32_t attr)
+volatile unsigned long MMUTable[4 * 1024] __attribute__((aligned(16 * 1024)));
+
+unsigned long rt_hw_set_domain_register(unsigned long domain_val)
+{
+    unsigned long old_domain;
+
+    asm volatile ("mrc p15, 0, %0, c3, c0\n" : "=r" (old_domain));
+    asm volatile ("mcr p15, 0, %0, c3, c0\n" : :"r" (domain_val) : "memory");
+
+    return old_domain;
+}
+
+void rt_hw_mmu_setmtt(rt_uint32_t vaddrStart, rt_uint32_t vaddrEnd,
+                      rt_uint32_t paddrStart, rt_uint32_t attr)
 {
     volatile rt_uint32_t *pTT;
     volatile int i, nSec;
@@ -140,25 +58,95 @@ void rt_hw_mmu_setmtt(rt_uint32_t vaddrStart,
     }
 }
 
-unsigned long rt_hw_set_domain_register(unsigned long domain_val)
+void init_mm_setup(unsigned int *mtbl, unsigned int size, unsigned int pv_off)
 {
-    unsigned long old_domain;
+    unsigned int va;
 
-    asm volatile ("mrc p15, 0, %0, c3, c0\n" : "=r" (old_domain));
-    asm volatile ("mcr p15, 0, %0, c3, c0\n" : :"r" (domain_val) : "memory");
+    for (va = 0; va < 0x1000; va++)
+    {
+        unsigned int vaddr = (va << 20);
 
-    return old_domain;
+        if (vaddr >= KERNEL_VADDR_START && vaddr - KERNEL_VADDR_START < size)
+        {
+            mtbl[va] = ((va << 20) + pv_off) | NORMAL_MEM;
+        }
+        else if (vaddr >= (KERNEL_VADDR_START + pv_off) && vaddr - (KERNEL_VADDR_START + pv_off) < size)
+        {
+            mtbl[va] = (va << 20) | NORMAL_MEM;
+        }
+        else
+        {
+            mtbl[va] = 0;
+        }
+    }
+}
+
+#ifndef RT_USING_SMART
+static void _init_map_section(rt_uint32_t *mmu_table, rt_uint32_t va,
+                        rt_uint32_t size,rt_uint32_t pa, rt_uint32_t attr)
+{
+    volatile rt_uint32_t *ptt;
+    volatile int i, num_section;
+    ptt  = (rt_uint32_t *)mmu_table + (va >> ARCH_SECTION_SHIFT);
+    num_section = size >> ARCH_SECTION_SHIFT;
+    for(i = 0; i <= num_section; i++)
+    {
+        *ptt = attr | (((pa >> ARCH_SECTION_SHIFT) + i) << ARCH_SECTION_SHIFT);
+        ptt++;
+    }
+}
+#endif
+
+void rt_hw_mem_setup_early(rt_uint32_t *early_mmu_talbe,
+                            rt_uint32_t pv_off)
+{
+    rt_uint32_t size  = 0;
+
+    size = 0x100000 +  (rt_uint32_t)&__bss_end;
+    size &= ~(0x100000 - 1);
+#ifdef RT_USING_SMART
+    size -= KERNEL_VADDR_START;
+    init_mm_setup(early_mmu_talbe, size, pv_off);
+#else
+    rt_uint32_t normal_attr = NORMAL_MEM;
+    extern unsigned char _reset;
+    rt_uint32_t va = (rt_uint32_t) &_reset;
+    /* The starting virtual address is aligned along 0x1000000. */
+    va &= (0x1000000 - 1);
+    size -= va;
+    _init_map_section(early_mmu_talbe, va, size, va + pv_off, normal_attr);
+#endif
+
 }
 
 void rt_hw_init_mmu_table(struct mem_desc *mdesc, rt_uint32_t size)
 {
+    void *vaddr;
+    size_t length;
+    /* init kernel space */
+#ifdef RT_USING_SMART
+    rt_aspace_init(&rt_kernel_space, (void *)USER_VADDR_TOP, -USER_VADDR_TOP, (void *)MMUTable);
+#else
+    rt_aspace_init(&rt_kernel_space, (void *)0x1000, 0 - 0x1000, (void *)MMUTable);
+#endif /* RT_USING_SMART */
+
     /* set page table */
     for(; size > 0; size--)
     {
+        if (mdesc->paddr_start == (rt_uint32_t)ARCH_MAP_FAILED)
+            mdesc->paddr_start = mdesc->vaddr_start + PV_OFFSET;
+
+        vaddr = (void *)mdesc->vaddr_start;
+        length = mdesc->vaddr_end - mdesc->vaddr_start;
+        rt_aspace_map_static(&rt_kernel_space, &mdesc->varea, &vaddr, length,
+                             mdesc->attr, MMF_MAP_FIXED, &rt_mm_dummy_mapper, 0);
+
         rt_hw_mmu_setmtt(mdesc->vaddr_start, mdesc->vaddr_end,
                 mdesc->paddr_start, mdesc->attr);
         mdesc++;
     }
+
+    rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, (void*)MMUTable, sizeof MMUTable);
 }
 
 void rt_hw_mmu_init(void)
@@ -180,3 +168,336 @@ void rt_hw_mmu_init(void)
     rt_hw_cpu_dcache_enable();
 }
 
+int rt_hw_mmu_map_init(struct rt_aspace *aspace, void* v_address, size_t size, size_t *vtable, size_t pv_off)
+{
+    size_t l1_off, va_s, va_e;
+
+    if (!aspace || !vtable)
+    {
+        return -1;
+    }
+
+    va_s = (size_t)v_address;
+    va_e = (size_t)v_address + size - 1;
+
+    if ( va_e < va_s)
+    {
+        return -1;
+    }
+
+    va_s >>= ARCH_SECTION_SHIFT;
+    va_e >>= ARCH_SECTION_SHIFT;
+
+    if (va_s == 0)
+    {
+        return -1;
+    }
+
+    for (l1_off = va_s; l1_off <= va_e; l1_off++)
+    {
+        size_t v = vtable[l1_off];
+
+        if (v & ARCH_MMU_USED_MASK)
+        {
+            return -1;
+        }
+    }
+
+#ifdef RT_USING_SMART
+    rt_ioremap_start = v_address;
+    rt_ioremap_size = size;
+    rt_mpr_start = rt_ioremap_start - rt_mpr_size;
+#else
+    rt_mpr_start = (void *)((rt_size_t)0 - rt_mpr_size);
+#endif
+
+    return 0;
+}
+
+int rt_hw_mmu_ioremap_init(rt_aspace_t aspace, void* v_address, size_t size)
+{
+#ifdef RT_IOREMAP_LATE
+    size_t loop_va;
+    size_t l1_off;
+    size_t *mmu_l1, *mmu_l2;
+    size_t sections;
+
+    /* for kernel ioremap */
+    if ((size_t)v_address < KERNEL_VADDR_START)
+    {
+        return -1;
+    }
+    /* must align to section */
+    if ((size_t)v_address & ARCH_SECTION_MASK)
+    {
+        return -1;
+    }
+    /* must align to section */
+    if (size & ARCH_SECTION_MASK)
+    {
+        return -1;
+    }
+
+    loop_va = (size_t)v_address;
+    sections = (size >> ARCH_SECTION_SHIFT);
+    while (sections--)
+    {
+        l1_off = (loop_va >> ARCH_SECTION_SHIFT);
+        mmu_l1 =  (size_t*)aspace->page_table + l1_off;
+
+        RT_ASSERT((*mmu_l1 & ARCH_MMU_USED_MASK) == 0);
+        mmu_l2 = (size_t*)rt_pages_alloc(0);
+        if (mmu_l2)
+        {
+            rt_memset(mmu_l2, 0, ARCH_PAGE_TBL_SIZE * 2);
+            /* cache maintain */
+            rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l2, ARCH_PAGE_TBL_SIZE);
+
+            *mmu_l1 = (((size_t)mmu_l2 + PV_OFFSET) | 0x1);
+            /* cache maintain */
+            rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l1, 4);
+        }
+        else
+        {
+            /* error */
+            return -1;
+        }
+
+        loop_va += ARCH_SECTION_SIZE;
+    }
+#endif
+
+    return 0;
+}
+
+
+
+
+static void _kenrel_unmap_4K(unsigned long *lv0_tbl, void *v_addr)
+{
+    size_t loop_va = (size_t)v_addr & ~ARCH_PAGE_MASK;
+    size_t l1_off, l2_off;
+    size_t *mmu_l1, *mmu_l2;
+
+    l1_off = (loop_va >> ARCH_SECTION_SHIFT);
+
+    l2_off = ((loop_va & ARCH_SECTION_MASK) >> ARCH_PAGE_SHIFT);
+    mmu_l1 = (size_t *)lv0_tbl + l1_off;
+
+    if (*mmu_l1 & ARCH_MMU_USED_MASK)
+    {
+        mmu_l2 = (size_t *)((*mmu_l1 & ~ARCH_PAGE_TBL_MASK) - PV_OFFSET);
+    }
+    else
+    {
+        return;
+    }
+
+    if (*(mmu_l2 + l2_off) & ARCH_MMU_USED_MASK)
+    {
+        *(mmu_l2 + l2_off) = 0;
+        /* cache maintain */
+        rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l2 + l2_off, 4);
+
+        if (rt_pages_free(mmu_l2, 0))
+        {
+            *mmu_l1 = 0;
+            rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l1, 4);
+        }
+    }
+    loop_va += ARCH_PAGE_SIZE;
+}
+
+static int _kenrel_map_4K(unsigned long *lv0_tbl, void *v_addr, void *p_addr,
+                          size_t attr)
+{
+    size_t loop_va = (size_t)v_addr & ~ARCH_PAGE_MASK;
+    size_t loop_pa = (size_t)p_addr & ~ARCH_PAGE_MASK;
+    size_t l1_off, l2_off;
+    size_t *mmu_l1, *mmu_l2;
+
+    l1_off = (loop_va >> ARCH_SECTION_SHIFT);
+    l2_off = ((loop_va & ARCH_SECTION_MASK) >> ARCH_PAGE_SHIFT);
+    mmu_l1 = (size_t *)lv0_tbl + l1_off;
+
+    if (*mmu_l1 & ARCH_MMU_USED_MASK)
+    {
+        mmu_l2 = (size_t *)((*mmu_l1 & ~ARCH_PAGE_TBL_MASK) - PV_OFFSET);
+        rt_page_ref_inc(mmu_l2, 0);
+    }
+    else
+    {
+        mmu_l2 = (size_t *)rt_pages_alloc(0);
+        if (mmu_l2)
+        {
+            rt_memset(mmu_l2, 0, ARCH_PAGE_TBL_SIZE * 2);
+            /* cache maintain */
+            rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l2, ARCH_PAGE_TBL_SIZE);
+
+            *mmu_l1 = (((size_t)mmu_l2 + PV_OFFSET) | 0x1);
+            /* cache maintain */
+            rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l1, 4);
+        }
+        else
+        {
+            /* error, quit */
+            return -1;
+        }
+    }
+
+    *(mmu_l2 + l2_off) = (loop_pa | attr);
+    /* cache maintain */
+    rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_l2 + l2_off, 4);
+
+    loop_va += ARCH_PAGE_SIZE;
+    loop_pa += ARCH_PAGE_SIZE;
+
+    return 0;
+}
+
+void *rt_hw_mmu_map(rt_aspace_t aspace, void *v_addr, void *p_addr, size_t size,
+                    size_t attr)
+{
+    int ret = -1;
+    void *unmap_va = v_addr;
+    size_t npages = size >> ARCH_PAGE_SHIFT;
+
+    // TODO trying with HUGEPAGE here
+    while (npages--)
+    {
+        ret = _kenrel_map_4K(aspace->page_table, v_addr, p_addr, attr);
+        if (ret != 0)
+        {
+            /* error, undo map */
+            while (unmap_va != v_addr)
+            {
+                rt_enter_critical();
+                _kenrel_unmap_4K(aspace->page_table, (void *)unmap_va);
+                rt_exit_critical();
+
+                unmap_va += ARCH_PAGE_SIZE;
+            }
+            break;
+        }
+        v_addr += ARCH_PAGE_SIZE;
+        p_addr += ARCH_PAGE_SIZE;
+    }
+
+    if (ret == 0)
+    {
+        return v_addr;
+    }
+
+    return NULL;
+}
+
+void rt_hw_mmu_unmap(rt_aspace_t aspace, void *v_addr, size_t size)
+{
+    // caller guarantee that v_addr & size are page aligned
+    size_t npages = size >> ARCH_PAGE_SHIFT;
+
+    if (!aspace->page_table)
+    {
+        return;
+    }
+
+    while (npages--)
+    {
+        rt_enter_critical();
+        _kenrel_unmap_4K(aspace->page_table, v_addr);
+        rt_exit_critical();
+
+        v_addr += ARCH_PAGE_SIZE;
+    }
+}
+
+void rt_hw_aspace_switch(rt_aspace_t aspace)
+{
+    if (aspace != &rt_kernel_space)
+    {
+        void *pgtbl = aspace->page_table;
+        pgtbl = rt_kmem_v2p(pgtbl);
+
+        rt_hw_mmu_switch(pgtbl);
+
+        rt_hw_tlb_invalidate_all_local();
+    }
+}
+
+void *rt_hw_mmu_v2p(rt_aspace_t aspace, void* v_addr)
+{
+    size_t l1_off, l2_off;
+    size_t *mmu_l1, *mmu_l2;
+    size_t tmp;
+    size_t pa;
+
+    l1_off = (size_t)v_addr >> ARCH_SECTION_SHIFT;
+
+    RT_ASSERT(aspace);
+
+    mmu_l1 =  (size_t*)aspace->page_table + l1_off;
+
+    tmp = *mmu_l1;
+
+    switch (tmp & ARCH_MMU_USED_MASK)
+    {
+        case 0: /* not used */
+            break;
+        case 1: /* page table */
+            mmu_l2 = (size_t *)((tmp & ~ARCH_PAGE_TBL_MASK) - PV_OFFSET);
+            l2_off = (((size_t)v_addr & ARCH_SECTION_MASK) >> ARCH_PAGE_SHIFT);
+            pa = *(mmu_l2 + l2_off);
+            if (pa & ARCH_MMU_USED_MASK)
+            {
+                if ((pa & ARCH_MMU_USED_MASK) == 1)
+                {
+                    /* large page, not support */
+                    break;
+                }
+                pa &= ~(ARCH_PAGE_MASK);
+                pa += ((size_t)v_addr & ARCH_PAGE_MASK);
+                return (void*)pa;
+            }
+            break;
+        case 2:
+        case 3:
+            /* section */
+            if (tmp & ARCH_TYPE_SUPERSECTION)
+            {
+                /* super section, not support */
+                break;
+            }
+            pa = (tmp & ~ARCH_SECTION_MASK);
+            pa += ((size_t)v_addr & ARCH_SECTION_MASK);
+            return (void*)pa;
+    }
+    return ARCH_MAP_FAILED;
+}
+
+int rt_hw_mmu_control(struct rt_aspace *aspace, void *vaddr, size_t size,
+                      enum rt_mmu_cntl cmd)
+{
+    return -RT_ENOSYS;
+}
+
+#define KPTE_START (KERNEL_VADDR_START >> ARCH_SECTION_SHIFT)
+
+void *rt_hw_mmu_pgtbl_create(void)
+{
+    size_t *mmu_table;
+    mmu_table = (size_t *)rt_pages_alloc_ext(2, PAGE_ANY_AVAILABLE);
+    if (!mmu_table)
+    {
+        return RT_NULL;
+    }
+    rt_memcpy(mmu_table + KPTE_START, (size_t *)rt_kernel_space.page_table + KPTE_START, ARCH_PAGE_SIZE);
+    rt_memset(mmu_table, 0, 3 * ARCH_PAGE_SIZE);
+    rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, mmu_table, 4 * ARCH_PAGE_SIZE);
+
+    return mmu_table;
+}
+
+void rt_hw_mmu_pgtbl_delete(void *pgtbl)
+{
+    rt_pages_free(pgtbl, 2);
+}

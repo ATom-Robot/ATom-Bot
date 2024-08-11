@@ -25,7 +25,7 @@
 #ifdef SAL_USING_AT
 
 #ifdef SAL_USING_POSIX
-static int at_poll(struct dfs_fd *file, struct rt_pollreq *req)
+static int at_poll(struct dfs_file *file, struct rt_pollreq *req)
 {
     int mask = 0;
     struct at_socket *sock;
@@ -81,10 +81,13 @@ static const struct sal_socket_ops at_socket_ops =
     NULL,
 #endif
     at_sendto,
+    NULL,
+    NULL,
     at_recvfrom,
     at_getsockopt,
     at_setsockopt,
     at_shutdown,
+    NULL,
     NULL,
     NULL,
     NULL,

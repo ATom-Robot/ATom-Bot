@@ -12,12 +12,19 @@
  * 2017-10-17     Hichard      add some macros
  * 2018-11-17     Jesven       add rt_hw_spinlock_t
  *                             add smp support
+ * 2019-05-18     Bernard      add empty definition for not enable cache case
+ * 2023-09-15     xqyjlj       perf rt_hw_interrupt_disable/enable
+ * 2023-10-16     Shell        Support a new backtrace framework
  */
 
 #ifndef __RT_HW_H__
 #define __RT_HW_H__
 
-#include <rtthread.h>
+#include <rtdef.h>
+
+#if defined (RT_USING_CACHE) || defined(RT_USING_SMP)
+#include <cpuport.h> /* include spinlock, cache ops, etc. */
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +59,12 @@ enum RT_HW_CACHE_OPS
 /*
  * CPU interfaces
  */
+#ifdef RT_USING_CACHE
+
+#ifdef RT_USING_SMART
+#include <cache.h>
+#endif
+
 void rt_hw_cpu_icache_enable(void);
 void rt_hw_cpu_icache_disable(void);
 rt_base_t rt_hw_cpu_icache_status(void);
@@ -61,14 +74,34 @@ void rt_hw_cpu_dcache_enable(void);
 void rt_hw_cpu_dcache_disable(void);
 rt_base_t rt_hw_cpu_dcache_status(void);
 void rt_hw_cpu_dcache_ops(int ops, void* addr, int size);
+#else
+
+/* define cache ops as empty */
+#define rt_hw_cpu_icache_enable(...)
+#define rt_hw_cpu_icache_disable(...)
+#define rt_hw_cpu_icache_ops(...)
+#define rt_hw_cpu_dcache_enable(...)
+#define rt_hw_cpu_dcache_disable(...)
+#define rt_hw_cpu_dcache_ops(...)
+
+#define rt_hw_cpu_icache_status(...) 0
+#define rt_hw_cpu_dcache_status(...) 0
+
+#endif
 
 void rt_hw_cpu_reset(void);
 void rt_hw_cpu_shutdown(void);
+
+const char *rt_hw_cpu_arch(void);
 
 rt_uint8_t *rt_hw_stack_init(void       *entry,
                              void       *parameter,
                              rt_uint8_t *stack_addr,
                              void       *exit);
+
+#ifdef RT_USING_HW_STACK_GUARD
+void rt_hw_stack_guard_init(rt_thread_t thread);
+#endif
 
 /*
  * Interrupt handler definition
@@ -83,6 +116,9 @@ struct rt_irq_desc
 #ifdef RT_USING_INTERRUPT_INFO
     char             name[RT_NAME_MAX];
     rt_uint32_t      counter;
+#ifdef RT_USING_SMP
+    rt_ubase_t       cpu_counter[RT_CPUS_NR];
+#endif
 #endif
 };
 
@@ -96,18 +132,28 @@ rt_isr_handler_t rt_hw_interrupt_install(int              vector,
                                          rt_isr_handler_t handler,
                                          void            *param,
                                          const char      *name);
+void rt_hw_interrupt_uninstall(int              vector,
+                               rt_isr_handler_t handler,
+                               void            *param);
 
 #ifdef RT_USING_SMP
-rt_base_t rt_hw_local_irq_disable();
+rt_base_t rt_hw_local_irq_disable(void);
 void rt_hw_local_irq_enable(rt_base_t level);
+
+rt_base_t rt_cpus_lock(void);
+void rt_cpus_unlock(rt_base_t level);
 
 #define rt_hw_interrupt_disable rt_cpus_lock
 #define rt_hw_interrupt_enable rt_cpus_unlock
-
 #else
 rt_base_t rt_hw_interrupt_disable(void);
 void rt_hw_interrupt_enable(rt_base_t level);
+
+#define rt_hw_local_irq_disable rt_hw_interrupt_disable
+#define rt_hw_local_irq_enable rt_hw_interrupt_enable
+
 #endif /*RT_USING_SMP*/
+rt_bool_t rt_hw_interrupt_is_disabled(void);
 
 /*
  * Context interfaces
@@ -119,12 +165,23 @@ void rt_hw_context_switch_interrupt(void *context, rt_ubase_t from, rt_ubase_t t
 #else
 void rt_hw_context_switch(rt_ubase_t from, rt_ubase_t to);
 void rt_hw_context_switch_to(rt_ubase_t to);
-void rt_hw_context_switch_interrupt(rt_ubase_t from, rt_ubase_t to);
+void rt_hw_context_switch_interrupt(rt_ubase_t from, rt_ubase_t to, rt_thread_t from_thread, rt_thread_t to_thread);
 #endif /*RT_USING_SMP*/
+
+/**
+ * Hardware Layer Backtrace Service
+ */
+struct rt_hw_backtrace_frame {
+    rt_base_t fp;
+    rt_base_t pc;
+};
+
+rt_err_t rt_hw_backtrace_frame_get(rt_thread_t thread, struct rt_hw_backtrace_frame *frame);
+
+rt_err_t rt_hw_backtrace_frame_unwind(rt_thread_t thread, struct rt_hw_backtrace_frame *frame);
 
 void rt_hw_console_output(const char *str);
 
-void rt_hw_backtrace(rt_uint32_t *fp, rt_ubase_t thread_entry);
 void rt_hw_show_memory(rt_uint32_t addr, rt_size_t size);
 
 /*
@@ -137,41 +194,29 @@ void rt_hw_exception_install(rt_err_t (*exception_handle)(void *context));
  */
 void rt_hw_us_delay(rt_uint32_t us);
 
-#ifdef RT_USING_SMP
-typedef union {
-    unsigned long slock;
-    struct __arch_tickets {
-        unsigned short owner;
-        unsigned short next;
-    } tickets;
-} rt_hw_spinlock_t;
+int rt_hw_cpu_id(void);
 
-struct rt_spinlock
-{
-    rt_hw_spinlock_t lock;
-};
+#if defined(RT_USING_SMP) || defined(RT_USING_AMP)
+/**
+ *  ipi function
+ */
+void rt_hw_ipi_send(int ipi_vector, unsigned int cpu_mask);
+#endif
+
+#ifdef RT_USING_SMP
 
 void rt_hw_spin_lock_init(rt_hw_spinlock_t *lock);
 void rt_hw_spin_lock(rt_hw_spinlock_t *lock);
 void rt_hw_spin_unlock(rt_hw_spinlock_t *lock);
 
-int rt_hw_cpu_id(void);
-
 extern rt_hw_spinlock_t _cpus_lock;
-extern rt_hw_spinlock_t _rt_critical_lock;
 
 #define __RT_HW_SPIN_LOCK_INITIALIZER(lockname) {0}
 
 #define __RT_HW_SPIN_LOCK_UNLOCKED(lockname)    \
     (rt_hw_spinlock_t) __RT_HW_SPIN_LOCK_INITIALIZER(lockname)
 
-#define RT_DEFINE_SPINLOCK(x)  rt_hw_spinlock_t x = __RT_HW_SPIN_LOCK_UNLOCKED(x)
-#define RT_DECLARE_SPINLOCK(x)
-
-/**
- *  ipi function
- */
-void rt_hw_ipi_send(int ipi_vector, unsigned int cpu_mask);
+#define RT_DEFINE_HW_SPINLOCK(x)  rt_hw_spinlock_t x = __RT_HW_SPIN_LOCK_UNLOCKED(x)
 
 /**
  * boot secondary cpu
@@ -184,12 +229,18 @@ void rt_hw_secondary_cpu_up(void);
 void rt_hw_secondary_cpu_idle_exec(void);
 #else
 
-#define RT_DEFINE_SPINLOCK(x)
-#define RT_DECLARE_SPINLOCK(x)    rt_ubase_t x
+#define RT_DEFINE_HW_SPINLOCK(x)    rt_ubase_t x
 
 #define rt_hw_spin_lock(lock)     *(lock) = rt_hw_interrupt_disable()
 #define rt_hw_spin_unlock(lock)   rt_hw_interrupt_enable(*(lock))
 
+
+#endif
+
+#ifndef RT_USING_CACHE
+#define rt_hw_isb()
+#define rt_hw_dmb()
+#define rt_hw_dsb()
 #endif
 
 #ifdef __cplusplus

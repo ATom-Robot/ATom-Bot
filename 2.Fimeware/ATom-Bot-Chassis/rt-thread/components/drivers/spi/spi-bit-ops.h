@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2022, RT-Thread Development Team
+ * Copyright (c) 2006-2023, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -21,6 +21,7 @@ extern "C" {
 struct rt_spi_bit_ops
 {
     void *data;            /* private data for lowlevel routines */
+    void (*const pin_init)(void);
     void (*const tog_sclk)(void *data);
     void (*const set_sclk)(void *data, rt_int32_t state);
     void (*const set_mosi)(void *data, rt_int32_t state);
