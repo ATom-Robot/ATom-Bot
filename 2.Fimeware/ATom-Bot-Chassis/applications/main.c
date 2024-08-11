@@ -11,9 +11,9 @@
 #include <rtdevice.h>
 #include <board.h>
 #ifndef RT_USING_FAL
-#include "fal_cfg.h"
+    #include "fal_cfg.h"
 #else
-#include "fal.h"
+    #include "fal.h"
 #endif
 #include "BSP_Joint.h"
 #include "bsp_motor.h"
@@ -45,9 +45,9 @@ int main(void)
     rt_kprintf("   \\ \\_\\ \\_\\ \\ \\_\\ \\____/\\ \\_\\ \\_\\ \\_\\/______/ \\ \\____/\\ \\____/\\ \\__\\ \n");
     rt_kprintf("    \\/_/\\/_/  \\/_/\\/___/  \\/_/\\/_/\\/_/          \\/___/  \\/___/  \\/__/ \n");
 
-	rt_kprintf("--------------------------------------------------------\n");
-	rt_kprintf("Current version of app fimeware is:%s\n", APP_VERSION);
-	rt_kprintf("--------------------------------------------------------\n");
+    rt_kprintf("--------------------------------------------------------\n");
+    rt_kprintf("Current version of app fimeware is:%s\n", APP_VERSION);
+    rt_kprintf("--------------------------------------------------------\n");
 
     rt_kprintf("SCL1:%d,SDA1:%d\n", GET_PIN(A, 3), GET_PIN(B, 1));
     rt_kprintf("SCL2:%d,SDA2:%d\n", GET_PIN(B, 10), GET_PIN(B, 11));
@@ -59,7 +59,7 @@ int main(void)
     rt_pin_mode(VOLTAGE_ADC_EN, PIN_MODE_OUTPUT);
     rt_pin_write(VOLTAGE_ADC_EN, PIN_LOW);
 #ifdef RT_USING_FAL
-	fal_init();
+    fal_init();
 #endif
     MX_TIM4_Init();
     MX_TIM2_Init();
@@ -68,12 +68,12 @@ int main(void)
     Motor_Init();
     Encoder_Init();
     MPU6050_Init();
-	vl53l0x_port();
-	
+    vl53l0x_port();
+
     joint_i2c_init();
     ano_init("uart3");
-	
-	sensor_thread_create();
+
+    sensor_thread_create();
 
     /* PID Init*/
     Loc_level_PID_Init();
@@ -96,7 +96,7 @@ int main(void)
 */
 static int ota_app_vtor_reconfig(void)
 {
-    #define NVIC_VTOR_MASK   0x3FFFFF80
+#define NVIC_VTOR_MASK   0x3FFFFF80
     /* Set the Vector Table base location by user application firmware definition */
     SCB->VTOR = RT_APP_PART_ADDR & NVIC_VTOR_MASK;
 

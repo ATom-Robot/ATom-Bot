@@ -14,9 +14,17 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
+#define QUEUE_SIZE 512
+#define QUEUE_MSG_SIZE sizeof(int)
+
 static uint8_t i2cRxData[8];
 static uint8_t i2cTxData[8];
 struct Joint_device joint[JOINT_SIZE];
+
+static char mq_pool[QUEUE_SIZE * QUEUE_MSG_SIZE];
+static rt_thread_t joint_thread;
+static struct rt_messagequeue joint_mq;
+TX_QUEUE angle_queue;
 
 static rt_err_t joint_write_regs(struct Joint_device *dev, rt_uint8_t reg, rt_uint8_t len, rt_uint8_t *buf)
 {
@@ -297,6 +305,14 @@ void UpdateJointAngle_2(struct Joint_device  *_joint, float _angleSetPoint)
     _joint->config.angle = jAngle;
 }
 
+rt_bool_t joint_enable_all(rt_bool_t en)
+{
+    SetJointEnable(&joint[1], en);//right
+    SetJointEnable(&joint[2], en);//left
+
+    return en;
+}
+
 static int set_init_angle_to_joint(int argc, const char *argv[])
 {
     if (argc != 3)
@@ -309,21 +325,17 @@ static int set_init_angle_to_joint(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
-		SetJointEnable(&joint[1], RT_FALSE);
         SetJointInitAngle(&joint[1], angle);
-		SetJointEnable(&joint[1], RT_TRUE);
         rt_kprintf("set joint1 angle:%f\n", angle);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
-		SetJointEnable(&joint[2], RT_FALSE);
         SetJointInitAngle(&joint[2], angle);
-		SetJointEnable(&joint[2], RT_TRUE);
         rt_kprintf("set joint2 angle:%f\n", angle);
     }
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -340,14 +352,12 @@ static int set_id_to_joint(int argc, const char *argv[])
     uint8_t t_id = atoi(argv[1]);
     uint8_t s_id = atoi(argv[2]);
 
-	SetJointEnable(&joint[t_id], RT_FALSE);
-	SetJointId(&joint[t_id], s_id);
-	SetJointEnable(&joint[t_id], RT_TRUE);
-	joint[t_id].config.id = s_id;
-	rt_kprintf("set joint id:%d\n", s_id);
+    SetJointId(&joint[t_id], s_id);
+    joint[t_id].config.id = s_id;
+    rt_kprintf("set joint id:%d\n", s_id);
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -365,21 +375,17 @@ static int set_kp_to_joint(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
-		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKp(&joint[1], kp);
-		SetJointEnable(&joint[1], RT_TRUE);
         rt_kprintf("set joint1 kp:%f\n", kp);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
-		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKp(&joint[2], kp);
-		SetJointEnable(&joint[2], RT_TRUE);
         rt_kprintf("set joint2 kp:%f\n", kp);
     }
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -397,21 +403,17 @@ static int set_ki_to_joint(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
-		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKi(&joint[1], ki);
-		SetJointEnable(&joint[1], RT_TRUE);
         rt_kprintf("set joint1 ki:%f\n", ki);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
-		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKi(&joint[2], ki);
-		SetJointEnable(&joint[2], RT_TRUE);
         rt_kprintf("set joint2 ki:%f\n", ki);
     }
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -429,21 +431,17 @@ static int set_kd_to_joint(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
-		SetJointEnable(&joint[1], RT_FALSE);
         SetJointKd(&joint[1], kd);
-		SetJointEnable(&joint[1], RT_TRUE);
         rt_kprintf("set joint1 kd:%f\n", kd);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
-		SetJointEnable(&joint[2], RT_FALSE);
         SetJointKd(&joint[2], kd);
-		SetJointEnable(&joint[2], RT_TRUE);
         rt_kprintf("set joint2 kd:%f", kd);
     }
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -461,21 +459,17 @@ static int set_torque_to_joint(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
-		SetJointEnable(&joint[1], RT_FALSE);
         SetJointTorqueLimit(&joint[1], torque);
-		SetJointEnable(&joint[1], RT_TRUE);
         rt_kprintf("set joint1 torque:%f\n", torque);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
-		SetJointEnable(&joint[2], RT_FALSE);
         SetJointTorqueLimit(&joint[2], torque);
-		SetJointEnable(&joint[2], RT_TRUE);
         rt_kprintf("set joint2 torque:%f\n\n", torque);
     }
 
     rt_thread_mdelay(1000);
-	rt_kprintf("wait 1s to reset joint...\n");
+    rt_kprintf("wait 1s to reset joint...\n");
 
     return RT_EOK;
 }
@@ -493,18 +487,69 @@ static int joint_angle_test(int argc, const char *argv[])
 
     if (rt_strcmp(argv[1], "1") == 0)
     {
+        SetJointEnable(&joint[1], RT_TRUE);//right
         UpdateJointAngle_2(&joint[1], angle);
+        SetJointEnable(&joint[1], RT_FALSE);//right
+        rt_thread_mdelay(100);
         rt_kprintf("set joint1 target angle:%f | joint1 angle:%f\n", angle, joint[1].config.angle);
     }
     else if (rt_strcmp(argv[1], "2") == 0)
     {
+        SetJointEnable(&joint[2], RT_TRUE);//right
         UpdateJointAngle_2(&joint[2], angle);
+        SetJointEnable(&joint[2], RT_FALSE);//left
+        rt_thread_mdelay(100);
         rt_kprintf("set joint2 target angle:%f | joint2 angle:%f\n", angle, joint[2].config.angle);
+    }
+    else if (rt_strcmp(argv[1], "1&2") == 0)
+    {
+        joint_enable_all(RT_TRUE);
+        UpdateJointAngle_2(&joint[1], angle);
+        UpdateJointAngle_2(&joint[2], angle);
+        rt_thread_mdelay(100);
+        joint_enable_all(RT_FALSE);
+        rt_kprintf("set joint1&2 target angle:%f | joint1 angle:%f joint2 angle:%f\n", angle, joint[1].config.angle, joint[2].config.angle);
     }
 
     return RT_EOK;
 }
 MSH_CMD_EXPORT(joint_angle_test, input: joint_angle_test(1: 2) angle)
+
+void joint_ctrl_entry()
+{
+    int received_angle;
+
+    while (1)
+    {
+        if (rt_mq_recv(angle_queue.RT_MQ, &received_angle, sizeof(int), RT_WAITING_FOREVER) == RT_EOK)
+        {
+            joint_enable_all(RT_TRUE);
+            UpdateJointAngle_2(&joint[1], received_angle);
+            UpdateJointAngle_2(&joint[2], received_angle);
+            rt_thread_mdelay(50);
+            joint_enable_all(RT_FALSE);
+        }
+    }
+}
+
+int joint_thread_create(void)
+{
+    joint_thread = rt_thread_create("joint",
+                                    joint_ctrl_entry,
+                                    RT_NULL,
+                                    1024,
+                                    28,
+                                    20);
+    if (joint_thread != RT_NULL)
+    {
+        rt_thread_startup(joint_thread);
+    }
+
+    rt_mq_init(&joint_mq, "angle_mq", &mq_pool[0], QUEUE_MSG_SIZE, sizeof(mq_pool), RT_IPC_FLAG_PRIO);
+    angle_queue.RT_MQ = &joint_mq;
+
+    return RT_EOK;
+}
 
 static int joint_init(void)
 {
@@ -534,11 +579,14 @@ static int joint_init(void)
     joint[2].config.modelAngelMax = 90;
     joint[2].config.inverted = RT_TRUE;
 
-    SetJointEnable(&joint[1], RT_TRUE);//right
-    SetJointEnable(&joint[2], RT_TRUE);//left
+    joint_enable_all(RT_TRUE);
 
     UpdateJointAngle_2(&joint[1], 0);
     UpdateJointAngle_2(&joint[2], 0);
+
+    rt_thread_mdelay(500);
+
+    joint_enable_all(RT_FALSE);
 
     return RT_EOK;
 }
@@ -558,9 +606,8 @@ int joint_i2c_init(void)
         }
     }
 
-    rt_thread_mdelay(100);
-
     joint_init();
+    joint_thread_create();
 
     return res;
 }

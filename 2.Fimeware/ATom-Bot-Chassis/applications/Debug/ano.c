@@ -177,17 +177,16 @@ static void calculate_wheel_speeds(int target_rpm, int yaw)
     rec_target_rpm[0] = (int)(v_left * 60.0 / (2 * MY_PPPIII * R));
     rec_target_rpm[1] = (int)(v_right * 60.0 / (2 * MY_PPPIII * R));
 
-//	rt_kprintf("target1:%d  target2:%d\n", (int)(rec_target_rpm[0]), (int)(rec_target_rpm[1]));
+//  rt_kprintf("target1:%d  target2:%d\n", (int)(rec_target_rpm[0]), (int)(rec_target_rpm[1]));
 }
 
 static void control_joint_angle(int angle)
 {
-	extern struct Joint_device joint[JOINT_SIZE];
+    extern struct Joint_device joint[JOINT_SIZE];
 
-	sensor_acquire();
-	UpdateJointAngle_2(&joint[1], angle);
-    UpdateJointAngle_2(&joint[2], angle);
-	sensor_release();
+    sensor_acquire();
+    rt_mq_send(angle_queue.RT_MQ, &angle, sizeof(int));
+    sensor_release();
 }
 
 static void ano_parse_frame(uint8_t *buffer, uint8_t length)
@@ -267,7 +266,7 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
 
         rec_target_motor_num = thro;
 
-		// 计算并设置目标油门和角度
+        // 计算并设置目标油门和角度
         calculate_wheel_speeds(thro, -yaw);
     }
     else if (buffer[2] == 0xE8)
@@ -275,10 +274,10 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         static int thro, yaw, angle;
 
         angle = *((int16_t *)(buffer + 4));
-//		rt_kprintf("angle:%d\n", angle);
+//      rt_kprintf("angle:%d\n", angle);
 
-		// 设置目标手臂舵机角度
-		control_joint_angle(angle);
+        // 设置目标手臂舵机角度
+        control_joint_angle(angle);
     }
 
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);

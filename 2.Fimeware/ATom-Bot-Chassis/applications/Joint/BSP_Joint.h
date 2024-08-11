@@ -25,6 +25,14 @@ struct Joint_device
     struct Joint_config config;
 };
 
+typedef struct {
+    rt_mq_t RT_MQ;
+} TX_QUEUE;
+
+extern TX_QUEUE angle_queue;
+
+rt_bool_t joint_enable_all(rt_bool_t en);
+
 void SetJointId(struct Joint_device* _joint, uint8_t _id);
 
 void SetJointKp(struct Joint_device* _joint, float _value);
