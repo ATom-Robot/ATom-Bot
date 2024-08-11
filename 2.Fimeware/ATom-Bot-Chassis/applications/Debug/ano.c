@@ -12,7 +12,6 @@
 #include "bsp_pid.h"
 #include "AT_Math.h"
 #include "bsp_joint.h"
-#include "drv_sensor.h"
 
 #define DBG_SECTION_NAME  "ano"
 #define DBG_LEVEL         DBG_LOG
@@ -27,7 +26,7 @@
 
 // Thread
 #define THREAD_STACK_SIZE      2048
-#define THREAD_PRIORITY        25
+#define THREAD_PRIORITY        20
 #define THREAD_TICK            10
 
 static rt_thread_t tid_ano = RT_NULL;
@@ -184,11 +183,9 @@ static void control_joint_angle(int angle)
 {
     extern struct Joint_device joint[JOINT_SIZE];
 
-    sensor_acquire();
     rt_err_t res = rt_mq_send(angle_queue.RT_MQ, &angle, sizeof(int));
 	if (res != RT_EOK)
 		rt_kprintf("res:%d\n");
-    sensor_release();
 }
 
 static void ano_parse_frame(uint8_t *buffer, uint8_t length)

@@ -26,7 +26,7 @@ void sensor_entry()
             UpdateServoAngle_1(&joint[1]);
             UpdateServoAngle_1(&joint[2]);
 
-			rt_mutex_release(i2c_mutex);
+            rt_mutex_release(i2c_mutex);
         }
 
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
@@ -34,13 +34,13 @@ void sensor_entry()
         distence_sensor_get();
 
         ano_send_user_data(5, (int)joint[1].config.angle,   \
-                           (int)joint[2].config.angle,		\
+                           (int)joint[2].config.angle,      \
                            (int)robot_imu_dmp_data.pitch,   \
                            (int)robot_imu_dmp_data.roll,    \
                            (int)robot_imu_dmp_data.yaw,     \
                            (int)(get_battery_data() * 100));
 
-        rt_thread_mdelay(20);
+        rt_thread_mdelay(50);
     }
 }
 

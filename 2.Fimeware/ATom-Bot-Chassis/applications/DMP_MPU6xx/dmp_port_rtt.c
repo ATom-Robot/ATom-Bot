@@ -470,7 +470,6 @@ int MPU6050_Init(void)
 
     return res;
 }
-MSH_CMD_EXPORT(MPU6050_Init, MPU6050 DMP Init);
 
 rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
 {

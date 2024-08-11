@@ -8,6 +8,7 @@
  * 2023-07-09     Rbb666        First version
  */
 #include "bsp_joint.h"
+#include "drv_sensor.h"
 #include <rtdevice.h>
 
 #define DBG_SECTION_NAME  "JOINT"
@@ -523,11 +524,15 @@ void joint_ctrl_entry()
     {
         if (rt_mq_recv(angle_queue.RT_MQ, &received_angle, sizeof(received_angle), RT_WAITING_FOREVER) > 0)
         {
+            sensor_acquire();
+
             joint_enable_all(RT_TRUE);
             UpdateJointAngle_2(&joint[1], received_angle);
             UpdateJointAngle_2(&joint[2], received_angle);
             rt_thread_mdelay(50);
             joint_enable_all(RT_FALSE);
+
+            sensor_release();
         }
     }
 }
@@ -538,7 +543,7 @@ int joint_thread_create(void)
                                     joint_ctrl_entry,
                                     RT_NULL,
                                     1024,
-                                    20,
+                                    25,
                                     20);
     if (joint_thread != RT_NULL)
     {
@@ -601,7 +606,7 @@ int joint_i2c_init(void)
         if (joint[i].bus == RT_NULL)
         {
             rt_kprintf("Can't find device:'%s'\n", joint[i].bus);
-            res = -RT_ERROR;
+            res = RT_ERROR;
             break;
         }
     }
