@@ -150,4 +150,3 @@ static rt_err_t SetSpeed_cmd(int argc, const char *argv[])
     }
     return res;
 }
-MSH_CMD_EXPORT(SetSpeed_cmd, input: num(1: 2) | speed set motor speed)

@@ -153,6 +153,42 @@ static void ano_sentPar(uint16_t id, int32_t data)
     _send_data(data_to_send, _cnt);
 }
 
+static int Chassis_speeds_test(int argc, const char *argv[])
+{
+	rt_err_t res = RT_EOK;
+
+    if (argc != 3)
+    {
+        LOG_E("error paramter");
+        return -RT_ERROR;
+    }
+
+    int Motor_Num = atoi(argv[1]);
+	int Motor_rpm = atoi(argv[2]);
+    int Motor_speed = atoi(argv[3]);
+
+    switch (Motor_Num)
+    {
+    case MOTOR_ID_1:
+    {
+		rec_target_rpm[0] = Motor_speed;
+		break;
+    }
+    case MOTOR_ID_2:
+    {
+        rec_target_rpm[1] = Motor_speed;
+        break;
+    }
+    default:
+        LOG_E("Motor_Num[%d] ERROR\r\n", Motor_Num);
+        res = -RT_ERROR;
+        break;
+    }
+	rec_target_motor_num = Motor_rpm;
+    return res;
+}
+MSH_CMD_EXPORT(Chassis_speeds_test, input:(1/2) (rpm) (speed) to motor)
+
 static void calculate_wheel_speeds(int target_rpm, int yaw)
 {
     // 轮子之间的距离
@@ -255,7 +291,7 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         }
         }
     }
-    /* 头部数据解析 */
+    /* 数据解析 */
     else if (buffer[2] == 0xE7)
     {
         static int thro, yaw, angle;
@@ -266,7 +302,7 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         rec_target_motor_num = thro;
 
         // 计算并设置目标油门和角度
-        calculate_wheel_speeds(thro, -yaw);
+        calculate_wheel_speeds(rec_target_motor_num, -yaw);
     }
     else if (buffer[2] == 0xE8)
     {
