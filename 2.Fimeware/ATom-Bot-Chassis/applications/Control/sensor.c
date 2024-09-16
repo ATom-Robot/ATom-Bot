@@ -33,15 +33,15 @@ void sensor_entry()
 
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
 
-		/* 跌落检测 */
-		// move_backward();
+		distance = distence_sensor_get();
 
         ano_send_user_data(5, (int)joint[1].config.angle,   \
                            (int)joint[2].config.angle,      \
                            (int)robot_imu_dmp_data.pitch,   \
                            (int)robot_imu_dmp_data.roll,    \
                            (int)robot_imu_dmp_data.yaw,     \
-                           (int)(get_battery_data() * 100));
+                           (int)(get_battery_data() * 100),    \
+                           (int)distance);
 
         rt_thread_mdelay(50);
     }
@@ -50,13 +50,11 @@ void sensor_entry()
 /* 自动检测倒车函数 */
 static void move_backward(void)
 {
-	distance = distence_sensor_get();
-
-	if (distance >= 25)
-	{
-		rec_target_motor_num = -2;
-		rec_target_rpm[0] = rec_target_rpm[1] = 120;
-	}
+    if (distance >= 25)
+    {
+        rec_target_motor_num = -2;
+        rec_target_rpm[0] = rec_target_rpm[1] = 120;
+    }
 }
 
 void sensor_acquire(void)

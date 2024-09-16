@@ -405,7 +405,7 @@ int ano_send_motorpwm(uint16_t m_1, uint16_t m_2, uint16_t m_3, uint16_t m_4, ui
     return _send_data(data_to_send, _cnt);
 }
 
-int ano_send_user_data(uint8_t number, int16_t d0, int16_t d1, int16_t d2, int16_t d3, int16_t d4, int16_t d5)
+int ano_send_user_data(uint8_t number, int16_t d0, int16_t d1, int16_t d2, int16_t d3, int16_t d4, int16_t d5, int16_t d6)
 {
     uint8_t data_to_send[35];
     uint8_t _cnt = 0;
@@ -432,6 +432,9 @@ int ano_send_user_data(uint8_t number, int16_t d0, int16_t d1, int16_t d2, int16
 
     data_to_send[_cnt++] = BYTE0(d5);
     data_to_send[_cnt++] = BYTE1(d5);
+
+    data_to_send[_cnt++] = BYTE0(d6);
+    data_to_send[_cnt++] = BYTE1(d6);
 
     data_to_send[3] = _cnt - 4;
 

@@ -52,13 +52,13 @@ void vin_task(void *argument)
                     //停止电机放在电机的任务里
 
                     //停止检测
-                    LOG_I("电压过低，停止工作\r\n");
+                    rt_kprintf("电压过低，停止工作\r\n");
                     while (1)
                     {
                         battery_voltage = get_battery_voltage() + VOLTAGE_DROP;
                         if (battery_voltage >= VOLTAGE_OFF)
                         {
-                            LOG_I("电压达到要求，重新工作\r\n");
+                            rt_kprintf("电压达到要求，重新工作\r\n");
                             break;
                         }
                         rt_thread_mdelay(200);
@@ -98,7 +98,7 @@ float get_battery_data(void)
 int Check_Voltage_Data(void)
 {
     battery_voltage = get_battery_voltage() + VOLTAGE_DROP;
-    LOG_I("Battery currnet voltage:%f", battery_voltage );
+    rt_kprintf("Battery currnet voltage:%f\n", battery_voltage );
     return RT_EOK;
 }
 MSH_CMD_EXPORT(Check_Voltage_Data, To Check robot battery voltage);

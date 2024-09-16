@@ -584,10 +584,10 @@ static int joint_init(void)
     joint[2].config.modelAngelMax = 90;
     joint[2].config.inverted = RT_TRUE;
 
-    joint_enable_all(RT_TRUE);
+//    joint_enable_all(RT_TRUE);
 
-    UpdateJointAngle_2(&joint[1], 0);
-    UpdateJointAngle_2(&joint[2], 0);
+//    UpdateJointAngle_2(&joint[1], 0);
+//    UpdateJointAngle_2(&joint[2], 0);
 
     rt_thread_mdelay(500);
 
