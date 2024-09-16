@@ -31,6 +31,8 @@ static void sensor_read_timer(lv_timer_t *timer)
     lv_label_set_text_fmt(ui_PitchLabel, "x: %d", chassis.pitch);
     lv_label_set_text_fmt(ui_RollLabel, "Y: %d", chassis.roll);
     lv_label_set_text_fmt(ui_YawLabel, "Z: %d", chassis.yaw);
+    lv_label_set_text_fmt(ui_DISTtext, "%d", chassis.distance);
+    lv_label_set_text_fmt(ui_BAITtext, "%d.%dV\n", (int)chassis.voltage, (int)(chassis.voltage * 10) % 10);
 }
 
 void lv_setup_system(lv_event_t *e)

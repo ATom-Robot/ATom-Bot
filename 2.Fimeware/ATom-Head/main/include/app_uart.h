@@ -13,6 +13,7 @@ typedef struct
     int pitch;
     int roll;
     int yaw;
+    int distance;
     float voltage;
 
     int target_yaw;

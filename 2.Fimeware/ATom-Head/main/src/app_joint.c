@@ -8,6 +8,7 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "app_ui.h"
+#include "app_uart.h"
 
 static const char *TAG = "joint";
 
@@ -25,7 +26,7 @@ static const char *TAG = "joint";
 #define ACK_CHECK_EN 0x0
 #define ESP_SLAVE_ADDR 0x0
 
-#define TIGGER_THRESHOLD 25
+#define TIGGER_THRESHOLD 15
 // Smoothing filter parameter
 #define ALPHA 0.2
 
@@ -535,17 +536,17 @@ static void joint_ui_menu_task(void *parm)
         {
             vTaskDelete(NULL);
         }
-        vTaskDelay(pdMS_TO_TICKS(600));
+        vTaskDelay(pdMS_TO_TICKS(400));
 
         updateJointAngle_1(&joint[ANY]);
-
-        // Update servo angle and Check if servo angle exceeds threshold
-        updateAngle(joint->config.angle);
-        checkAngleThreshold();
-
         // set angle to lcd
         ui_set_joint_angle((int16_t)joint->config.angle);
 
+        // Update servo angle and Check if servo angle exceeds threshold
+        updateAngle((float)chassis.angle_l);
+        checkAngleThreshold();
+
+        /* 页面切换逻辑 */
         if (switchFlag)
         {
             if (switchDirection == 1)

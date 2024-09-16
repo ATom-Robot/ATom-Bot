@@ -183,6 +183,7 @@ static void uart_data_Anl(uint8_t *Data_Pack)
         chassis.roll = *((int16_t *)(Data_Pack + 10));
         chassis.yaw = *((int16_t *)(Data_Pack + 12));
         chassis.voltage = *((int16_t *)(Data_Pack + 14)) * 0.01f;
+        chassis.distance = *((int16_t *)(Data_Pack + 16));
 
         // printf("angle_r:%d angle_l:%d pitch:%d roll:%d yaw:%d vol:%.2f\n",
         //        chassis.angle_r,
