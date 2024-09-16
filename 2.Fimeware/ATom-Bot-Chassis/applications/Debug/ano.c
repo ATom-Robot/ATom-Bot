@@ -153,41 +153,25 @@ static void ano_sentPar(uint16_t id, int32_t data)
     _send_data(data_to_send, _cnt);
 }
 
-static int Chassis_speeds_test(int argc, const char *argv[])
+static int chassis_speeds_test(int argc, const char *argv[])
 {
 	rt_err_t res = RT_EOK;
 
     if (argc != 3)
     {
-        LOG_E("error paramter");
+        rt_kprintf("error paramter\n");
         return -RT_ERROR;
     }
 
-    int Motor_Num = atoi(argv[1]);
-	int Motor_rpm = atoi(argv[2]);
-    int Motor_speed = atoi(argv[3]);
-
-    switch (Motor_Num)
-    {
-    case MOTOR_ID_1:
-    {
-		rec_target_rpm[0] = Motor_speed;
-		break;
-    }
-    case MOTOR_ID_2:
-    {
-        rec_target_rpm[1] = Motor_speed;
-        break;
-    }
-    default:
-        LOG_E("Motor_Num[%d] ERROR\r\n", Motor_Num);
-        res = -RT_ERROR;
-        break;
-    }
+	int Motor_rpm = atoi(argv[1]);
+    int Motor_speed = atoi(argv[2]);
+	
 	rec_target_motor_num = Motor_rpm;
+	rec_target_rpm[0] = rec_target_rpm[1] = Motor_speed;
+
     return res;
 }
-MSH_CMD_EXPORT(Chassis_speeds_test, input:(1/2) (rpm) (speed) to motor)
+MSH_CMD_EXPORT(chassis_speeds_test, input: (rpm/s) (speed) to motor)
 
 static void calculate_wheel_speeds(int target_rpm, int yaw)
 {
@@ -195,7 +179,7 @@ static void calculate_wheel_speeds(int target_rpm, int yaw)
     const float L = 240;
 
     // 轮子的半径
-    const float R = 10;
+    const float R = 20;
 
     // 将期望角度转换为弧度
     float yaw_rad = yaw * MY_PPPIII / 180.0;
@@ -306,13 +290,21 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
     }
     else if (buffer[2] == 0xE8)
     {
-        static int thro, yaw, angle;
+        static int angle;
 
         angle = *((int16_t *)(buffer + 4));
-//      rt_kprintf("angle:%d\n", angle);
-
         // 设置目标手臂舵机角度
         control_joint_angle(angle);
+    }
+	else if (buffer[2] == 0xE9)
+    {
+        static int thro, yaw;
+
+		thro = *((int16_t *)(buffer + 4));
+        yaw = *((int16_t *)(buffer + 6));
+
+		rec_target_motor_num = thro;
+		rec_target_rpm[0] = rec_target_rpm[1] = 50;
     }
 
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);

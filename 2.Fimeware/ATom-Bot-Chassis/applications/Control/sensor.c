@@ -11,11 +11,13 @@
 #define DBG_LEVEL         DBG_LOG
 #include <rtdbg.h>
 
-extern struct Joint_device joint[JOINT_SIZE];
-
-rt_mutex_t i2c_mutex = RT_NULL;
-
+static rt_mutex_t i2c_mutex = RT_NULL;
 static rt_thread_t sensor_thread;
+
+extern struct Joint_device joint[JOINT_SIZE];
+static int distance = 0;
+
+static void move_backward(void);
 
 void sensor_entry()
 {
@@ -31,7 +33,8 @@ void sensor_entry()
 
         MPU6050_DMP_GetData(&robot_imu_dmp_data);
 
-        distence_sensor_get();
+		/* 跌落检测 */
+		// move_backward();
 
         ano_send_user_data(5, (int)joint[1].config.angle,   \
                            (int)joint[2].config.angle,      \
@@ -42,6 +45,18 @@ void sensor_entry()
 
         rt_thread_mdelay(50);
     }
+}
+
+/* 自动检测倒车函数 */
+static void move_backward(void)
+{
+	distance = distence_sensor_get();
+
+	if (distance >= 25)
+	{
+		rec_target_motor_num = -2;
+		rec_target_rpm[0] = rec_target_rpm[1] = 120;
+	}
 }
 
 void sensor_acquire(void)

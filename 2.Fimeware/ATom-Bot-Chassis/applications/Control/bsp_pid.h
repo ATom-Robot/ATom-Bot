@@ -15,7 +15,7 @@
 // left wheel pid
 #define PID_KP_POS_L            (0.02f)
 #define PID_KI_POS_L            (0.0f)
-#define PID_KD_POS_L            (0.070f)
+#define PID_KD_POS_L            (0.040f)
 
 #define PID_KP_VEL_L            (0.900f)
 #define PID_KI_VEL_L            (0.010f)
@@ -24,7 +24,7 @@
 // right wheel pid
 #define PID_KP_POS_R            (0.02f)
 #define PID_KI_POS_R            (0.0f)
-#define PID_KD_POS_R            (0.070f)
+#define PID_KD_POS_R            (0.050f)
 
 #define PID_KP_VEL_R            (0.900f)
 #define PID_KI_VEL_R            (0.010f)
