@@ -127,6 +127,8 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_PLAY_HAPPY, SR_LANG_CN, 0, "高兴", "gao xing", {NULL}},
     {SR_CMD_PLAY_CIRCLE, SR_LANG_CN, 0, "转圈", "zhuan quan", {NULL}},
     {SR_CMD_PLAY_DANCE, SR_LANG_CN, 0, "跳舞", "tiao wu", {NULL}},
+    {SR_CMD_PLAY_MOVE_FORWARD, SR_LANG_CN, 0, "向前", "xiang qian", {NULL}},
+    {SR_CMD_PLAY_MOVE_BACKWARD, SR_LANG_CN, 0, "向后", "xiang hou", {NULL}},
 };
 
 static void feed_Task(void *pvParam)

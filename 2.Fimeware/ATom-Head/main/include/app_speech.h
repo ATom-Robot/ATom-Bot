@@ -62,6 +62,8 @@ typedef enum
     SR_CMD_PLAY_HAPPY,
     SR_CMD_PLAY_CIRCLE,
     SR_CMD_PLAY_DANCE,
+    SR_CMD_PLAY_MOVE_FORWARD,
+    SR_CMD_PLAY_MOVE_BACKWARD,
     SR_CMD_MAX,
 } sr_user_cmd_t;
 

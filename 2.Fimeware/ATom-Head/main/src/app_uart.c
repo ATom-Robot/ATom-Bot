@@ -42,6 +42,7 @@ static int yawWindow[SHAKE_WINDOW_SIZE] = {0};
 // 发送数据
 uint8_t Data_Buff1[32] = {0XAA, 0XFF, 0xE7};
 uint8_t Data_Buff2[32] = {0XAA, 0XFF, 0xE8};
+uint8_t Data_Buff3[32] = {0XAA, 0XFF, 0xE9};
 
 // 底盘数据
 Chassis_data chassis;
@@ -123,7 +124,7 @@ static void uart_event_task(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-esp_err_t APP_Uart_Init(void)
+esp_err_t APP_Uart_run(void)
 {
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
@@ -249,7 +250,7 @@ static void get_ChassisData(uint8_t data)
         sta = 0;
 }
 
-void data_sendwl_ChassisData(int16_t _a, int16_t _b)
+void sendwl_ChassisSpeedData(int16_t _a, int16_t _b)
 {
     uint8_t i, cnt = 4;
     uint8_t sc = 0, ac = 0;
@@ -277,7 +278,35 @@ void data_sendwl_ChassisData(int16_t _a, int16_t _b)
     }
 }
 
-void data_send_al_ChassisData(int16_t _a)
+void sendwl_Chassis_DistanceData(int16_t _a, int16_t _b)
+{
+    uint8_t i, cnt = 4;
+    uint8_t sc = 0, ac = 0;
+
+    Data_Buff3[cnt++] = BYTE0(_a);
+    Data_Buff3[cnt++] = BYTE1(_a);
+
+    Data_Buff3[cnt++] = BYTE0(_b);
+    Data_Buff3[cnt++] = BYTE1(_b);
+
+    Data_Buff3[3] = cnt - 4;
+
+    for (i = 0; i < cnt; i++)
+    {
+        sc += Data_Buff3[i];
+        ac += sc;
+    }
+
+    Data_Buff3[cnt++] = sc;
+    Data_Buff3[cnt++] = ac;
+
+    for (i = 0; i < cnt; i++)
+    {
+        uart_write_bytes(UART_NUM_1, &Data_Buff3[i], 1);
+    }
+}
+
+void sendwl_ChassisAngleData(int16_t _a)
 {
     uint8_t i, cnt = 4;
     uint8_t sc = 0, ac = 0;

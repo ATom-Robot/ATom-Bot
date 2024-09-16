@@ -12,6 +12,7 @@
 #include "app_speech.h"
 #include "file_manager.h"
 #include "app_player.h"
+#include "app_uart.h"
 #include "app_ui.h"
 #include "driver/i2s.h"
 #include "app_sr_handler.h"
@@ -132,7 +133,8 @@ void sr_handler_task(void *pvParam)
     }
     (void)ret;
 #endif
-
+    /* 距离变量 */
+    static int8_t distance = 0;
     player_state_t last_player_state = PLAYER_STATE_IDLE;
 
     // 初始化随机数生成器
@@ -225,7 +227,7 @@ void sr_handler_task(void *pvParam)
             }
             case SR_CMD_PLAY_SCARE:
             {
-                app_player_play_name("scared.mp3");  
+                app_player_play_name("scared.mp3");
                 ui_sr_emoji_display(SCARED_EMOJI, false);
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
@@ -234,6 +236,25 @@ void sr_handler_task(void *pvParam)
             {
                 app_player_play_name("police.mp3");
                 ui_sr_emoji_display(SHAKE_EMOJI, false);
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            /* 向前进 */
+            case SR_CMD_PLAY_MOVE_FORWARD:
+            {
+                distance += 5;
+                /* 串口发送数据 -- 向前走5s */
+                sendwl_Chassis_DistanceData(distance, 0);
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            /* 向后退 */
+            case SR_CMD_PLAY_MOVE_BACKWARD:
+            {
+                distance -= 5;
+                app_player_play_name("bi.mp3");
+                /* 串口发送数据 -- 向后退5s */
+                sendwl_Chassis_DistanceData(distance, 0);
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
             }

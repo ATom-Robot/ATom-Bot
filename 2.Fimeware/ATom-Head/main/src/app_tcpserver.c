@@ -10,6 +10,7 @@
 #include "app_uart.h"
 #include "app_joint.h"
 #include "app_ui.h"
+#include "app_player.h"
 
 static const char *TAG = "tcp-server";
 
@@ -312,6 +313,8 @@ error:
 /* 数据解析部分 */
 static void pack_data_analysis(int len, const char *rx_buffer)
 {
+    static uint8_t cnt = 0;
+
     // 油门、方向
     if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBB)
     {
@@ -321,17 +324,30 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         chassis.target_thro = thro >= 100 ? abs(50 - (thro / 2)) : -abs(50 - (thro / 2));
         chassis.target_yaw = yaw >= 100 ? abs(50 - (yaw / 2)) : -abs(50 - (yaw / 2));
 
+        if (chassis.target_thro < 0)
+        {
+            if (cnt == 0)
+            {
+                app_player_play_name("bi.mp3");
+                cnt += 1;
+            }
+            else if (cnt > 10)
+                cnt = 0;
+            else
+                cnt += 1;
+        }
+
         // ESP_LOGI(TAG, "[thro=%d][yaw=%d]", chassis.target_thro, chassis.target_yaw);
-        // 串口发送数据
-        data_sendwl_ChassisData(chassis.target_thro, chassis.target_yaw);
+        /* 串口发送数据 */
+        sendwl_ChassisSpeedData(chassis.target_thro, chassis.target_yaw);
     }
     // 舵机角度
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xBC)
     {
         chassis.target_angle = *((uint8_t *)(rx_buffer + 3));
         // ESP_LOGI(TAG, "[angle=%d]", chassis.target_angle);
-        // 串口发送数据
-        data_send_al_ChassisData(chassis.target_angle);
+        /* 串口发送数据 */
+        sendwl_ChassisAngleData(chassis.target_angle);
     }
     // 参数设置
     else if (rx_buffer[0] == 0xAA && rx_buffer[1] == 0xAB)

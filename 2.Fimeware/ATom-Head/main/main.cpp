@@ -28,7 +28,6 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(App_Lcd_Init(xQueueLCDFrame, NULL, true));
     ESP_ERROR_CHECK(App_Speech_Init());
     ESP_ERROR_CHECK(App_Speaker_Init());
-    ESP_ERROR_CHECK(APP_Uart_Init());
     ESP_ERROR_CHECK(App_Joint_Init());
 
     ESP_ERROR_CHECK(App_Speech_run());
@@ -40,4 +39,5 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
     // rtsp_server();
     ESP_ERROR_CHECK(App_Shell_run());
+    ESP_ERROR_CHECK(APP_Uart_run());
 }

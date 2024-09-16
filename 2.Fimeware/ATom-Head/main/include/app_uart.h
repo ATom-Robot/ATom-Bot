@@ -23,9 +23,10 @@ typedef struct
 
 extern Chassis_data chassis;
 
-esp_err_t APP_Uart_Init(void);
-void data_sendwl_ChassisData(int16_t _a, int16_t _b);
-void data_send_al_ChassisData(int16_t _a);
+esp_err_t APP_Uart_run(void);
+void sendwl_ChassisSpeedData(int16_t _a, int16_t _b);
+void sendwl_Chassis_DistanceData(int16_t _a, int16_t _b);
+void sendwl_ChassisAngleData(int16_t _a);
 
 #ifdef __cplusplus
 }
