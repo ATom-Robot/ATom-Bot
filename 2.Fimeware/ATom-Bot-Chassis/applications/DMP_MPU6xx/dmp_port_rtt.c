@@ -43,9 +43,9 @@ static short sensors;
 static struct mpu6xxx_device *i2c_bus = RT_NULL;
 struct imu_data robot_imu_dmp_data;
 
-uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf)
+rt_err_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf)
 {
-    rt_int8_t res = 0;
+    rt_err_t res = 0;
 #ifdef RT_USING_I2C
     struct rt_i2c_msg msgs;
     uint8_t buf[50] = {0};
@@ -76,9 +76,9 @@ uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf)
     return res;
 }
 
-uint8_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
+rt_err_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
 {
-    rt_int8_t res = 0;
+    rt_err_t res = 0;
 #ifdef RT_USING_I2C
     struct rt_i2c_msg msgs[2];
 #endif
@@ -471,7 +471,7 @@ int MPU6050_Init(void)
     return res;
 }
 
-rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
+rt_err_t read_mpu6xx_dmp(int argc, const char *argv[])
 {
     if (argc != 2)
     {
@@ -495,4 +495,4 @@ rt_err_t Read_mpu6xx_dmp(int argc, const char *argv[])
 
     return RT_EOK;
 }
-MSH_CMD_EXPORT(Read_mpu6xx_dmp, Read data mpu6050 from dmp);
+MSH_CMD_EXPORT(read_mpu6xx_dmp, Read data mpu6050 from dmp);

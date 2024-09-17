@@ -33,6 +33,8 @@ static rt_thread_t tid_ano = RT_NULL;
 static rt_device_t dev_ano = RT_NULL;
 static rt_sem_t rx_sem = RT_NULL;
 
+extern uint8_t use_pid_ctrl;
+
 #if USING_ANO_DEBUG == 1
     int rec_target_rpm;
 #else
@@ -155,7 +157,7 @@ static void ano_sentPar(uint16_t id, int32_t data)
 
 static int chassis_speeds_test(int argc, const char *argv[])
 {
-	rt_err_t res = RT_EOK;
+    rt_err_t res = RT_EOK;
 
     if (argc != 3)
     {
@@ -163,15 +165,47 @@ static int chassis_speeds_test(int argc, const char *argv[])
         return -RT_ERROR;
     }
 
-	int Motor_rpm = atoi(argv[1]);
+    int Motor_rpm = atoi(argv[1]);
     int Motor_speed = atoi(argv[2]);
-	
-	rec_target_motor_num = Motor_rpm;
-	rec_target_rpm[0] = rec_target_rpm[1] = Motor_speed;
+
+    rec_target_motor_num = Motor_rpm;
+    rec_target_rpm[0] = rec_target_rpm[1] = Motor_speed;
 
     return res;
 }
-MSH_CMD_EXPORT(chassis_speeds_test, input: (rpm/s) (speed) to motor)
+MSH_CMD_EXPORT(chassis_speeds_test, input: (rpm / s)(speed) to motor)
+
+static void set_chassis_speed(int16_t speedl, int16_t speedr)
+{
+    // 关闭PID控制
+    use_pid_ctrl = 0;
+
+    Motor_Set_Pwm(MOTOR_ID_1, speedl);
+    Motor_Set_Pwm(MOTOR_ID_2, speedr);
+}
+
+static int test_chassis_speed(int argc, const char *argv[])
+{
+    rt_err_t res = RT_EOK;
+
+    if (argc != 3)
+    {
+        rt_kprintf("error paramter\n");
+        return -RT_ERROR;
+    }
+
+    int Motor_speed_l = atoi(argv[1]);
+    int Motor_speed_r = atoi(argv[2]);
+
+    // 关闭PID控制
+    use_pid_ctrl = 0;
+
+    Motor_Set_Pwm(MOTOR_ID_1, Motor_speed_l);
+    Motor_Set_Pwm(MOTOR_ID_2, Motor_speed_r);
+
+    return res;
+}
+MSH_CMD_EXPORT(test_chassis_speed, input: (speed_l)(speed_r) to motor)
 
 static void calculate_wheel_speeds(int target_rpm, int yaw)
 {
@@ -196,7 +230,9 @@ static void calculate_wheel_speeds(int target_rpm, int yaw)
     rec_target_rpm[0] = (int)(v_left * 60.0 / (2 * MY_PPPIII * R));
     rec_target_rpm[1] = (int)(v_right * 60.0 / (2 * MY_PPPIII * R));
 
-//  rt_kprintf("target1:%d  target2:%d\n", (int)(rec_target_rpm[0]), (int)(rec_target_rpm[1]));
+	rt_kprintf("target1:%d  target2:%d\n", (int)(rec_target_rpm[0]), (int)(rec_target_rpm[1]));
+
+    set_chassis_speed(rec_target_rpm[0], rec_target_rpm[1]);
 }
 
 static void control_joint_angle(int angle)
@@ -204,8 +240,8 @@ static void control_joint_angle(int angle)
     extern struct Joint_device joint[JOINT_SIZE];
 
     rt_err_t res = rt_mq_send(angle_queue.RT_MQ, &angle, sizeof(int));
-	if (res != RT_EOK)
-		rt_kprintf("res:%d\n");
+    if (res != RT_EOK)
+        rt_kprintf("res:%d\n");
 }
 
 static void ano_parse_frame(uint8_t *buffer, uint8_t length)
@@ -278,15 +314,15 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
     /* 数据解析 */
     else if (buffer[2] == 0xE7)
     {
-        static int thro, yaw, angle;
+        static int thro, yaw;
 
         thro = *((int16_t *)(buffer + 4));
         yaw = *((int16_t *)(buffer + 6));
 
-        rec_target_motor_num = thro;
+        // rec_target_motor_num = thro;
 
         // 计算并设置目标油门和角度
-        calculate_wheel_speeds(rec_target_motor_num, -yaw);
+        calculate_wheel_speeds(thro, -yaw);
     }
     else if (buffer[2] == 0xE8)
     {
@@ -296,15 +332,21 @@ static void ano_parse_frame(uint8_t *buffer, uint8_t length)
         // 设置目标手臂舵机角度
         control_joint_angle(angle);
     }
-	else if (buffer[2] == 0xE9)
+    else if (buffer[2] == 0xE9)
     {
-        static int thro, yaw;
+        static int thro, yaw, speed_l, speed_r;
 
-		thro = *((int16_t *)(buffer + 4));
+        thro = *((int16_t *)(buffer + 4));
         yaw = *((int16_t *)(buffer + 6));
+        speed_l = *((int16_t *)(buffer + 8));
+        speed_r = *((int16_t *)(buffer + 10));
+
+		// 开启PID控制
+		use_pid_ctrl = 1;
 
 		rec_target_motor_num = thro;
-		rec_target_rpm[0] = rec_target_rpm[1] = 50;
+        rec_target_rpm[0] = speed_l;
+        rec_target_rpm[1] = speed_r;
     }
 
     ano_send_check(buffer[2], buffer[buffer[3] + 4], buffer[buffer[3] + 5]);

@@ -95,10 +95,10 @@ float get_battery_data(void)
     return battery_voltage;
 }
 
-int Check_Voltage_Data(void)
+int check_Voltage_Data(void)
 {
     battery_voltage = get_battery_voltage() + VOLTAGE_DROP;
-    rt_kprintf("Battery currnet voltage:%f\n", battery_voltage );
+    rt_kprintf("Battery currnet voltage:%fV\n", battery_voltage );
     return RT_EOK;
 }
-MSH_CMD_EXPORT(Check_Voltage_Data, To Check robot battery voltage);
+MSH_CMD_EXPORT(check_Voltage_Data, To Check robot battery voltage);

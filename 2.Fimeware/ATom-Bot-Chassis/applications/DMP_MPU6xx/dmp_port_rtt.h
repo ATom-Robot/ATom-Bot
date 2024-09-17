@@ -88,7 +88,7 @@ struct imu_data
 extern struct imu_data robot_imu_dmp_data;
 
 void MPU6050_DMP_GetData(struct imu_data *robot_imu_data);
-uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf);
-uint8_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf);
+rt_err_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *databuf);
+rt_err_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf);
 
 #endif

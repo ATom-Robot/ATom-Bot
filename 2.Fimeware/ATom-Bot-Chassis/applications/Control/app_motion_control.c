@@ -35,6 +35,7 @@ typedef struct
 static velocity_dt wheel_dt[2];
 static int32_t motor_pwm[2];
 static _PID_val_st yaw_val;
+uint8_t use_pid_ctrl = 1;
 
 static void Motion_Set_PWM(int motor_Left, int motor_Right)
 {
@@ -52,30 +53,33 @@ static rt_err_t timeout_cb(rt_device_t dev, rt_size_t size)
     wheel_dt[LEFT].Reality_Position += wheel_dt[LEFT].Reality_Velocity;
     wheel_dt[RIGHT].Reality_Position += wheel_dt[RIGHT].Reality_Velocity;
 #if 0
-	float left_speed1, left_speed2;
-	left_speed1 = Motor_Speed(wheel_dt[LEFT].Reality_Velocity, 7, 100, 10);
+    float left_speed1, left_speed2;
+    left_speed1 = Motor_Speed(wheel_dt[LEFT].Reality_Velocity, 7, 100, 10);
 #endif
-    for (uint8_t i = 0; i < 2; i++)
+    if (use_pid_ctrl)
     {
-        Position_PID(&pid_pos[i], wheel_dt[i].Target_Position, wheel_dt[i].Reality_Position);
+        for (uint8_t i = 0; i < 2; i++)
+        {
+            Position_PID(&pid_pos[i], wheel_dt[i].Target_Position, wheel_dt[i].Reality_Position);
 
-        motor_pwm[i] = limit_amplitude(pid_pos[i].output, wheel_dt[i].Target_Velocity);
-        motor_pwm[i] = Incremental_PID(&pid_vel[i], motor_pwm[i], wheel_dt[i].Reality_Velocity);
-    }
+            motor_pwm[i] = limit_amplitude(pid_pos[i].output, wheel_dt[i].Target_Velocity);
+            motor_pwm[i] = Incremental_PID(&pid_vel[i], motor_pwm[i], wheel_dt[i].Reality_Velocity);
+        }
 #if 0
-	// not use
-    if (angel_control && (ABS(rec_target_yaw - (int)robot_imu_dmp_data.yaw) > 2))
-    {
-        /* 角度环 */
-        PID_calculate(10, rec_target_yaw, robot_imu_dmp_data.yaw, &pid_yaw, &yaw_val, 20, 100);
-    }
-    else
-    {
-        angel_control = RT_FALSE;
-        yaw_val.out = 0;
-    }
+        // not use
+        if (angel_control && (ABS(rec_target_yaw - (int)robot_imu_dmp_data.yaw) > 2))
+        {
+            /* 角度环 */
+            PID_calculate(10, rec_target_yaw, robot_imu_dmp_data.yaw, &pid_yaw, &yaw_val, 20, 100);
+        }
+        else
+        {
+            angel_control = RT_FALSE;
+            yaw_val.out = 0;
+        }
 #endif
-    Motion_Set_PWM(motor_pwm[LEFT] + yaw_val.out, motor_pwm[RIGHT] - yaw_val.out);
+        Motion_Set_PWM(motor_pwm[LEFT] + yaw_val.out, motor_pwm[RIGHT] - yaw_val.out);
+    }
 
     return RT_EOK;
 }
@@ -86,9 +90,9 @@ static void Motion_Control_20ms(void *parameter)
     {
         for (uint8_t i = 0; i < 2; i++)
         {
-			/* 转速 0-300 */
+            /* 转速 0-300 */
             wheel_dt[i].Target_Velocity = Rpm_Encoder_Cnt(rec_target_rpm[i], 7, 100, 10);
-			/* 位置 */
+            /* 位置 */
             wheel_dt[i].Target_Position = Num_Encoder_Cnt(rec_target_motor_num, 7, 100);
         }
 #if USING_ANO_DEBUG
@@ -96,7 +100,7 @@ static void Motion_Control_20ms(void *parameter)
                            wheel_dt[LEFT].Reality_Position,     \
                            wheel_dt[LEFT].Target_Velocity,      \
                            wheel_dt[LEFT].Reality_Velocity,     \
-                           0,									\
+                           0,                                   \
                            0);
 #endif
         rt_thread_mdelay(10);
