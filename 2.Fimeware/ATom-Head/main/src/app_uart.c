@@ -251,6 +251,10 @@ static void get_ChassisData(uint8_t data)
         sta = 0;
 }
 
+/*
+*   _a: thro
+*   _b: yaw
+*/
 void sendwl_ChassisSpeedData(int16_t _a, int16_t _b)
 {
     uint8_t i, cnt = 4;
@@ -279,7 +283,13 @@ void sendwl_ChassisSpeedData(int16_t _a, int16_t _b)
     }
 }
 
-void sendwl_Chassis_DistanceData(int16_t _a, int16_t _b)
+/*
+*   _a: thro
+*   _b: yaw
+*   _c: speed_l
+*   _c: speed_r
+*/
+void sendwl_Chassis_DistanceData(int16_t _a, int16_t _b, int16_t _c, int16_t _d)
 {
     uint8_t i, cnt = 4;
     uint8_t sc = 0, ac = 0;
@@ -289,6 +299,12 @@ void sendwl_Chassis_DistanceData(int16_t _a, int16_t _b)
 
     Data_Buff3[cnt++] = BYTE0(_b);
     Data_Buff3[cnt++] = BYTE1(_b);
+
+    Data_Buff3[cnt++] = BYTE0(_c);
+    Data_Buff3[cnt++] = BYTE1(_c);
+
+    Data_Buff3[cnt++] = BYTE0(_d);
+    Data_Buff3[cnt++] = BYTE1(_d);
 
     Data_Buff3[3] = cnt - 4;
 

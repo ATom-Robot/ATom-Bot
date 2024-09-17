@@ -5,6 +5,7 @@
  */
 #include <time.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
 #include "freertos/queue.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
@@ -24,6 +25,9 @@ static const char *TAG = "APP/sr_handler";
 
 static bool b_audio_playing = false;
 
+/* 距离变量 */
+static int8_t distance = 0;
+
 typedef enum
 {
     AUDIO_WAKE,
@@ -31,6 +35,13 @@ typedef enum
     AUDIO_END,
     AUDIO_MAX,
 } audio_segment_t;
+
+typedef enum
+{
+    TURN_AROUND_T,
+    MOVE_FORWARD_T,
+    MOVE_BACKWARD_T,
+} TimerX;
 
 typedef struct
 {
@@ -95,6 +106,16 @@ bool sr_echo_is_playing(void)
     return b_audio_playing;
 }
 
+/* 定时器句柄 */
+TimerHandle_t xOneShotTimer;
+
+/* 定时器回调函数 */
+void vTimerCallback(TimerHandle_t xTimer)
+{
+    /* 串口发送数据 */
+    sendwl_ChassisSpeedData(0, 0);
+}
+
 // Fisher-Yates洗牌
 void shuffle(int array[], int size)
 {
@@ -133,8 +154,7 @@ void sr_handler_task(void *pvParam)
     }
     (void)ret;
 #endif
-    /* 距离变量 */
-    static int8_t distance = 0;
+
     player_state_t last_player_state = PLAYER_STATE_IDLE;
 
     // 初始化随机数生成器
@@ -239,22 +259,74 @@ void sr_handler_task(void *pvParam)
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
             }
+            /* 跳舞 */
+            case SR_CMD_PLAY_DANCE:
+            {
+                /* to do */
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
+            /* 转圈 */
+            case SR_CMD_PLAY_CIRCLE:
+            {
+                /* 串口发送数据 -- 4s */
+                app_player_play_name("sing2.mp3");
+                ui_sr_emoji_display(HAPPY_EMOJI, false);
+                sendwl_ChassisSpeedData(0, -40);
+
+                /* 创建单次定时器 */
+                xOneShotTimer = xTimerCreate(
+                    "OneShotTimer",        /* 定时器名称 */
+                    pdMS_TO_TICKS(4000),   /* 定时器周期 */
+                    pdFALSE,               /* 单次定时器 */
+                    (void *)TURN_AROUND_T, /* 定时器 ID */
+                    vTimerCallback         /* 定时器回调函数 */
+                );
+                xTimerStart(xOneShotTimer, 0);
+
+                last_player_state = PLAYER_STATE_PLAYING;
+                break;
+            }
             /* 向前进 */
             case SR_CMD_PLAY_MOVE_FORWARD:
             {
-                distance += 5;
-                /* 串口发送数据 -- 向前走5s */
-                sendwl_Chassis_DistanceData(distance, 0);
+                // distance += 4;
+                // /* 串口发送数据 -- 向前走4s */
+                // sendwl_Chassis_DistanceData(distance, 0, 50, 50);
+                sendwl_ChassisSpeedData(45, 0);
+
+                /* 创建单次定时器 */
+                xOneShotTimer = xTimerCreate(
+                    "OneShotTimer",         /* 定时器名称 */
+                    pdMS_TO_TICKS(3000),    /* 定时器周期 */
+                    pdFALSE,                /* 单次定时器 */
+                    (void *)MOVE_FORWARD_T, /* 定时器 ID */
+                    vTimerCallback          /* 定时器回调函数 */
+                );
+                xTimerStart(xOneShotTimer, 0);
+
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
             }
             /* 向后退 */
             case SR_CMD_PLAY_MOVE_BACKWARD:
             {
-                distance -= 5;
+                // distance -= 4;
                 app_player_play_name("bi.mp3");
                 /* 串口发送数据 -- 向后退5s */
-                sendwl_Chassis_DistanceData(distance, 0);
+                // sendwl_Chassis_DistanceData(distance, 0, 50, 50);
+                sendwl_ChassisSpeedData(-45, 0);
+
+                /* 创建单次定时器 */
+                xOneShotTimer = xTimerCreate(
+                    "OneShotTimer",         /* 定时器名称 */
+                    pdMS_TO_TICKS(3000),    /* 定时器周期 */
+                    pdFALSE,                /* 单次定时器 */
+                    (void *)MOVE_BACKWARD_T, /* 定时器 ID */
+                    vTimerCallback          /* 定时器回调函数 */
+                );
+                xTimerStart(xOneShotTimer, 0);
+
                 last_player_state = PLAYER_STATE_PLAYING;
                 break;
             }
