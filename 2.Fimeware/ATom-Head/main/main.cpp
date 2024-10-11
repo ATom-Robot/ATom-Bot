@@ -21,6 +21,13 @@ extern "C" void app_main()
 {
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
+    audio_player_config_t config = {.mute_fn = NULL,
+                                    .clk_set_fn = bsp_codec_set_fn,
+                                    .write_fn = bsp_i2s_write,
+                                    .priority = configMAX_PRIORITIES - 5,
+                                    .base_path = "/spiffs/mp3"
+                                   };
+
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
@@ -35,9 +42,9 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(App_Lvgl_run());
     ESP_ERROR_CHECK(App_Wifi_run());
     ESP_ERROR_CHECK(APP_TcpServer_run());
-    ESP_ERROR_CHECK(App_Player_run("/spiffs/mp3"));
+    ESP_ERROR_CHECK(APP_Player_run(config));
+
     ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
-    // rtsp_server();
     ESP_ERROR_CHECK(App_Shell_run());
     ESP_ERROR_CHECK(APP_Uart_run());
 }

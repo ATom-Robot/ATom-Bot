@@ -328,7 +328,7 @@ static void pack_data_analysis(int len, const char *rx_buffer)
         {
             if (cnt == 0)
             {
-                app_player_play_name("bi.mp3");
+                audio_player_play_name("bi.mp3");
                 cnt += 1;
             }
             else if (cnt > 10)

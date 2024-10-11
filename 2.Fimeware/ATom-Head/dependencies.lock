@@ -1,15 +1,21 @@
 dependencies:
-  espressif/cmake_utilities:
-    component_hash: 12be4a3fa6082b923040ac65aacdaa6cc03c30902673ff525100c80da1430a4e
+  chmorgan/esp-libhelix-mp3:
+    component_hash: cbb76089dc2c5749f7b470e2e70aedc44c9da519e04eb9a67d4c7ec275229e53
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 0.5.0
+    version: 1.0.3
+  espressif/cmake_utilities:
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 0.5.3
   idf:
     component_hash: null
     source:
       type: idf
     version: 4.4.2
-manifest_hash: 13d22d02c6a360742910020b3c71ae7e193c32e975bac53cc96f1a0ddaeaa680
+manifest_hash: 5867e44dbe209c753da9699ea72f51c41df7b3563acaeb7df3cd73c4dcf7a8c1
 target: esp32s3
 version: 1.0.0

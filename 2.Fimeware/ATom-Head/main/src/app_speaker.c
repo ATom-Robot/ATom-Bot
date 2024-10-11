@@ -11,17 +11,16 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
                         int dataOutPin)
 {
     i2s_config_t i2s_config =
-    {
-        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-        .sample_rate = ADUIO_SAMPLE_RATE,
-        .bits_per_sample = BPS,
-        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-        .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-        .dma_buf_count = 4,
-        .dma_buf_len = 128,
-        .use_apll = false
-    };
+        {
+            .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+            .sample_rate = ADUIO_SAMPLE_RATE,
+            .bits_per_sample = BPS,
+            .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+            .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
+            .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+            .dma_buf_count = 4,
+            .dma_buf_len = 128,
+            .use_apll = false};
 
     i2s_pin_config_t pin_config;
     memset(&pin_config, 0, sizeof(i2s_pin_config_t));
@@ -46,11 +45,18 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
     return true;
 }
 
-size_t speaker_write(char *data, int numData)
+esp_err_t bsp_codec_set_fn(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch)
 {
-    size_t sendSize;
-    i2s_write(I2S_NUM, (void *)data, numData, &sendSize, portMAX_DELAY);
-    return sendSize;
+    esp_err_t ret = ESP_OK;
+    i2s_set_clk(I2S_NUM, rate, bits_cfg, ch);
+    return ret;
+}
+
+esp_err_t bsp_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
+{
+    esp_err_t ret = ESP_OK;
+    i2s_write(I2S_NUM, (char *)audio_buffer, len, bytes_written, timeout_ms);
+    return ret;
 }
 
 esp_err_t App_Speaker_Init(void)
@@ -64,17 +70,4 @@ esp_err_t App_Speaker_Init(void)
 void speaker_uninstall(void)
 {
     i2s_driver_uninstall(I2S_NUM);
-}
-
-esp_err_t audio_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch)
-{
-    i2s_set_clk(I2S_NUM, rate, bits_cfg, ch);
-    return ESP_OK;
-}
-
-esp_err_t audio_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
-{
-    esp_err_t ret = ESP_OK;
-    ret = i2s_write(I2S_NUM, (char *)audio_buffer, len, bytes_written, timeout_ms);
-    return ret;
 }

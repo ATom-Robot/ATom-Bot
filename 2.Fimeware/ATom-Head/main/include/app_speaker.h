@@ -18,11 +18,9 @@ extern "C"
 #endif
 
 esp_err_t App_Speaker_Init(void);
-size_t speaker_write(char *data, int numData);
+esp_err_t bsp_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms);
+esp_err_t bsp_codec_set_fn(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch);
 void speaker_uninstall(void);
-
-esp_err_t audio_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch);
-esp_err_t audio_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms);
 
 #ifdef __cplusplus
 }

@@ -114,7 +114,7 @@ void ui_main_screen_event(lv_event_t *e)
     static bool is_play_finish = true;
     lv_event_code_t code = lv_event_get_code(e);
 
-    player_state_t last_player_state = PLAYER_STATE_IDLE;
+    audio_player_state_t last_player_state = AUDIO_PLAYER_STATE_IDLE;
 
     // 开始接收shake事件
     if (code == LV_EVENT_VALUE_CHANGED)
@@ -123,7 +123,7 @@ void ui_main_screen_event(lv_event_t *e)
         if (shake_flag && is_play_finish)
         {
             ui_shaked_emoji_start();
-            app_player_play_name("shaked.mp3");
+            audio_player_play_name("shaked.mp3");
             is_play_finish = false;
         }
     }

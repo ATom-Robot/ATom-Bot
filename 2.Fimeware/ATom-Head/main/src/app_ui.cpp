@@ -144,7 +144,7 @@ void next_frame_task_cb(lv_event_t *event)
 static void getup_voice_cb(lv_timer_t *timer)
 {
     /* wake up voice */
-    app_player_play_name(em_list[WAKEUP_EMOJI].voice);
+    audio_player_play_name(em_list[WAKEUP_EMOJI].voice);
     lv_timer_del(timer);
 }
 
