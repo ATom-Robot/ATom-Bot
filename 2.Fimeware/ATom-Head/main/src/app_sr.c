@@ -15,6 +15,8 @@
 #include "esp_mn_iface.h"
 #include "esp_mn_models.h"
 #include "esp_afe_sr_iface.h"
+#include "esp_mn_speech_commands.h"
+#include "esp_process_sdkconfig.h"
 #include "model_path.h"
 
 #include "esp_check.h"
@@ -35,14 +37,14 @@ static const char *TAG = "App/Speech";
 typedef struct
 {
     sr_language_t lang;
+    char *mn_name;
     model_iface_data_t *model_data;
     const esp_mn_iface_t *multinet;
     const esp_afe_sr_iface_t *afe_handle;
     esp_afe_sr_data_t *afe_data;
     int16_t *afe_in_buffer;
     int16_t *afe_out_buffer;
-    SLIST_HEAD(sr_cmd_list_t, sr_cmd_t)
-    cmd_list;
+    SLIST_HEAD(sr_cmd_list_t, sr_cmd_t) cmd_list;
     uint8_t cmd_num;
     TaskHandle_t feed_task;
     TaskHandle_t detect_task;
@@ -55,7 +57,8 @@ typedef struct
 } sr_data_t;
 
 static sr_data_t *g_sr_data = NULL;
-
+static esp_afe_sr_iface_t *afe_handle = NULL;
+static srmodel_list_t *models = NULL;
 static SemaphoreHandle_t sr_detect_semaphore = NULL;
 
 static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
@@ -94,14 +97,17 @@ esp_err_t bsp_get_feed_data(int16_t *buffer, int buffer_len)
     esp_err_t ret = ESP_OK;
     size_t bytes_read;
     int audio_chunksize = buffer_len / (sizeof(int32_t));
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    ret = i2s_channel_read(rx_handle, buffer, buffer_len, &bytes_read, portMAX_DELAY);
+#else
     ret = i2s_read(I2S_NUM_1, buffer, buffer_len, &bytes_read, portMAX_DELAY);
+#endif
 
     int32_t *tmp_buff = buffer;
     for (int i = 0; i < audio_chunksize; i++)
     {
         tmp_buff[i] = tmp_buff[i] >> 14;
     }
-
     return ret;
 }
 
@@ -135,17 +141,17 @@ static const sr_cmd_t g_default_cmd_info[] =
 
 static void feed_Task(void *pvParam)
 {
-    const esp_afe_sr_iface_t *afe_handle = g_sr_data->afe_handle;
-    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParam;
+    ESP_LOGI(TAG, "Feed Task");
+    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
+    int nch = afe_handle->get_channel_num(afe_data);
     int feed_channel = bsp_get_feed_channel();
+    assert(nch <= feed_channel);
     ESP_LOGI(TAG, "audio_chunksize=%d, feed_channel=%d", audio_chunksize, feed_channel);
-    int16_t *audio_buffer = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * feed_channel, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 
-    if (NULL == audio_buffer)
-    {
-        esp_system_abort("No mem for audio buffer");
-    }
+    /* Allocate audio buffer and check for result */
+    int16_t *audio_buffer = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * feed_channel, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    assert(audio_buffer);
     g_sr_data->afe_in_buffer = audio_buffer;
 
     while (1)
@@ -158,7 +164,7 @@ static void feed_Task(void *pvParam)
 
         bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * feed_channel);
 
-        afe_handle->feed(afe_data, audio_buffer);
+        afe_handle->feed(afe_data, (int16_t *)audio_buffer);
 
         // 唤醒后才开始录音 --> AI大模型使用
         audio_record_save(audio_buffer, audio_chunksize);
@@ -171,36 +177,22 @@ static void feed_Task(void *pvParam)
     vTaskDelete(NULL);
 }
 
-static void detect_Task(void *pvParam)
+static void audio_detect_task(void *pvParam)
 {
     bool detect_flag = false;
     static uint8_t frame_keep = 0;
-    static afe_fetch_mode_t local_state = AFE_FETCH_SPEECH;
-    esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParam;
+    static afe_vad_state_t local_state;
+    esp_afe_sr_data_t *afe_data = pvParam;
 
-    /* Allocate buffer for detection */
-    size_t afe_chunk_size = g_sr_data->afe_handle->get_fetch_chunksize(afe_data);
-    g_sr_data->afe_out_buffer = heap_caps_malloc(afe_chunk_size * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    if (NULL == g_sr_data->afe_out_buffer)
-    {
-        ESP_LOGE(TAG, "Expect : %zu, avaliable : %zu",
-                 afe_chunk_size * sizeof(int16_t),
-                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-        esp_system_abort("No mem for detect buffer");
-    }
+    // if (xSemaphoreTake(sr_detect_semaphore, portMAX_DELAY) == pdTRUE)
+    // {
+    //     vSemaphoreDelete(sr_detect_semaphore);
+    // }
+    int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
+    int mu_chunksize = g_sr_data->multinet->get_samp_chunksize(g_sr_data->model_data);
+    assert(mu_chunksize == afe_chunksize);
 
-    /* Check for chunk size */
-    if (afe_chunk_size != g_sr_data->multinet->get_samp_chunksize(g_sr_data->model_data))
-    {
-        esp_system_abort("Invalid chunk size");
-    }
-
-    if (xSemaphoreTake(sr_detect_semaphore, portMAX_DELAY) == pdTRUE)
-    {
-        vSemaphoreDelete(sr_detect_semaphore);
-    }
-
-    printf("------------ detect start ------------\n");
+    ESP_LOGI(TAG, "------------detect start------------\n");
 
     while (1)
     {
@@ -211,21 +203,26 @@ static void detect_Task(void *pvParam)
             vTaskDelete(NULL);
         }
 
-        afe_fetch_mode_t ret_val = g_sr_data->afe_handle->fetch(afe_data, g_sr_data->afe_out_buffer);
+        afe_fetch_result_t *res = afe_handle->fetch(afe_data);
+        if (!res || res->ret_value == ESP_FAIL)
+        {
+            ESP_LOGW(TAG, "AFE Fetch Fail");
+            continue;
+        }
 
         // 检测到唤醒词
-        if (AFE_FETCH_WWE_DETECTED == ret_val)
+        if (WAKENET_DETECTED == res->wakeup_state)
         {
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "wakeword detected");
             sr_result_t result =
             {
-                .fetch_mode = ret_val,
+                .wakenet_mode = WAKENET_DETECTED,
                 .state = ESP_MN_STATE_DETECTING,
                 .command_id = 0,
             };
             xQueueSend(g_sr_data->result_que, &result, 0);
         }
-        else if (AFE_FETCH_CHANNEL_VERIFIED == ret_val)
+        else if (WAKENET_CHANNEL_VERIFIED == res->wakeup_state)
         {
             detect_flag = true;
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) ">>> Say your command <<<");
@@ -237,26 +234,26 @@ static void detect_Task(void *pvParam)
 
         if (true == detect_flag)
         {
-            if (local_state != ret_val)
+            if (local_state != res->vad_state)
             {
-                local_state = ret_val;
-                if (AFE_FETCH_NOISE == local_state)
+                local_state = res->vad_state;
+                if (AFE_VAD_SILENCE != local_state)
                 {
-                    ESP_LOGW(TAG, "%s, ret_val:%d", "silence", ret_val);
+                    ESP_LOGW(TAG, "%s, res:%d", "silence", res->vad_state);
                 }
                 frame_keep = 0;
             }
             else
             {
                 frame_keep++;
-                ESP_LOGW(TAG, "ret_val:%d", ret_val);
+                ESP_LOGW(TAG, "res:%d", res->vad_state);
             }
-            if ((150 == frame_keep) && (AFE_FETCH_NOISE == ret_val))
+            if ((150 == frame_keep) && (AFE_VAD_SILENCE == res->vad_state))
             {
                 ESP_LOGW(TAG, "vad Time out");
                 sr_result_t result =
                 {
-                    .fetch_mode = ret_val,
+                    .wakenet_mode = WAKENET_NO_DETECT,
                     .state = ESP_MN_STATE_TIMEOUT,
                     .command_id = 0,
                 };
@@ -268,16 +265,17 @@ static void detect_Task(void *pvParam)
 
             esp_mn_state_t mn_state = ESP_MN_STATE_DETECTING;
             // 开始离线语音识别
-            mn_state = g_sr_data->multinet->detect(g_sr_data->model_data, g_sr_data->afe_out_buffer);
+            mn_state = g_sr_data->multinet->detect(g_sr_data->model_data, res->data);
 
-            if (mn_state == ESP_MN_STATE_DETECTING)
+            if (ESP_MN_STATE_DETECTING == mn_state)
                 continue;
+
             if (ESP_MN_STATE_TIMEOUT == mn_state)
             {
                 ESP_LOGW(TAG, "Time out");
                 sr_result_t result =
                 {
-                    .fetch_mode = ret_val,
+                    .wakenet_mode = WAKENET_NO_DETECT,
                     .state = mn_state,
                     .command_id = 0,
                 };
@@ -286,21 +284,29 @@ static void detect_Task(void *pvParam)
                 detect_flag = false;
                 continue;
             }
-            else
-            {
-                int sr_command_id = mn_state;
-                ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
 
+            if (ESP_MN_STATE_DETECTED == mn_state)
+            {
+                esp_mn_results_t *mn_result = g_sr_data->multinet->get_results(g_sr_data->model_data);
+                for (int i = 0; i < mn_result->num; i++)
+                {
+                    printf("TOP %d, command_id: %d, phrase_id: %d, prob: %f\n",
+                           i + 1, mn_result->command_id[i], mn_result->phrase_id[i], mn_result->prob[i]);
+                }
+
+                int sr_command_id = mn_result->command_id[0];
+                ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
                 sr_result_t result =
                 {
-                    .fetch_mode = ret_val,
-                    .state = ESP_MN_STATE_DETECTED,
+                    .wakenet_mode = WAKENET_NO_DETECT,
+                    .state = mn_state,
                     .command_id = sr_command_id,
                 };
-
                 xQueueSend(g_sr_data->result_que, &result, 0);
+#if !SR_CONTINUE_DET
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
+#endif
                 continue;
             }
         }
@@ -346,34 +352,13 @@ const sr_cmd_t *app_sr_get_cmd_from_id(uint32_t id)
     return NULL;
 }
 
-esp_err_t app_sr_update_cmds(void)
-{
-    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
-
-    char *cmd_str = heap_caps_calloc(g_sr_data->cmd_num, SR_CMD_PHONEME_LEN_MAX, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    ESP_RETURN_ON_FALSE(NULL != cmd_str, ESP_ERR_NO_MEM, TAG, "memory for sr cmd str is not enough");
-
-    uint32_t count = 0;
-    sr_cmd_t *it;
-    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
-    {
-        it->id = count++;
-        strcat(cmd_str, it->phoneme);
-        strcat(cmd_str, ";");
-    }
-
-    ESP_LOGI(TAG, "New %d command set to :[%s]", count, cmd_str);
-    g_sr_data->multinet->reset(g_sr_data->model_data, cmd_str, (char *) -1);
-
-    heap_caps_free(cmd_str);
-    return ESP_OK;
-}
-
 esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
 {
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
     ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invaild");
-    ESP_RETURN_ON_FALSE(200 >= g_sr_data->cmd_num, ESP_ERR_INVALID_STATE, TAG, "cmd is full");
+    ESP_RETURN_ON_FALSE(cmd->lang == g_sr_data->lang, ESP_ERR_INVALID_ARG, TAG, "cmd lang error");
+    ESP_RETURN_ON_FALSE(ESP_MN_MAX_PHRASE_NUM >= g_sr_data->cmd_num, ESP_ERR_INVALID_STATE, TAG, "cmd is full");
+
     sr_cmd_t *item = (sr_cmd_t *)heap_caps_calloc(1, sizeof(sr_cmd_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     ESP_RETURN_ON_FALSE(NULL != item, ESP_ERR_NO_MEM, TAG, "memory for sr cmd is not enough");
     memcpy(item, cmd, sizeof(sr_cmd_t));
@@ -393,23 +378,74 @@ esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
         }
         SLIST_INSERT_AFTER(last, item, next);
     }
-#else // insert head
+#else  // insert head
     SLIST_INSERT_HEAD(&g_sr_data->cmd_list, it, next);
 #endif
+
+    if (strstr(g_sr_data->mn_name, "mn6_en"))
+    {
+        esp_mn_commands_add(g_sr_data->cmd_num, (char *)cmd->str);
+    }
+    else
+    {
+        esp_mn_commands_add(g_sr_data->cmd_num, (char *)cmd->phoneme);
+    }
     g_sr_data->cmd_num++;
     return ESP_OK;
 }
 
-esp_err_t app_sr_set_language(sr_language_t new_lang)
+esp_err_t app_sr_modify_cmd(uint32_t id, const sr_cmd_t *cmd)
 {
-    if (g_sr_data->model_data)
-    {
-        g_sr_data->multinet->destroy(g_sr_data->model_data);
-    }
-    g_sr_data->multinet = &MULTINET_MODEL;
-    g_sr_data->model_data = g_sr_data->multinet->create((const model_coeff_getter_t *)&MULTINET_COEFF, 5760);
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
+    ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invaild");
+    ESP_RETURN_ON_FALSE(id < g_sr_data->cmd_num, ESP_ERR_INVALID_ARG, TAG, "cmd id out of range");
+    ESP_RETURN_ON_FALSE(cmd->lang == g_sr_data->lang, ESP_ERR_INVALID_ARG, TAG, "cmd lang error");
 
-    // remove all command
+    sr_cmd_t *it;
+    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
+    {
+        if (it->id == id)
+        {
+            ESP_LOGI(TAG, "modify cmd [%d] from %s to %s", id, it->str, cmd->str);
+            if (strstr(g_sr_data->mn_name, "mn6_en"))
+            {
+                esp_mn_commands_modify(it->str, (char *)cmd->str);
+            }
+            else
+            {
+                esp_mn_commands_modify(it->phoneme, (char *)cmd->phoneme);
+            }
+            memcpy(it, cmd, sizeof(sr_cmd_t));
+            break;
+        }
+    }
+    ESP_RETURN_ON_FALSE(NULL != it, ESP_ERR_NOT_FOUND, TAG, "can't find cmd id:%d", cmd->id);
+    return ESP_OK;
+}
+
+esp_err_t app_sr_remove_cmd(uint32_t id)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
+    ESP_RETURN_ON_FALSE(id < g_sr_data->cmd_num, ESP_ERR_INVALID_ARG, TAG, "cmd id out of range");
+    sr_cmd_t *it;
+    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
+    {
+        if (it->id == id)
+        {
+            ESP_LOGI(TAG, "remove cmd id [%d]", it->id);
+            SLIST_REMOVE(&g_sr_data->cmd_list, it, sr_cmd_t, next);
+            heap_caps_free(it);
+            g_sr_data->cmd_num--;
+            break;
+        }
+    }
+    ESP_RETURN_ON_FALSE(NULL != it, ESP_ERR_NOT_FOUND, TAG, "can't find cmd id:%d", id);
+    return ESP_OK;
+}
+
+esp_err_t app_sr_remove_all_cmd(void)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
     sr_cmd_t *it;
     while (!SLIST_EMPTY(&g_sr_data->cmd_list))
     {
@@ -417,16 +453,136 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
         SLIST_REMOVE_HEAD(&g_sr_data->cmd_list, next);
         heap_caps_free(it);
     }
+    SLIST_INIT(&g_sr_data->cmd_list);
+    return ESP_OK;
+}
+
+esp_err_t app_sr_update_cmds(void)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
+
+    uint32_t count = 0;
+    sr_cmd_t *it;
+    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
+    {
+        it->id = count++;
+    }
+
+    esp_mn_error_t *err_id = esp_mn_commands_update(g_sr_data->multinet, g_sr_data->model_data);
+    if (err_id)
+    {
+        for (int i = 0; i < err_id->num; i++)
+        {
+            ESP_LOGE(TAG, "err cmd id:%d", err_id->phrases[i]->command_id);
+        }
+    }
+    esp_mn_commands_print();
+
+    return ESP_OK;
+}
+
+uint8_t app_sr_search_cmd_from_user_cmd(sr_user_cmd_t user_cmd, uint8_t *id_list, uint16_t max_len)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, 0, TAG, "SR is not running");
+
+    uint8_t cmd_num = 0;
+    sr_cmd_t *it;
+    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
+    {
+        if (user_cmd == it->cmd)
+        {
+            if (id_list)
+            {
+                id_list[cmd_num] = it->id;
+            }
+            if (++cmd_num >= max_len)
+            {
+                break;
+            }
+        }
+    }
+    return cmd_num;
+}
+
+uint8_t app_sr_search_cmd_from_phoneme(const char *phoneme, uint8_t *id_list, uint16_t max_len)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, 0, TAG, "SR is not running");
+
+    uint8_t cmd_num = 0;
+    sr_cmd_t *it;
+    SLIST_FOREACH(it, &g_sr_data->cmd_list, next)
+    {
+        if (0 == strcmp(phoneme, it->phoneme))
+        {
+            if (id_list)
+            {
+                id_list[cmd_num] = it->id;
+            }
+            if (++cmd_num >= max_len)
+            {
+                break;
+            }
+        }
+    }
+    return cmd_num;
+}
+
+esp_err_t app_sr_set_language(sr_language_t new_lang)
+{
+    ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
+
+    if (new_lang == g_sr_data->lang)
+    {
+        ESP_LOGW(TAG, "nothing to do");
+        return ESP_OK;
+    }
+    else
+    {
+        g_sr_data->lang = new_lang;
+    }
+
+    ESP_LOGW(TAG, "Set language to %s", SR_LANG_EN == g_sr_data->lang ? "EN" : "CN");
+    if (g_sr_data->model_data)
+    {
+        g_sr_data->multinet->destroy(g_sr_data->model_data);
+    }
+
+    g_sr_data->cmd_num = 0;
+
+    char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
+    ESP_RETURN_ON_FALSE(NULL != wn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
+    g_sr_data->afe_handle->set_wakenet(g_sr_data->afe_data, wn_name);
+    ESP_LOGI(TAG, "load wakenet:%s", wn_name);
+
+    char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ((SR_LANG_EN == g_sr_data->lang) ? ESP_MN_ENGLISH : ESP_MN_CHINESE));
+    ESP_RETURN_ON_FALSE(NULL != mn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
+    esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
+    model_iface_data_t *model_data = multinet->create(mn_name, 5760);
+    g_sr_data->multinet = multinet;
+    g_sr_data->model_data = model_data;
+    g_sr_data->mn_name = mn_name;
+    ESP_LOGI(TAG, "load multinet:%s", g_sr_data->mn_name);
+
+    // remove all command
+    app_sr_remove_all_cmd();
+    if (strstr(g_sr_data->mn_name, "mn6"))
+    {
+        esp_mn_commands_clear();
+    }
 
     uint8_t cmd_number = 0;
     // count command number
     for (size_t i = 0; i < sizeof(g_default_cmd_info) / sizeof(sr_cmd_t); i++)
     {
-        cmd_number++;
-        app_sr_add_cmd(&g_default_cmd_info[i]);
+        if (g_default_cmd_info[i].lang == g_sr_data->lang)
+        {
+            app_sr_add_cmd(&g_default_cmd_info[i]);
+            cmd_number++;
+        }
     }
     ESP_LOGI(TAG, "cmd_number=%d", cmd_number);
-    return app_sr_update_cmds(); /* Reset command list */
+
+    return app_sr_update_cmds();/* Reset command list */
 }
 
 void en_sr_detect_task(void)
@@ -452,22 +608,34 @@ esp_err_t App_Speech_run(void)
 
     SLIST_INIT(&g_sr_data->cmd_list);
 
-    esp_task_wdt_reset();
-    g_sr_data->afe_handle = &esp_afe_sr_1mic;
+    models = esp_srmodel_init("model");
+    afe_handle = (esp_afe_sr_iface_t *)&ESP_AFE_SR_HANDLE;
     afe_config_t afe_config = AFE_CONFIG_DEFAULT();
+
+    afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
     afe_config.aec_init = false;
-    afe_config.se_init = false;
-    afe_config.vad_init = false;
-    afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
-    g_sr_data->afe_data = g_sr_data->afe_handle->create_from_config(&afe_config);
-    g_sr_data->lang = SR_LANG_CN;
-    ret = app_sr_set_language(g_sr_data->lang);
+
+    esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
+    g_sr_data->afe_handle = afe_handle;
+    g_sr_data->afe_data = afe_data;
+
+    // afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
+    afe_config.pcm_config.total_ch_num = 2;
+    afe_config.pcm_config.mic_num = 1;
+    afe_config.pcm_config.ref_num = 1;
+    afe_config.wakenet_mode = DET_MODE_90;
+    // afe_config.se_init = false;
+    // afe_config.vad_init = false;
+    // afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
+    // g_sr_data->afe_data = g_sr_data->afe_handle->create_from_config(&afe_config);
+    g_sr_data->lang = SR_LANG_MAX;
+    ret = app_sr_set_language(SR_LANG_CN);
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG, "Failed to set language");
 
-    BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, g_sr_data->afe_data, 5, &g_sr_data->feed_task, 1);
+    BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, afe_data, 5, &g_sr_data->feed_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio feed task");
 
-    ret_val = xTaskCreatePinnedToCore((TaskFunction_t)detect_Task, "App/SR/Detect", 6 * 1024, g_sr_data->afe_data, 5, &g_sr_data->detect_task, 1);
+    ret_val = xTaskCreatePinnedToCore((TaskFunction_t)audio_detect_task, "App/SR/Detect", 6 * 1024, afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio detect task");
 
     ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);

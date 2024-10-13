@@ -29,7 +29,7 @@ extern "C" void app_main()
         .base_path = "/spiffs/mp3"
     };
 
-    ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
+    // ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
     ESP_ERROR_CHECK(App_Camera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 3, xQueueLCDFrame));

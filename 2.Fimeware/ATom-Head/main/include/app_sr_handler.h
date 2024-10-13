@@ -15,8 +15,6 @@ extern "C" {
 
     void en_sr_detect_task(void);
 
-    bool sr_echo_is_playing(void);
-
     void sr_handler_task(void *pvParam);
 
 #ifdef __cplusplus

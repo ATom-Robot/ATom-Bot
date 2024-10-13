@@ -170,7 +170,7 @@ void sr_handler_task(void *pvParam)
         app_sr_get_result(&result, portMAX_DELAY);
 
         // WWE Detected (检测到唤醒词)
-        if (AFE_FETCH_WWE_DETECTED == result.fetch_mode)
+        if (WAKENET_DETECTED == result.wakenet_mode)
         {
             ESP_LOGI(TAG, "WAKE UP!");
 
