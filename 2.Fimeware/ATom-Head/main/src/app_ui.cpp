@@ -3,8 +3,6 @@
 #include "esp_camera.h"
 #include "app_player.h"
 
-static const char *TAG = "app_ui";
-
 /*********************
  *      DEFINES
  *********************/
@@ -37,12 +35,12 @@ emoji_list em_list[] =
     {&shake_gif, 3000, "shaked.mp3"},
 };
 
-extern bool gReturnFB;
 static bool shake_flag = false;
 static lv_obj_t *gif_anim = NULL;
 lv_obj_t *ui_screen_main = NULL;
 
 #if 0
+extern bool gReturnFB;
 extern lv_obj_t *camera_obj;
 
 void lv_camera_create(void)

@@ -4,7 +4,8 @@
 #include "audio_log.h"
 #include "audio_decode_types.h"
 
-typedef struct {
+typedef struct
+{
     // The "RIFF" chunk descriptor
     uint8_t ChunkID[4];
     int32_t ChunkSize;
@@ -18,15 +19,20 @@ typedef struct {
     int32_t ByteRate;
     int16_t BlockAlign;
     int16_t BitsPerSample;
+    // The "data" sub-chunk
+    uint8_t Subchunk2ID[4]; // Total length of the audio data, which is the file size minus the length of the WAV file header.
+    int32_t Subchunk2Size;  // Length of the data section, referring to the size of the audio data excluding the header.
 } wav_header_t;
 
-typedef struct {
+typedef struct
+{
     // The "data" sub-chunk
     uint8_t SubchunkID[4];
     int32_t SubchunkSize;
 } wav_subchunk_header_t;
 
-typedef struct {
+typedef struct
+{
     wav_header_t header;
 } wav_instance;
 

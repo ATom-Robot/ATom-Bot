@@ -64,6 +64,8 @@ typedef enum
     SR_CMD_PLAY_DANCE,
     SR_CMD_PLAY_MOVE_FORWARD,
     SR_CMD_PLAY_MOVE_BACKWARD,
+    SR_CMD_ENTER_AI_MODE,
+    SR_CMD_EXIT_AI_MODE,
     SR_CMD_MAX,
 } sr_user_cmd_t;
 
@@ -71,6 +73,7 @@ typedef enum
 {
     ESP_MN_STATE_DETECTING = -1,     // detecting
     ESP_MN_STATE_TIMEOUT = -2,       // time out
+    ESP_MN_STATE_DETECTED = -3,      // detected
 } esp_mn_state_t;
 
 typedef struct sr_cmd_t

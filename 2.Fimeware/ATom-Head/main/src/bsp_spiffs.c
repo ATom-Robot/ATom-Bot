@@ -10,7 +10,7 @@
 #include "esp_spiffs.h"
 #include <dirent.h>
 
-#define DEFAULT_FD_NUM      2
+#define DEFAULT_FD_NUM 2
 #define DEFAULT_MOUNT_POINT "/spiffs"
 
 static const char *TAG = "bsp_spiffs";
@@ -22,13 +22,14 @@ static void SPIFFS_Directory(char *path)
     while (true)
     {
         struct dirent *pe = readdir(dir);
-        if (!pe) break;
+        if (!pe)
+            break;
         ESP_LOGI(__FUNCTION__, "d_name=%s d_ino=%d d_type=%x", pe->d_name, pe->d_ino, pe->d_type);
     }
     closedir(dir);
 }
 
-esp_err_t bsp_spiffs_init(char *partition_label, char *mount_point, size_t max_files)
+esp_err_t bsp_spiffs_init(const char *partition_label, const char *mount_point, size_t max_files)
 {
     esp_vfs_spiffs_conf_t conf =
     {

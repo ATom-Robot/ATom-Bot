@@ -24,6 +24,7 @@
 #include "driver/i2s.h"
 #include "esp_log.h"
 #include "app_speech.h"
+#include "app_player.h"
 #include "app_sr_handler.h"
 
 #define NEED_DELETE BIT0
@@ -57,21 +58,19 @@ static sr_data_t *g_sr_data = NULL;
 
 static SemaphoreHandle_t sr_detect_semaphore = NULL;
 
-static int detect_flag = 0;
-
 static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
 {
     esp_err_t ret_val = ESP_OK;
 
     i2s_config_t i2s_config = I2S_CONFIG_DEFAULT();
     i2s_pin_config_t pin_config =
-        {
-            .bck_io_num = GPIO_I2S_SCLK,
-            .ws_io_num = GPIO_I2S_LRCK,
-            .data_out_num = GPIO_I2S_DOUT,
-            .data_in_num = GPIO_I2S_SDIN,
-            .mck_io_num = GPIO_I2S_MCLK,
-        };
+    {
+        .bck_io_num = GPIO_I2S_SCLK,
+        .ws_io_num = GPIO_I2S_LRCK,
+        .data_out_num = GPIO_I2S_DOUT,
+        .data_in_num = GPIO_I2S_SDIN,
+        .mck_io_num = GPIO_I2S_MCLK,
+    };
 
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
@@ -114,8 +113,9 @@ int bsp_get_feed_channel(void)
 /**
  * @brief all default commands
  */
-static const sr_cmd_t g_default_cmd_info[] = {
-    {SR_CMD_SING, SR_LANG_CN, 0, "唱歌", "chang ge", {NULL}},
+static const sr_cmd_t g_default_cmd_info[] =
+{
+    {SR_CMD_SING, SR_LANG_CN, 0, "唱首歌", "chang shou ge", {NULL}},
     {SR_CMD_MUSIC, SR_LANG_CN, 0, "音乐", "yin yue", {NULL}},
     {SR_CMD_PLAY_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
     {SR_CMD_PLAY_PREV, SR_LANG_CN, 0, "上一曲", "shang yi qv", {NULL}},
@@ -129,6 +129,8 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_PLAY_DANCE, SR_LANG_CN, 0, "跳舞", "tiao wu", {NULL}},
     {SR_CMD_PLAY_MOVE_FORWARD, SR_LANG_CN, 0, "向前", "xiang qian", {NULL}},
     {SR_CMD_PLAY_MOVE_BACKWARD, SR_LANG_CN, 0, "向后", "xiang hou", {NULL}},
+    {SR_CMD_ENTER_AI_MODE, SR_LANG_CN, 0, "开启交流", "kai qi jiao liu", {NULL}},
+    {SR_CMD_EXIT_AI_MODE, SR_LANG_CN, 0, "关闭交流", "guan bi jiao liu", {NULL}},
 };
 
 static void feed_Task(void *pvParam)
@@ -145,6 +147,7 @@ static void feed_Task(void *pvParam)
         esp_system_abort("No mem for audio buffer");
     }
     g_sr_data->afe_in_buffer = audio_buffer;
+
     while (1)
     {
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group))
@@ -156,6 +159,9 @@ static void feed_Task(void *pvParam)
         bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * feed_channel);
 
         afe_handle->feed(afe_data, audio_buffer);
+
+        // 唤醒后才开始录音 --> AI大模型使用
+        audio_record_save(audio_buffer, audio_chunksize);
     }
     if (audio_buffer)
     {
@@ -168,6 +174,8 @@ static void feed_Task(void *pvParam)
 static void detect_Task(void *pvParam)
 {
     bool detect_flag = false;
+    static uint8_t frame_keep = 0;
+    static afe_fetch_mode_t local_state = AFE_FETCH_SPEECH;
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParam;
 
     /* Allocate buffer for detection */
@@ -192,7 +200,7 @@ static void detect_Task(void *pvParam)
         vSemaphoreDelete(sr_detect_semaphore);
     }
 
-    printf("------------detect start------------\n");
+    printf("------------ detect start ------------\n");
 
     while (1)
     {
@@ -205,24 +213,61 @@ static void detect_Task(void *pvParam)
 
         afe_fetch_mode_t ret_val = g_sr_data->afe_handle->fetch(afe_data, g_sr_data->afe_out_buffer);
 
+        // 检测到唤醒词
         if (AFE_FETCH_WWE_DETECTED == ret_val)
         {
-            ESP_LOGI(TAG, ">>> Say your command <<<");
-            detect_flag = true;
-            g_sr_data->afe_handle->disable_wakenet(afe_data);
-
+            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "wakeword detected");
             sr_result_t result =
-                {
-                    .fetch_mode = ret_val,
-                    .state = ESP_MN_STATE_DETECTING,
-                    .command_id = 0,
-                };
+            {
+                .fetch_mode = ret_val,
+                .state = ESP_MN_STATE_DETECTING,
+                .command_id = 0,
+            };
             xQueueSend(g_sr_data->result_que, &result, 0);
+        }
+        else if (AFE_FETCH_CHANNEL_VERIFIED == ret_val)
+        {
+            detect_flag = true;
+            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) ">>> Say your command <<<");
+
+            frame_keep = 0;
+            // 关闭唤醒词检测
+            g_sr_data->afe_handle->disable_wakenet(afe_data);
         }
 
         if (true == detect_flag)
         {
+            if (local_state != ret_val)
+            {
+                local_state = ret_val;
+                if (AFE_FETCH_NOISE == local_state)
+                {
+                    ESP_LOGW(TAG, "%s, ret_val:%d", "silence", ret_val);
+                }
+                frame_keep = 0;
+            }
+            else
+            {
+                frame_keep++;
+                ESP_LOGW(TAG, "ret_val:%d", ret_val);
+            }
+            if ((150 == frame_keep) && (AFE_FETCH_NOISE == ret_val))
+            {
+                ESP_LOGW(TAG, "vad Time out");
+                sr_result_t result =
+                {
+                    .fetch_mode = ret_val,
+                    .state = ESP_MN_STATE_TIMEOUT,
+                    .command_id = 0,
+                };
+                xQueueSend(g_sr_data->result_que, &result, 0);
+                g_sr_data->afe_handle->enable_wakenet(afe_data);
+                detect_flag = false;
+                continue;
+            }
+
             esp_mn_state_t mn_state = ESP_MN_STATE_DETECTING;
+            // 开始离线语音识别
             mn_state = g_sr_data->multinet->detect(g_sr_data->model_data, g_sr_data->afe_out_buffer);
 
             if (mn_state == ESP_MN_STATE_DETECTING)
@@ -231,11 +276,11 @@ static void detect_Task(void *pvParam)
             {
                 ESP_LOGW(TAG, "Time out");
                 sr_result_t result =
-                    {
-                        .fetch_mode = ret_val,
-                        .state = mn_state,
-                        .command_id = 0,
-                    };
+                {
+                    .fetch_mode = ret_val,
+                    .state = mn_state,
+                    .command_id = 0,
+                };
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
@@ -245,12 +290,14 @@ static void detect_Task(void *pvParam)
             {
                 int sr_command_id = mn_state;
                 ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
+
                 sr_result_t result =
-                    {
-                        .fetch_mode = ret_val,
-                        .state = mn_state,
-                        .command_id = sr_command_id,
-                    };
+                {
+                    .fetch_mode = ret_val,
+                    .state = ESP_MN_STATE_DETECTED,
+                    .command_id = sr_command_id,
+                };
+
                 xQueueSend(g_sr_data->result_que, &result, 0);
                 g_sr_data->afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
@@ -316,7 +363,7 @@ esp_err_t app_sr_update_cmds(void)
     }
 
     ESP_LOGI(TAG, "New %d command set to :[%s]", count, cmd_str);
-    g_sr_data->multinet->reset(g_sr_data->model_data, cmd_str, -1);
+    g_sr_data->multinet->reset(g_sr_data->model_data, cmd_str, (char *) -1);
 
     heap_caps_free(cmd_str);
     return ESP_OK;

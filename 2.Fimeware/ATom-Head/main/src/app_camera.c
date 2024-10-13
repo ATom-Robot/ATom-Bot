@@ -116,7 +116,7 @@ void app_camera_start()
 esp_err_t App_Camera_run(void)
 {
     esp_err_t ret = ESP_OK;
-    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 5, NULL, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(camera_task, "cam", 3 * 1024, NULL, 6, NULL, 0);
     if (result != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to create camera task");

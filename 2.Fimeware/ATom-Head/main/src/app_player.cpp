@@ -29,6 +29,7 @@
 
 #include "esp_check.h"
 #include "esp_log.h"
+#include "esp32s3/rom/cache.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -100,6 +101,11 @@ typedef struct audio_instance
     HMP3Decoder mp3_decoder;
     mp3_instance mp3_data;
 #endif
+
+    bool record_flag = false;
+    uint8_t *record_buffer;
+    uint32_t record_total_len;
+    uint32_t file_total_len;
 
     uint8_t *mp3_player_buffer;
 
@@ -403,7 +409,11 @@ static esp_err_t aplay_file(audio_instance_t *i, uint8_t *stream, uint32_t strea
                        i2s_format.sample_rate,
                        i2s_format.bits_per_sample,
                        i2s_format.channels);
+#if ESP_IDF_VERSION_MAJOR > 5
+                i2s_slot_mode_t channel_setting = (i2s_format.channels == 1) ? I2S_SLOT_MODE_MONO : I2S_SLOT_MODE_STEREO;
+#else
                 i2s_channel_t channel_setting = (i2s_format.channels == 1) ? I2S_CHANNEL_MONO : I2S_CHANNEL_STEREO;
+#endif
                 ret = i->config.clk_set_fn(i2s_format.sample_rate,
                                            i2s_format.bits_per_sample,
                                            channel_setting);
@@ -530,6 +540,76 @@ static esp_err_t audio_send_event(audio_instance_t *i, audio_player_event_t even
                         TAG, "The last event has not been processed yet");
 
     return ESP_OK;
+}
+
+void audio_record_save(int16_t *audio_buffer, int audio_chunksize)
+{
+#define MAX_FILE_SIZE   (1 * 1024 * 1024)
+
+    if (!instance.record_flag)
+        return;
+
+    uint16_t *record_buff = (uint16_t *)(instance.record_buffer + sizeof(wav_header_t));
+    record_buff += instance.record_total_len;
+    for (int i = 0; i < (audio_chunksize - 1); i++)
+    {
+        if (instance.record_total_len < (MAX_FILE_SIZE - sizeof(wav_header_t)) / 2)
+        {
+            record_buff[i * 1 + 0] = audio_buffer[i * 3 + 0];
+            instance.record_total_len += 1;
+        }
+    }
+}
+
+void audio_record_start(void)
+{
+    ESP_LOGI(TAG, "### record Start!!");
+    audio_player_stop();
+
+    instance.record_flag = true;
+    instance.record_total_len = 0;
+    instance.file_total_len = sizeof(wav_header_t);
+}
+
+esp_err_t audio_record_stop(void)
+{
+    esp_err_t ret = ESP_OK;
+
+    instance.record_flag = false;
+    instance.record_total_len *= 1;
+    instance.file_total_len += instance.record_total_len;
+
+    ESP_LOGI(TAG, "### record Stop, %" PRIu32 " %" PRIu32 "K",
+             instance.record_total_len,
+             instance.record_total_len / 1024);
+
+    // FILE *fp = fopen("/spiffs/echo_en_wake.wav", "r");
+    // ESP_GOTO_ON_FALSE(NULL != fp, ESP_FAIL, err, TAG, "Failed create record file");
+
+    wav_header_t wav_head;
+    // int len = fread(&wav_head, 1, sizeof(wav_header_t), fp);
+    // ESP_GOTO_ON_FALSE(len > 0, ESP_FAIL, err, TAG, "Failed create record file");
+
+    wav_head.SampleRate = 16000;
+    wav_head.NumChannels = 1;
+
+    wav_head.BitsPerSample = 16;
+    wav_head.ChunkSize = instance.file_total_len - 8;
+    wav_head.ByteRate = wav_head.SampleRate * wav_head.BitsPerSample * wav_head.NumChannels / 8;
+    wav_head.Subchunk2ID[0] = 'd';
+    wav_head.Subchunk2ID[1] = 'a';
+    wav_head.Subchunk2ID[2] = 't';
+    wav_head.Subchunk2ID[3] = 'a';
+    wav_head.Subchunk2Size = instance.record_total_len;
+    memcpy((void *)instance.record_buffer, &wav_head, sizeof(wav_header_t));
+    Cache_WriteBack_Addr((uint32_t)instance.record_buffer, instance.record_total_len);
+    audio_player_play(instance.record_buffer, instance.file_total_len);
+// err:
+//     if (fp)
+//     {
+//         fclose(fp);
+//     }
+    return ret;
 }
 
 static esp_err_t audio_mp3_load(const char *filepath, size_t *file_len)
@@ -695,6 +775,9 @@ esp_err_t APP_Player_run(audio_player_config_t config)
     audio_instance_init(instance);
 
     instance.config = config;
+
+    instance.record_buffer = (uint8_t *)heap_caps_calloc(1, 256 * 1024, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    assert(instance.record_buffer);
 
     instance.mp3_player_buffer = (uint8_t *)heap_caps_calloc(1, 512 * 1024, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     assert(instance.mp3_player_buffer);
