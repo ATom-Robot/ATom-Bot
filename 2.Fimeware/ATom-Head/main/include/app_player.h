@@ -57,7 +57,8 @@
 extern "C" {
 #endif
 
-typedef enum {
+typedef enum
+{
     AUDIO_PLAYER_STATE_IDLE,
     AUDIO_PLAYER_STATE_PLAYING,
     AUDIO_PLAYER_STATE_PAUSE,
@@ -71,7 +72,8 @@ typedef enum {
  */
 audio_player_state_t audio_player_get_state();
 
-typedef enum {
+typedef enum
+{
     AUDIO_PLAYER_CALLBACK_EVENT_IDLE, /**< Player is idle, not playing audio */
     AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT, /**< Player is playing and playing a new audio file */
     AUDIO_PLAYER_CALLBACK_EVENT_PLAYING, /**< Player is playing */
@@ -81,13 +83,20 @@ typedef enum {
     AUDIO_PLAYER_CALLBACK_EVENT_UNKNOWN /**< Unknown event */
 } audio_player_callback_event_t;
 
-typedef struct {
+typedef struct
+{
     audio_player_callback_event_t audio_event;
     void *user_ctx;
 } audio_player_cb_ctx_t;
 
 /** Audio callback function type */
 typedef void (*audio_player_cb_t)(audio_player_cb_ctx_t *);
+
+void audio_record_start(void);
+
+esp_err_t audio_record_stop(void);
+
+void audio_record_save(int16_t *audio_buffer, int audio_chunksize);
 
 esp_err_t audio_player_play_name(const char *file_name);
 
@@ -146,16 +155,22 @@ esp_err_t audio_player_stop(void);
  */
 esp_err_t audio_player_callback_register(audio_player_cb_t call_back, void *user_ctx);
 
-typedef enum {
+typedef enum
+{
     AUDIO_PLAYER_MUTE,
     AUDIO_PLAYER_UNMUTE
 } AUDIO_PLAYER_MUTE_SETTING;
 
 typedef esp_err_t (*audio_player_mute_fn)(AUDIO_PLAYER_MUTE_SETTING setting);
+#if ESP_IDF_VERSION_MAJOR > 5
+typedef esp_err_t (*audio_reconfig_std_clock)(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch);
+#else
 typedef esp_err_t (*audio_reconfig_std_clock)(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch);
+#endif
 typedef esp_err_t (*audio_player_write_fn)(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms);
 
-typedef struct {
+typedef struct
+{
     audio_player_mute_fn mute_fn;
     audio_reconfig_std_clock clk_set_fn;
     audio_player_write_fn write_fn;

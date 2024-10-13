@@ -7,7 +7,6 @@
 #include "app_camera.h"
 #include "app_speech.h"
 #include "app_speaker.h"
-// #include "app_face_detection.hpp"
 #include "app_apriltag.h"
 #include "app_player.h"
 #include "app_shell.h"
@@ -21,12 +20,14 @@ extern "C" void app_main()
 {
     QueueHandle_t xQueueLCDFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    audio_player_config_t config = {.mute_fn = NULL,
-                                    .clk_set_fn = bsp_codec_set_fn,
-                                    .write_fn = bsp_i2s_write,
-                                    .priority = configMAX_PRIORITIES - 5,
-                                    .base_path = "/spiffs/mp3"
-                                   };
+    audio_player_config_t config =
+    {
+        .mute_fn = NULL,
+        .clk_set_fn = bsp_codec_set_fn,
+        .write_fn = bsp_i2s_write,
+        .priority = configMAX_PRIORITIES - 5,
+        .base_path = "/spiffs/mp3"
+    };
 
     ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));

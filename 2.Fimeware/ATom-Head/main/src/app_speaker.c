@@ -11,16 +11,17 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
                         int dataOutPin)
 {
     i2s_config_t i2s_config =
-        {
-            .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-            .sample_rate = ADUIO_SAMPLE_RATE,
-            .bits_per_sample = BPS,
-            .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-            .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-            .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-            .dma_buf_count = 4,
-            .dma_buf_len = 128,
-            .use_apll = false};
+    {
+        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+        .sample_rate = ADUIO_SAMPLE_RATE,
+        .bits_per_sample = BPS,
+        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
+        .dma_buf_count = 4,
+        .dma_buf_len = 128,
+        .tx_desc_auto_clear = true,
+    };
 
     i2s_pin_config_t pin_config;
     memset(&pin_config, 0, sizeof(i2s_pin_config_t));
@@ -40,12 +41,14 @@ bool speaker_initOutput(i2s_bits_per_sample_t BPS,
         return false;
     }
 
-    i2s_set_clk(I2S_NUM, ADUIO_SAMPLE_RATE, ADUIO_SAMPLE_BITS, I2S_CHANNEL_STEREO);
-
     return true;
 }
 
-esp_err_t bsp_codec_set_fn(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch)
+#if ESP_IDF_VERSION_MAJOR > 5
+    esp_err_t bsp_codec_set_fn(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
+#else
+    esp_err_t bsp_codec_set_fn(uint32_t rate, uint32_t bits_cfg, i2s_channel_t ch)
+#endif
 {
     esp_err_t ret = ESP_OK;
     i2s_set_clk(I2S_NUM, rate, bits_cfg, ch);

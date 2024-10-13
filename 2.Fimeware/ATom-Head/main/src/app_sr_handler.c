@@ -24,9 +24,7 @@
 static const char *TAG = "APP/sr_handler";
 
 static bool b_audio_playing = false;
-
-/* 距离变量 */
-static int8_t distance = 0;
+static bool enter_ai_mode = false;
 
 typedef enum
 {
@@ -79,7 +77,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
-        NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
+            NULL == strstr((char *)wav_head->Subchunk2ID, "data"))
     {
         ESP_LOGE(TAG, "Header of wav format error");
         return ESP_FAIL;
@@ -99,11 +97,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     vTaskDelay(pdMS_TO_TICKS(20));
     b_audio_playing = false;
     return ESP_OK;
-}
-
-bool sr_echo_is_playing(void)
-{
-    return b_audio_playing;
 }
 
 /* 定时器句柄 */
@@ -136,9 +129,9 @@ void sr_handler_task(void *pvParam)
     FILE *fp;
     // const sys_param_t *param = settings_get_parameter();
     const char *files[1][3] =
-        {
-            {"/spiffs/wakeup.wav", "/spiffs/wakeup.wav", "/spiffs/wakeup.wav"},
-        };
+    {
+        {"/spiffs/wakeup.wav", "/spiffs/wakeup.wav", "/spiffs/wakeup.wav"},
+    };
     char audio_file[48] = {0};
     for (size_t i = 0; i < AUDIO_MAX; i++)
     {
@@ -170,21 +163,13 @@ void sr_handler_task(void *pvParam)
 
     while (true)
     {
+#if !SR_RUN_TEST
+        char audio_file[48] = {0};
+#endif
         sr_result_t result;
         app_sr_get_result(&result, portMAX_DELAY);
-        char audio_file[48] = {0};
 
-        // Time out
-        if (ESP_MN_STATE_TIMEOUT == result.state)
-        {
-#if !SR_RUN_TEST
-            sr_echo_play(AUDIO_END);
-#endif
-            ui_wakeup_emoji_over();
-            continue;
-        }
-
-        // Detected
+        // WWE Detected (检测到唤醒词)
         if (AFE_FETCH_WWE_DETECTED == result.fetch_mode)
         {
             ESP_LOGI(TAG, "WAKE UP!");
@@ -192,149 +177,177 @@ void sr_handler_task(void *pvParam)
             ui_wakeup_emoji_start();
             audio_player_play_name("listen.mp3");
 
-            last_player_state = audio_player_get_state();
-            // app_player_pause();
+            // AI 大模型模式
+            if (enter_ai_mode)
+                audio_record_start();   // 开始录音
 
+            last_player_state = audio_player_get_state();
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_WAKE);
 #endif
             continue;
         }
 
-        // Parse word
-        if (result.state != ESP_MN_STATE_DETECTING && result.state != ESP_MN_STATE_TIMEOUT)
+        // Time out (语音识别超时)
+        if (ESP_MN_STATE_TIMEOUT == result.state)
         {
-            const sr_cmd_t *cmd = app_sr_get_cmd_from_id(result.command_id);
-            ESP_LOGI(TAG, "command:%s, act:%d", cmd->str, cmd->cmd);
-
+#if !SR_RUN_TEST
+            sr_echo_play(AUDIO_END);
+#endif
             ui_wakeup_emoji_over();
 
-            switch (cmd->cmd)
-            {
-            case SR_CMD_SET_RED:
-                break;
-            // 下一首
-            case SR_CMD_PLAY_NEXT:
-                break;
-            // 上一首
-            case SR_CMD_PLAY_PREV:
-                break;
-            case SR_CMD_SING:
-            case SR_CMD_MUSIC:
-            {
-                // 随机打乱索引数组
-                shuffle(indices, SONG_COUNT);
-                audio_player_play_name(song_list[indices[0]]);
-                ui_sr_emoji_display(SING2_EMOJI, false);
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            case SR_CMD_PLAY_HAPPY:
-            {
-                audio_player_play_name("sing2.mp3");
-                ui_sr_emoji_display(HAPPY_EMOJI, false);
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            case SR_CMD_PLAY_SCARE:
-            {
-                audio_player_play_name("scared.mp3");
-                ui_sr_emoji_display(SCARED_EMOJI, false);
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            case SR_CMD_PLAY_POLICE:
-            {
-                audio_player_play_name("police.mp3");
-                ui_sr_emoji_display(SHAKE_EMOJI, false);
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            /* 跳舞 */
-            case SR_CMD_PLAY_DANCE:
-            {
-                /* to do */
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            /* 转圈 */
-            case SR_CMD_PLAY_CIRCLE:
-            {
-                /* 串口发送数据 -- 4s */
-                audio_player_play_name("sing2.mp3");
-                ui_sr_emoji_display(HAPPY_EMOJI, false);
-                sendwl_ChassisSpeedData(0, -40);
+            if (enter_ai_mode)
+                audio_record_stop();   // 结束录音
 
-                /* 创建单次定时器 */
-                xOneShotTimer = xTimerCreate(
-                    "OneShotTimer",        /* 定时器名称 */
-                    pdMS_TO_TICKS(4000),   /* 定时器周期 */
-                    pdFALSE,               /* 单次定时器 */
-                    (void *)TURN_AROUND_T, /* 定时器 ID */
-                    vTimerCallback         /* 定时器回调函数 */
-                );
-                xTimerStart(xOneShotTimer, 0);
-
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            /* 向前进 */
-            case SR_CMD_PLAY_MOVE_FORWARD:
+            continue;
+        }
+        // DETECTED (识别到了目标命令词)
+        else if (ESP_MN_STATE_DETECTED == result.state)
+        {
+            // Parse word
+            if (result.state != ESP_MN_STATE_DETECTING && result.state != ESP_MN_STATE_TIMEOUT)
             {
-                // distance += 4;
-                // /* 串口发送数据 -- 向前走4s */
-                // sendwl_Chassis_DistanceData(distance, 0, 50, 50);
-                sendwl_ChassisSpeedData(45, 0);
+                const sr_cmd_t *cmd = app_sr_get_cmd_from_id(result.command_id);
+                ESP_LOGI(TAG, "command:%s, act:%d", cmd->str, cmd->cmd);
 
-                /* 创建单次定时器 */
-                xOneShotTimer = xTimerCreate(
-                    "OneShotTimer",         /* 定时器名称 */
-                    pdMS_TO_TICKS(3000),    /* 定时器周期 */
-                    pdFALSE,                /* 单次定时器 */
-                    (void *)MOVE_FORWARD_T, /* 定时器 ID */
-                    vTimerCallback          /* 定时器回调函数 */
-                );
-                xTimerStart(xOneShotTimer, 0);
+                ui_wakeup_emoji_over();
 
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            /* 向后退 */
-            case SR_CMD_PLAY_MOVE_BACKWARD:
-            {
-                // distance -= 4;
-                audio_player_play_name("bi.mp3");
-                /* 串口发送数据 -- 向后退5s */
-                // sendwl_Chassis_DistanceData(distance, 0, 50, 50);
-                sendwl_ChassisSpeedData(-45, 0);
+                switch (cmd->cmd)
+                {
+                case SR_CMD_SET_RED:
+                    break;
+                // 下一首
+                case SR_CMD_PLAY_NEXT:
+                    break;
+                // 上一首
+                case SR_CMD_PLAY_PREV:
+                    break;
+                case SR_CMD_SING:
+                case SR_CMD_MUSIC:
+                {
+                    // 随机打乱索引数组
+                    shuffle(indices, SONG_COUNT);
+                    audio_player_play_name(song_list[indices[0]]);
+                    ui_sr_emoji_display(SING2_EMOJI, false);
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                case SR_CMD_PLAY_HAPPY:
+                {
+                    audio_player_play_name("sing2.mp3");
+                    ui_sr_emoji_display(HAPPY_EMOJI, false);
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                case SR_CMD_PLAY_SCARE:
+                {
+                    audio_player_play_name("scared.mp3");
+                    ui_sr_emoji_display(SCARED_EMOJI, false);
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                case SR_CMD_PLAY_POLICE:
+                {
+                    audio_player_play_name("police.mp3");
+                    ui_sr_emoji_display(SHAKE_EMOJI, false);
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                /* 跳舞 */
+                case SR_CMD_PLAY_DANCE:
+                {
+                    /* to do */
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                /* 转圈 */
+                case SR_CMD_PLAY_CIRCLE:
+                {
+                    /* 串口发送数据 -- 4s */
+                    audio_player_play_name("sing2.mp3");
+                    ui_sr_emoji_display(HAPPY_EMOJI, false);
+                    sendwl_ChassisSpeedData(0, -40);
 
-                /* 创建单次定时器 */
-                xOneShotTimer = xTimerCreate(
-                    "OneShotTimer",          /* 定时器名称 */
-                    pdMS_TO_TICKS(3000),     /* 定时器周期 */
-                    pdFALSE,                 /* 单次定时器 */
-                    (void *)MOVE_BACKWARD_T, /* 定时器 ID */
-                    vTimerCallback           /* 定时器回调函数 */
-                );
-                xTimerStart(xOneShotTimer, 0);
+                    /* 创建单次定时器 */
+                    xOneShotTimer = xTimerCreate(
+                                        "OneShotTimer",        /* 定时器名称 */
+                                        pdMS_TO_TICKS(4000),   /* 定时器周期 */
+                                        pdFALSE,               /* 单次定时器 */
+                                        (void *)TURN_AROUND_T, /* 定时器 ID */
+                                        vTimerCallback         /* 定时器回调函数 */
+                                    );
+                    xTimerStart(xOneShotTimer, 0);
 
-                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
-                break;
-            }
-            // 暂停
-            case SR_CMD_PLAY_STOP:
-            case SR_CMD_PLAY_PAUSE:
-                audio_player_pause();
-                last_player_state = AUDIO_PLAYER_STATE_PAUSE;
-                break;
-            default:
-                ESP_LOGE(TAG, "Unknow cmd");
-                break;
-            }
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                /* 向前进 */
+                case SR_CMD_PLAY_MOVE_FORWARD:
+                {
+                    /* 串口发送数据 -- 向前走4s */
+                    sendwl_ChassisSpeedData(45, 0);
+
+                    /* 创建单次定时器 */
+                    xOneShotTimer = xTimerCreate(
+                                        "OneShotTimer",         /* 定时器名称 */
+                                        pdMS_TO_TICKS(3000),    /* 定时器周期 */
+                                        pdFALSE,                /* 单次定时器 */
+                                        (void *)MOVE_FORWARD_T, /* 定时器 ID */
+                                        vTimerCallback          /* 定时器回调函数 */
+                                    );
+                    xTimerStart(xOneShotTimer, 0);
+
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                /* 向后退 */
+                case SR_CMD_PLAY_MOVE_BACKWARD:
+                {
+                    audio_player_play_name("bi.mp3");
+                    /* 串口发送数据 -- 向后退5s */
+                    sendwl_ChassisSpeedData(-45, 0);
+
+                    /* 创建单次定时器 */
+                    xOneShotTimer = xTimerCreate(
+                                        "OneShotTimer",          /* 定时器名称 */
+                                        pdMS_TO_TICKS(3000),     /* 定时器周期 */
+                                        pdFALSE,                 /* 单次定时器 */
+                                        (void *)MOVE_BACKWARD_T, /* 定时器 ID */
+                                        vTimerCallback           /* 定时器回调函数 */
+                                    );
+                    xTimerStart(xOneShotTimer, 0);
+
+                    last_player_state = AUDIO_PLAYER_STATE_PLAYING;
+                    break;
+                }
+                // 暂停
+                case SR_CMD_PLAY_STOP:
+                case SR_CMD_PLAY_PAUSE:
+                    audio_player_pause();
+                    last_player_state = AUDIO_PLAYER_STATE_PAUSE;
+                    break;
+                // AI 大模型对话模式
+                case SR_CMD_ENTER_AI_MODE:
+                {
+                    enter_ai_mode = true;
+                    break;
+                }
+                case SR_CMD_EXIT_AI_MODE:
+                {
+                    enter_ai_mode = false;
+                    break;
+                }
+                default:
+                    ESP_LOGE(TAG, "Unknow cmd");
+                    break;
+                }
 #if !SR_RUN_TEST
-            strncpy(audio_file, "/spiffs/echo_cn_ok.wav", sizeof(audio_file));
-            sr_echo_play(AUDIO_OK);
+                strncpy(audio_file, "/spiffs/echo_cn_ok.wav", sizeof(audio_file));
+                sr_echo_play(AUDIO_OK);
 #endif
+                continue;
+            }
+            continue;
         }
     }
 #if !SR_RUN_TEST

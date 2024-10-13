@@ -27,7 +27,7 @@ extern "C" {
  *    - ESP_FAIL                Mount or format fails
  *    - Others                  Fail
  */
-esp_err_t bsp_spiffs_init(char *partition_label, char *mount_point, size_t max_files);
+esp_err_t bsp_spiffs_init(const char *partition_label, const char *mount_point, size_t max_files);
 
 /**
  * @brief Init SPIFFS with default config
