@@ -141,6 +141,8 @@ static const sr_cmd_t g_default_cmd_info[] =
 
 static void feed_Task(void *pvParam)
 {
+    size_t bytes_read = 0;
+
     ESP_LOGI(TAG, "Feed Task");
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
@@ -162,7 +164,18 @@ static void feed_Task(void *pvParam)
             vTaskDelete(NULL);
         }
 
-        bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * feed_channel);
+        // bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * 2);
+
+        /* Read audio data from I2S bus */
+        i2s_read(I2S_NUM_1, audio_buffer, audio_chunksize * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+
+        /* Channel Adjust */
+        // for (int  i = audio_chunksize - 1; i >= 0; i--)
+        // {
+        //     audio_buffer[i * 3 + 2] = 0;
+        //     audio_buffer[i * 3 + 1] = audio_buffer[i * 2 + 1];
+        //     audio_buffer[i * 3 + 0] = audio_buffer[i * 2 + 0];
+        // }
 
         afe_handle->feed(afe_data, (int16_t *)audio_buffer);
 
@@ -614,16 +627,16 @@ esp_err_t App_Speech_run(void)
 
     afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
     afe_config.aec_init = false;
+    afe_config.pcm_config.total_ch_num = 2;
+    afe_config.pcm_config.mic_num = 2;
+    afe_config.pcm_config.ref_num = 0;
+    // afe_config.wakenet_mode = DET_MODE_90;
 
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
     g_sr_data->afe_handle = afe_handle;
     g_sr_data->afe_data = afe_data;
 
     // afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
-    afe_config.pcm_config.total_ch_num = 2;
-    afe_config.pcm_config.mic_num = 1;
-    afe_config.pcm_config.ref_num = 1;
-    afe_config.wakenet_mode = DET_MODE_90;
     // afe_config.se_init = false;
     // afe_config.vad_init = false;
     // afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
@@ -632,14 +645,14 @@ esp_err_t App_Speech_run(void)
     ret = app_sr_set_language(SR_LANG_CN);
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG, "Failed to set language");
 
-    BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 4 * 1024, afe_data, 5, &g_sr_data->feed_task, 1);
+    BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 8 * 1024, afe_data, 5, &g_sr_data->feed_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio feed task");
 
     ret_val = xTaskCreatePinnedToCore((TaskFunction_t)audio_detect_task, "App/SR/Detect", 6 * 1024, afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio detect task");
 
-    ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);
-    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio handler task");
+    // ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);
+    // ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio handler task");
 
     sr_detect_semaphore = xSemaphoreCreateBinary();
 

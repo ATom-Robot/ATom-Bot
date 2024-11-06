@@ -32,20 +32,20 @@ extern "C" void app_main()
     // ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 4));
 
-    ESP_ERROR_CHECK(App_Camera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 3, xQueueLCDFrame));
-    ESP_ERROR_CHECK(App_Lcd_Init(xQueueLCDFrame, NULL, true));
+    // ESP_ERROR_CHECK(App_Camera_Init(PIXFORMAT_JPEG, FRAMESIZE_QVGA, 3, xQueueLCDFrame));
+    // ESP_ERROR_CHECK(App_Lcd_Init(xQueueLCDFrame, NULL, true));
     ESP_ERROR_CHECK(App_Speech_Init());
     ESP_ERROR_CHECK(App_Speaker_Init());
-    ESP_ERROR_CHECK(App_Joint_Init());
+    // ESP_ERROR_CHECK(App_Joint_Init());
 
     ESP_ERROR_CHECK(App_Speech_run());
-    ESP_ERROR_CHECK(App_Camera_run());
-    ESP_ERROR_CHECK(App_Lvgl_run());
-    ESP_ERROR_CHECK(App_Wifi_run());
-    ESP_ERROR_CHECK(APP_TcpServer_run());
-    ESP_ERROR_CHECK(APP_Player_run(config));
+    // ESP_ERROR_CHECK(App_Camera_run());
+//     ESP_ERROR_CHECK(App_Lvgl_run());
+//     ESP_ERROR_CHECK(App_Wifi_run());
+//     ESP_ERROR_CHECK(APP_TcpServer_run());
+//     ESP_ERROR_CHECK(APP_Player_run(config));
 
-    ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
-    ESP_ERROR_CHECK(App_Shell_run());
-    ESP_ERROR_CHECK(APP_Uart_run());
+//     ESP_ERROR_CHECK(App_Stream_run(xQueueLCDFrame, true));
+//     ESP_ERROR_CHECK(App_Shell_run());
+//     ESP_ERROR_CHECK(APP_Uart_run());
 }

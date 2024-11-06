@@ -20,6 +20,10 @@
 #include "dl_lib_conv_queue.h"
 #include "dl_lib_convq_queue.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //[nch, n, c]
 typedef struct {
     int n;           /*< the length of queue */
@@ -288,6 +292,12 @@ qtp_t *dl_atrous_conv1dq8_16_s3(dl_convq8_queue_t *in, dl_convq_queue_t *out, in
 
 void print_convq8(dl_convq8_queue_t *cq, int offset);
 void print_convq(dl_convq_queue_t *cq, int offset);
+void dl_relu_convq8(dl_convq8_queue_t *cq);
 
 void lstmq8_free(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

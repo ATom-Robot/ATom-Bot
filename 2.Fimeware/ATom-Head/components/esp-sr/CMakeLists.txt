@@ -1,5 +1,5 @@
 if(IDF_TARGET STREQUAL "esp32")
-    set(include_dirs 
+    set(include_dirs
         src/include
         esp-tts/esp_tts_chinese/include
         include/esp32
@@ -37,14 +37,14 @@ if(IDF_TARGET STREQUAL "esp32")
         c_speech_features
         wakeword_model
         multinet2_ch
-        esp_audio_processor 
+        esp_audio_processor
         esp_audio_front_end
-        esp_tts_chinese 
+        esp_tts_chinese
         voice_set_xiaole
         wakenet
         "-Wl,--end-group")
 elseif(${IDF_TARGET} STREQUAL "esp32s3")
-    set(include_dirs 
+    set(include_dirs
         src/include
         esp-tts/esp_tts_chinese/include
         include/esp32s3
@@ -77,6 +77,7 @@ elseif(${IDF_TARGET} STREQUAL "esp32s3")
     add_prebuilt_library(multinet "${CMAKE_CURRENT_SOURCE_DIR}/lib/esp32s3/libmultinet.a" PRIV_REQUIRES ${COMPONENT_NAME})
     add_prebuilt_library(esp_audio_front_end "${CMAKE_CURRENT_SOURCE_DIR}/lib/esp32s3/libesp_audio_front_end.a" PRIV_REQUIRES ${COMPONENT_NAME})
     add_prebuilt_library(hufzip "${CMAKE_CURRENT_SOURCE_DIR}/lib/esp32s3/libhufzip.a" PRIV_REQUIRES ${COMPONENT_NAME})
+    add_prebuilt_library(nsnet "${CMAKE_CURRENT_SOURCE_DIR}/lib/esp32s3/libnsnet.a" PRIV_REQUIRES ${COMPONENT_NAME})
 
     idf_component_get_property(esp_dsp_lib esp-dsp COMPONENT_LIB)
 
@@ -89,8 +90,10 @@ elseif(${IDF_TARGET} STREQUAL "esp32s3")
         esp_audio_front_end
         esp_audio_processor
         multinet
+        flite_g2p
         esp_tts_chinese
         voice_set_xiaole
+        nsnet
         wakenet
         "-Wl,--end-group")
 
@@ -101,8 +104,8 @@ elseif(${IDF_TARGET} STREQUAL "esp32s3")
     add_custom_command(
         OUTPUT ${image_file}
         COMMENT "Move and Pack models..."
-        COMMAND python ${MVMODEL_EXE} -d1 ${PROJECT_DIR} -d2 ${COMPONENT_PATH} -d3 ${build_dir}
-        DEPENDS ${PROJECT_DIR}/sdkconfig
+        COMMAND python ${MVMODEL_EXE} -d1 ${SDKCONFIG} -d2 ${COMPONENT_PATH} -d3 ${build_dir}
+        DEPENDS ${SDKCONFIG}
         VERBATIM)
 
     add_custom_target(srmodels_bin ALL DEPENDS ${image_file})
@@ -149,8 +152,27 @@ elseif(${IDF_TARGET} STREQUAL "esp32c3")
                    INCLUDE_DIRS  esp-tts/esp_tts_chinese/include
                    REQUIRES ${requires}
                    PRIV_REQUIRES spi_flash)
-                       
+
     target_link_libraries(${COMPONENT_TARGET} INTERFACE "-L ${CMAKE_CURRENT_SOURCE_DIR}/esp-tts/esp_tts_chinese/esp32c3")
+    target_link_libraries(${COMPONENT_TARGET} INTERFACE "-Wl,--start-group"
+        esp_tts_chinese
+        voice_set_xiaole
+        "-Wl,--end-group")
+elseif(${IDF_TARGET} STREQUAL "esp32c6")
+    set(requires
+    spiffs
+    )
+
+    IF (IDF_VERSION_MAJOR GREATER 4)
+        list(APPEND requires esp_partition)
+    ENDIF (IDF_VERSION_MAJOR GREATER 4)
+
+    idf_component_register(SRCS .
+                   INCLUDE_DIRS  esp-tts/esp_tts_chinese/include
+                   REQUIRES ${requires}
+                   PRIV_REQUIRES spi_flash)
+
+    target_link_libraries(${COMPONENT_TARGET} INTERFACE "-L ${CMAKE_CURRENT_SOURCE_DIR}/esp-tts/esp_tts_chinese/esp32c6")
     target_link_libraries(${COMPONENT_TARGET} INTERFACE "-Wl,--start-group"
         esp_tts_chinese
         voice_set_xiaole

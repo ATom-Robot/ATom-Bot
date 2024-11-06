@@ -1,13 +1,13 @@
-Resource Consumption
-=====================
+Benchmark
+==========
 
 :link_to_translation:`zh_CN:[中文]`
 
 AFE
 ---
 
-Resource Occupancy
-~~~~~~~~~~~~~~~~~~
+Resource Consumption
+~~~~~~~~~~~~~~~~~~~~
 
 .. only:: esp32
 
@@ -51,8 +51,8 @@ WakeNet
 
 .. _resource-occupancyesp32-1:
 
-Resource Occupancy
-~~~~~~~~~~~~~~~~~~
+Resource Consumption
+~~~~~~~~~~~~~~~~~~~~
 
 .. only:: esp32
 
@@ -119,8 +119,8 @@ MultiNet
 
 .. _resource-occupancyesp32-2:
 
-Resource Occupancy
-~~~~~~~~~~~~~~~~~~
+Resource Consumption
+~~~~~~~~~~~~~~~~~~~~
 
 .. only:: esp32
 
@@ -151,13 +151,15 @@ Resource Occupancy
     | MultiNet 5  | 16 KB       | 2310 KB     | 12 ms       | 32 ms       |
     | Q8          |             |             |             |             |
     +-------------+-------------+-------------+-------------+-------------+
-    | MultiNet 6  | 48 KB       | 4000 KB     | 12 ms       | 32 ms       |
+    | MultiNet 6  | 32 KB       | 4100 KB     | 12 ms       | 32 ms       |
+    +-------------+-------------+-------------+-------------+-------------+
+    | MultiNet 7  | 18 KB       | 2920 KB     | 11 ms       | 32 ms       |
     +-------------+-------------+-------------+-------------+-------------+
 
 Word Error Rate Performance Test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+-------------+-------------+-------------+ 
++-------------+-------------+-------------+
 | Model       | librispeech | librispeech |
 | Type        | test-clean  | test-other  |
 +=============+=============+=============+
@@ -165,6 +167,9 @@ Word Error Rate Performance Test
 +-------------+-------------+-------------+
 | MultiNet6-en| 9.0%        | 21.3%       |
 +-------------+-------------+-------------+
+| MultiNet7-en| 8.5%        | 21.3%       |
++-------------+-------------+-------------+
+
 
 Speech Commands Performance Test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,13 +186,15 @@ Speech Commands Performance Test
 | MultiNet  | 3 m       |  96.8%   |   87.9%    |    85.5%    |
 | 6_en      |           |          |            |             |
 +-----------+-----------+----------+------------+-------------+
-
+| MultiNet  | 3 m       |  97.2%   |   92.3%    |    90.6%    |
+| 7_en      |           |          |            |             |
++-----------+-----------+----------+------------+-------------+
 
 TTS
 ---
 
-Resource Occupancy
-~~~~~~~~~~~~~~~~~~
+Resource Consumption
+~~~~~~~~~~~~~~~~~~~~
 
 Flash image size: 2.2 MB
 

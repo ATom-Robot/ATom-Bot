@@ -21,39 +21,22 @@ def copy_wakenet_from_sdkconfig(model_path, sdkconfig_path, target_path):
     """
     Copy wakenet model from model_path to target_path based on sdkconfig
     """
+    models = []
     with io.open(sdkconfig_path, "r") as f:
-        models_string = ''
         for label in f:
             label = label.strip("\n")
-            if 'CONFIG_SR_WN' in label and label[0] != '#':
-                models_string += label
+            if 'CONFIG_SR_WN' in label and  '#' not in label[0]:
+                if '=' in label:
+                    label = label.split("=")[0]
+                if '_MULTI' in label:
+                    label = label[:-6]
+                model_name = label.split("_SR_WN_")[-1].lower()
+                models.append(model_name)
 
-    models = []
-    if "CONFIG_SR_WN_WN7Q8_XIAOAITONGXUE" in models_string:
-        models.append('wn7q8_xiaoaitongxue')
-    if "CONFIG_SR_WN_WN7_XIAOAITONGXUE" in models_string:
-        models.append('wn7_xiaoaitongxue')
-    if "CONFIG_SR_WN_WN8_HILEXIN" in models_string:
-        models.append('wn8_hilexin')
-    if "CONFIG_SR_WN_WN8_ALEXA" in models_string:
-        models.append('wn8_alexa')
-    if "CONFIG_SR_WN_WN8_HIESP" in models_string:
-        models.append('wn8_hiesp')
-    if "CONFIG_SR_WN_WN9_XIAOAITONGXUE" in models_string:
-        models.append('wn9_xiaoaitongxue')
-    if "CONFIG_SR_WN_WN9_HILEXIN" in models_string:
-        models.append('wn9_hilexin')
-    if "CONFIG_SR_WN_WN9_ALEXA" in models_string:
-        models.append('wn9_alexa')
-    if "CONFIG_SR_WN_WN9_HIESP" in models_string:
-        models.append('wn9_hiesp')
-    if "CONFIG_SR_WN_WN9_NIHAOXIAOZHI" in models_string:
-        models.append('wn9_nihaoxiaozhi')
-    if "CONFIG_SR_WN_WN9_CUSTOMWORD" in models_string:
-        models.append('wn9_customword')
-    
     for item in models:
-        shutil.copytree(model_path + '/wakenet_model/' + item, target_path+'/'+item)
+        wakeword_model_path =  model_path + '/wakenet_model/' + item
+        if os.path.exists(wakeword_model_path):
+            shutil.copytree(wakeword_model_path, target_path+'/'+item)
 
 def copy_multinet_from_sdkconfig(model_path, sdkconfig_path, target_path):
     """
@@ -79,16 +62,21 @@ def copy_multinet_from_sdkconfig(model_path, sdkconfig_path, target_path):
         models.append('mn6_cn')
     elif "CONFIG_SR_MN_CN_MULTINET6_AC_QUANT" in models_string:
         models.append('mn6_cn_ac')
-    
+    elif "CONFIG_SR_MN_CN_MULTINET7_QUANT" in models_string:
+        models.append('mn7_cn')
+    elif "CONFIG_SR_MN_CN_MULTINET7_AC_QUANT" in models_string:
+        models.append('mn7_cn_ac')
+
     if "CONFIG_SR_MN_EN_MULTINET5_SINGLE_RECOGNITION_QUANT8" in models_string:
         models.append('mn5q8_en')
     elif "CONFIG_SR_MN_EN_MULTINET5_SINGLE_RECOGNITION" in models_string:
         models.append('mn5_en')
     elif "CONFIG_SR_MN_EN_MULTINET6_QUANT" in models_string:
         models.append('mn6_en')
+    elif "CONFIG_SR_MN_EN_MULTINET7_QUANT" in models_string:
+        models.append('mn7_en')
 
-    
-    if "MULTINET6" in models_string:
+    if "MULTINET6" in models_string or "MULTINET7" in models_string:
         models.append('fst')
 
     for item in models:
@@ -109,18 +97,20 @@ def copy_nsnet_from_sdkconfig(model_path, sdkconfig_path, target_path):
     models = []
     if "CONFIG_SR_NSN_NSNET1" in models_string:
         models.append('nsnet1')
+    if "CONFIG_SR_NSN_NSNET2" in models_string:
+        models.append('nsnet2')
 
     for item in models:
         shutil.copytree(model_path + '/nsnet_model/' + item, target_path+'/'+item)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Model generator tool')
-    parser.add_argument('-d1', '--project_path')
+    parser.add_argument('-d1', '--sdkconfig_path')
     parser.add_argument('-d2', '--model_path')
     parser.add_argument('-d3', '--build_path')
     args = parser.parse_args()
 
-    sdkconfig_path = args.project_path + '/sdkconfig'
+    sdkconfig_path = args.sdkconfig_path
     model_path = args.model_path + '/model'
     target_path = args.build_path + '/srmodels'
     image_file = "srmodels.bin"

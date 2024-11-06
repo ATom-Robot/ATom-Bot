@@ -16,11 +16,14 @@
 
 
 #include "dl_lib_matrix.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef float fptp_t;
 
-
 //Flags for matrices
-#define DL_MF_FOREIGNDATA (1<<0)  /*< Matrix *item data actually points to another matrix and should not be freed */
+// #define DL_MF_FOREIGNDATA (0)  /*< Matrix *item data actually points to another matrix and should not be freed */
 
 //Float convolution FIFO queue. 
 typedef struct {
@@ -39,6 +42,15 @@ typedef struct {
  * @return      The convolution queue, or NULL if out of memory
  */
 dl_conv_queue_t *dl_conv_queue_alloc(int n, int c);
+
+/**
+ * @brief Allocate a convolution queue from psram
+ *
+ * @param n     The length of queue
+ * @param c     The channel number of elements in the queue
+ * @return      The convolution queue, or NULL if out of memory
+ */
+dl_conv_queue_t *dl_conv_queue_alloc_from_psram(int n, int c);
 
 /**
  * @brief Free a convolution queue
@@ -160,5 +172,9 @@ fptp_t *dl_dilation_layer(dl_conv_queue_t *in, dl_conv_queue_t *out, int rate, i
 
 
 void test_atrous_conv(int size, int rate, int in_channel, int out_channel);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

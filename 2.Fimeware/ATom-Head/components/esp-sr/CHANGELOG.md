@@ -4,11 +4,59 @@
 - Available storage is less than the remaining flash space on IDF v5.0.   
 If you can not map model partition successfully, please check the left free storage by `spi_flash_mmap_get_free_pages(ESP_PARTITION_MMAP_DATA)` or update IDF to v5.1 or later.
 
-# 1.3.3
+## 1.7.0
+- Add first Noise Suppression model: nsnet2
+- Add more wake word model trained by TTS sample
+
+## 1.6.1
+- Add hey willow wakenet model: wn9_heywillow_tts
+- Update wn9_alexa from v3 to v4
+- Add model info into srmodels_list_t
+- parse wake words from model_info string
+
+## 1.6.0
+- Add Chinese MultiNet7 models
+- Add first Noise Suppression model: nsnet1
+- Add wakenet model trained by TTS samples: Jarvis and Computer
+- fix some bugs
+
+## 1.5.1
+- Reduce Internal RAM of multinet7
+- Update benchmark
+- Add ci build test for esp32
+- Fix some bugs
+
+## 1.5.0
+- Add esp32c6 tts lib
+- Return the volume of wake word audio when one wake word is detected
+- Reduce MultiNet6 SRAM size from 48KB to 32 KB
+- Add "Hi M Five" wake word model from M5Stack
+- Remove all MultiNet4 models
+- Update MultiNet7_en v2.0
+- Fix some bugs in AFE
+- Add Flite G2P module
+
+## 1.4.2
+- Reset timeout trigger of multinet6 when a new speech command is detected
+- Allocate all beams from PSRAM
+
+## 1.4.1
+- Fix the wrong APIs of multinet2 when using ESP32 chip
+- VAD can work fine when WakeNet is disabled
+
+## 1.4.0
+- Add ci tests to check the APIs of wakenet, multinet and AFE work fine
+- Support to load and run two wakenet9 models at the same time in AFE
+- Reduce the latency of multinet6
+
+## 1.3.4
+- Fix the bug of multinet5q8 whrn adding new speech commands
+
+## 1.3.3
 - Fix the crash of multinet5q8 when speech commands are triggered
 - Update esp_mn_commands_update() in esp_process_sdkconfig.c
 
-# 1.3.2
+## 1.3.2
 - Output text of ctc greedy search result when no command can be detected.
 - Modify the default Chinese commands
 - Remove __pycache__ in esp-sr/model folder

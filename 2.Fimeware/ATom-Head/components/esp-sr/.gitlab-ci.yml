@@ -1,0 +1,311 @@
+stages:
+  - build
+  - target_test
+  - build_docs
+  - deploy
+
+variables:
+  # Versioned esp-idf-doc env image to use for all document building jobs
+  ESP_DOCS_ENV_IMAGE: "$CI_DOCKER_REGISTRY/esp-idf-doc-env-v5.0"
+  ESP_SR_PATH: "$CI_PROJECT_DIR"
+  BATCH_BUILD: "1"
+  V: "0"
+  IDF_CI_BUILD: "1"
+  DOCKER_TARGET_TEST_v5_0_ENV_IMAGE: "$CI_DOCKER_REGISTRY/target-test-env-v5.0:3"
+
+before_script:
+  # add gitlab ssh key
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -n $GITLAB_KEY > ~/.ssh/id_rsa_base64
+  - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - echo -e "Host gitlab.espressif.cn\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+  - git --version
+  - git submodule update --init --recursive --force
+  - pip install idf_build_apps==1.1.4
+
+.if-protected: &if-protected
+  if: '($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_BRANCH =~ /^release\/v/ || $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?($|-)/)'
+
+.if-dev-push: &if-dev-push
+  if: '$CI_COMMIT_REF_NAME != "master" && $CI_COMMIT_BRANCH !~ /^release\/v/ && $CI_COMMIT_TAG !~ /^v\d+\.\d+(\.\d+)?($|-)/ && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event")'
+
+.if-label-build: &if-label-build
+  if: '$CI_MERGE_REQUEST_LABELS =~ /^(?:[^,\n\r]+,)*build(?:,[^,\n\r]+)*$/i'
+
+.patterns-test_esp_tts: &patterns-test_esp_tts
+  - "esp-tts/**/*"
+  - "test_apps/esp-tts/**/*"
+  - "CMakeList.txt"
+
+.patterns-test_esp_sr: &patterns-test_esp_sr
+  - "lib/**/*"
+  - "include/**/*"
+  - "src/**/*"
+  - "model/**/*"
+  - "test_apps/esp-sr/**/*"
+  - "CMakeList.txt"
+
+.patterns-build_system: &patterns-build_system
+  - "test_apps/build_apps.py"
+  - "conftest.py"
+  - "pytest.ini"
+  - "CMakeList.txt"
+
+.patterns-build_docs: &patterns-build_docs
+  - "docs/**/*"
+
+
+.rules:build:test_esp_sr:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-build_system
+    - <<: *if-dev-push
+      changes: *patterns-test_esp_sr
+
+.rules:build:test_esp_tts:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-build_system
+    - <<: *if-dev-push
+      changes: *patterns-test_esp_tts
+
+.rules:build_docs:docs:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-build_docs
+
+.rules:deploy:docs_preview:
+  rules:
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-build_docs
+
+.rules:deploy:docs_production:
+  rules:
+    - <<: *if-protected
+
+.build_test_template:
+  stage: build
+  tags:
+    - build
+  artifacts:
+    when: always
+    paths:
+      - "**/build*/size.json"
+      - "**/build*/build_log.txt"
+      - "**/build*/*.bin"
+      # upload to s3 server to save the artifacts size
+      - "**/build*/*.map"
+      - "**/build*/*.elf"
+      - "**/build*/flasher_args.json"
+      - "**/build*/flash_project_args"
+      - "**/build*/config/sdkconfig.json"
+      - "**/build*/bootloader/*.bin"
+      - "**/build*/bootloader/*.elf"
+      - "**/build*/partition_table/*.bin"
+      - "**/build*/srmodels/*.bin"
+    expire_in: 1 week
+  variables:
+    EXAMPLES_PATH: "test_apps"
+  script:
+    - python ./test_apps/build_apps.py $EXAMPLES_PATH -t all
+
+build_esp_sr:
+  extends: 
+    - .build_test_template
+    - .rules:build:test_esp_sr
+  image: espressif/idf:release-v5.0
+  variables:
+    EXAMPLES_PATH: "test_apps/esp-sr"
+
+build_esp_tts:
+  extends: 
+    - .build_test_template
+    - .rules:build:test_esp_tts
+  image: espressif/idf:release-v5.0
+  variables:
+    EXAMPLES_PATH: "test_apps/esp-tts"
+
+.test_template: &test_template
+  image: DOCKER_TARGET_TEST_v5_0_ENV_IMAGE
+  stage: target_test
+  timeout: 10 hour
+  variables:
+    GIT_DEPTH: 1
+    SUBMODULES_TO_FETCH: "none"
+  cache:
+    # Usually do not need submodule-cache in target_test
+    - key: pip-cache
+      paths:
+        - .cache/pip
+      policy: pull
+
+.pytest_template:
+  <<: *test_template
+  artifacts:
+    when: always
+    paths:
+      - XUNIT_RESULT.xml
+      - pytest_log/
+    reports:
+      junit: XUNIT_RESULT.xml
+    expire_in: 4 days
+  variables:
+    TEST_TARGET: 'esp32s3'
+    TEST_FOLDER: 'test_apps'
+    TEST_ENV: 'esp32s3'
+  script:
+    - pip install -r test_apps/requirements.txt
+    - pytest ${TEST_FOLDER} --target ${TEST_TARGET} --env ${TEST_ENV} --junitxml=XUNIT_RESULT.xml
+
+test_esp_sr:
+  extends:
+    - .pytest_template
+    - .rules:build:test_esp_sr
+  needs:
+    - job: "build_esp_sr"
+      artifacts: true
+      optional: true
+  tags: 
+    - esp32s3
+  image: $DOCKER_TARGET_TEST_v5_0_ENV_IMAGE
+  variables:
+    TEST_TARGET: 'esp32s3'
+    TEST_FOLDER: './test_apps/esp-sr'
+    TEST_ENV: 'esp32s3'
+    IDF_VERSION: "5.0"
+
+test_esp_tts:
+  extends:
+    - .pytest_template
+    - .rules:build:test_esp_tts
+  needs:
+    - job: "build_esp_tts"
+      artifacts: true
+      optional: true
+  tags: 
+    - esp32s3
+  image: $DOCKER_TARGET_TEST_v5_0_ENV_IMAGE
+  variables:
+    TEST_TARGET: 'esp32s3'
+    TEST_FOLDER: './test_apps/esp-tts'
+    TEST_ENV: 'esp32s3'
+    IDF_VERSION: "5.0"
+
+.build_doc_template:
+  stage: build_docs
+  image: $ESP_DOCS_ENV_IMAGE
+
+build_esp_sr_html:
+  extends:
+    - .build_doc_template
+    - .rules:build_docs:docs
+  variables:
+    DOCS_DIR: $CI_PROJECT_DIR/docs
+  artifacts:
+    when: always
+    paths:
+      - $DOCS_DIR/_build/*/*/html/*
+      - $DOCS_DIR/_build/*/*/*.txt
+    expire_in: 4 days
+  script:
+    - cd $DOCS_DIR
+    - ./check_lang_folder_sync.sh
+    - build-docs --skip-reqs-check -l $DOCLANG -t $DOCTGT
+    - echo "ESP-SR documentation preview available at $CI_JOB_URL/artifacts/file/docs/_build/$DOCLANG/$DOCTGT/html/index.html"
+  parallel:
+    matrix:
+      - DOCLANG: ["en", "zh_CN"]
+        DOCTGT: ["esp32", "esp32s3"]
+
+build_esp_sr_pdf:
+  extends:
+    - .build_doc_template
+    - .rules:build_docs:docs
+  variables:
+    DOCS_DIR: $CI_PROJECT_DIR/docs
+  artifacts:
+    when: always
+    paths:
+      - $DOCS_DIR/_build/*/*/latex/*
+      - $DOCS_DIR/_build/*/*/*.txt
+    expire_in: 4 days
+  script:
+    - cd $DOCS_DIR
+    - ./check_lang_folder_sync.sh
+    - pip install -r requirements.txt
+    - build-docs --skip-reqs-check -bs latex -l $DOCLANG -t $DOCTGT
+  parallel:
+    matrix:
+      - DOCLANG: ["en", "zh_CN"]
+        DOCTGT: ["esp32", "esp32s3"]
+
+
+.deploy_docs_template:
+  stage: deploy
+  image: $ESP_DOCS_ENV_IMAGE
+  tags:
+    - deploy_docs
+  needs:
+    - build_esp_sr_html
+    - build_esp_sr_pdf
+  script:
+    - source ${CI_PROJECT_DIR}/ci/utils.sh
+    - add_doc_server_ssh_keys $DOCS_DEPLOY_PRIVATEKEY $DOCS_DEPLOY_SERVER $DOCS_DEPLOY_SERVER_USER
+    - export GIT_VER=$(git describe --always)
+    - pip install -r ${CI_PROJECT_DIR}/docs/requirements.txt
+    - deploy-docs
+
+deploy_docs_preview:
+  extends:
+    - .deploy_docs_template
+    - .rules:deploy:docs_preview
+  variables:
+    TYPE: "preview"
+    DOCS_BUILD_DIR: "${CI_PROJECT_DIR}/docs/_build/"
+    DOCS_DEPLOY_PRIVATEKEY: "$DOCS_PREVIEW_DEPLOY_KEY"
+    DOCS_DEPLOY_SERVER: "$DOCS_PREVIEW_SERVER"
+    DOCS_DEPLOY_SERVER_USER: "$DOCS_PREVIEW_SERVER_USER"
+    DOCS_DEPLOY_PATH: "$DOCS_PREVIEW_PATH"
+    DOCS_DEPLOY_URL_BASE: "https://$DOCS_PREVIEW_SERVER_URL/docs/esp-sr"
+
+deploy_docs_production:
+  extends:
+    - .deploy_docs_template
+    - .rules:deploy:docs_production
+  variables:
+    TYPE: "production"
+    DOCS_BUILD_DIR: "${CI_PROJECT_DIR}/docs/_build/"
+    DOCS_DEPLOY_PRIVATEKEY: "$DOCS_PROD_DEPLOY_KEY"
+    DOCS_DEPLOY_SERVER: "$DOCS_PROD_SERVER"
+    DOCS_DEPLOY_SERVER_USER: "$DOCS_PROD_SERVER_USER"
+    DOCS_DEPLOY_PATH: "$DOCS_PROD_PATH"
+    DOCS_DEPLOY_URL_BASE: "https://docs.espressif.com/projects/esp-sr"
+
+push_to_github:
+  stage: deploy
+  image: $CI_DOCKER_REGISTRY/esp-env-v4.4:1
+  tags:
+    - deploy
+  when: on_success
+  only:
+    - master
+    - /^release\/v/
+  script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -n $GH_PUSH_KEY > ~/.ssh/id_rsa_base64
+    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - git remote remove github &>/dev/null || true
+    - git remote add github git@github.com:espressif/esp-sr.git
+    - git push github "${CI_COMMIT_SHA}:refs/heads/${CI_COMMIT_REF_NAME}"

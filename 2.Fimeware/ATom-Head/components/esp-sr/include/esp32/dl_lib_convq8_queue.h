@@ -20,6 +20,10 @@
 #include "dl_lib_conv_queue.h"
 #include "dl_lib_convq_queue.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //[nch, n, c]
 typedef struct {
     int n;           /*< the length of queue */
@@ -51,6 +55,16 @@ dl_convq8_queue_t *dl_convq8_queue_alloc(int n, int c);
 dl_convq8_queue_t *dl_convq8_queue_alloc_mc(int n, int c, int nch);
 
 /**
+ * @brief Allocate a bit fixed-point convolution queue from PSRAM
+ *
+ * @param n     The length of queue
+ * @param c     The number of elements in the queue
+ * @param nch     The channel of queue
+ * @return      The convolution queue, or NULL if out of memory
+ */
+dl_convq8_queue_t *dl_convq8_queue_alloc_mc_from_psram(int n, int c, int nch);
+
+/**
  * @brief Free a fixed-point convolution queue
  *
  * @param cq     The fixed-point convolution queue to free
@@ -63,6 +77,16 @@ void dl_convq8_queue_free(dl_convq8_queue_t *cq);
  * @param cq     The fixed-point convolution queue to free
  */
 void dl_convq8_queue_bzero(dl_convq8_queue_t *cqm);
+
+/**
+ * @brief Move the front pointer of queue forward, 
+          the First(oldest) element become the last(newest) element, 
+ *
+ * @param cq    Input fixed-point convolution queue
+ * @return      Pointer of oldest element  
+ */
+q8tp_t *dl_convq8_queue_pop(dl_convq8_queue_t *cq);
+q8tp_t *dl_convq8_queue_popn(dl_convq8_queue_t *cq, int n);
 
 /**
  * @brief  Insert the float-point element at the end of queue.
@@ -270,4 +294,9 @@ void print_convq8(dl_convq8_queue_t *cq, int offset);
 void print_convq(dl_convq_queue_t *cq, int offset);
 
 void lstmq8_free(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
