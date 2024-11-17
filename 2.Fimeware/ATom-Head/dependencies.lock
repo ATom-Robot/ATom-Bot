@@ -12,16 +12,16 @@ dependencies:
       type: service
     version: 0.5.3
   espressif/esp-dsp:
-    component_hash: fa7fe74305df6da25867437ebcd4213e047cbfc0556cf92067ab657fce537c6e
+    component_hash: null
     source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 1.5.2
+      path: D:\workspace_rb\ATom-Bot\ATom-Bot\2.Fimeware\ATom-Head\components\espressif__esp-dsp
+      type: local
+    version: 1.4.12
   idf:
     component_hash: null
     source:
       type: idf
-    version: 4.4.2
-manifest_hash: 43a07ccc545566f122b62acb52672140ab64d9368ab5752172d7d767e477f596
+    version: 4.4.6
+manifest_hash: 13223864ef6aabf125aca3a97c0dae7af96040bd40de639c9707e676e8f9519a
 target: esp32s3
 version: 1.0.0

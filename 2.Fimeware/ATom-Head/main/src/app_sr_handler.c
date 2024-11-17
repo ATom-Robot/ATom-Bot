@@ -181,6 +181,11 @@ void sr_handler_task(void *pvParam)
             if (enter_ai_mode)
                 audio_record_start();   // 开始录音
 
+            // 测试录音
+            // audio_record_start();
+            // vTaskDelay(pdMS_TO_TICKS(5000));
+            // audio_record_stop();   // 结束录音
+
             last_player_state = audio_player_get_state();
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_WAKE);
@@ -191,9 +196,6 @@ void sr_handler_task(void *pvParam)
         // Time out (语音识别超时)
         if (ESP_MN_STATE_TIMEOUT == result.state)
         {
-#if !SR_RUN_TEST
-            sr_echo_play(AUDIO_END);
-#endif
             ui_wakeup_emoji_over();
 
             if (enter_ai_mode)

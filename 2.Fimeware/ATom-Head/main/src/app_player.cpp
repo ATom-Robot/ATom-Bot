@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 
 #include "esp_check.h"
+#include "esp_err.h"
 #include "esp_log.h"
 #include "esp32s3/rom/cache.h"
 #include "freertos/FreeRTOS.h"
@@ -574,6 +575,7 @@ void audio_record_start(void)
 esp_err_t audio_record_stop(void)
 {
     esp_err_t ret = ESP_OK;
+    int len;
 
     instance.record_flag = false;
     instance.record_total_len *= 1;
@@ -583,17 +585,17 @@ esp_err_t audio_record_stop(void)
              instance.record_total_len,
              instance.record_total_len / 1024);
 
-    // FILE *fp = fopen("/spiffs/echo_en_wake.wav", "r");
-    // ESP_GOTO_ON_FALSE(NULL != fp, ESP_FAIL, err, TAG, "Failed create record file");
+    FILE *fp = fopen("/spiffs/mp3/echo.wav", "r");
+    ESP_GOTO_ON_FALSE(NULL != fp, ESP_FAIL, err, TAG, "Failed create record file");
 
     wav_header_t wav_head;
-    // int len = fread(&wav_head, 1, sizeof(wav_header_t), fp);
-    // ESP_GOTO_ON_FALSE(len > 0, ESP_FAIL, err, TAG, "Failed create record file");
+    len = fread(&wav_head, 1, sizeof(wav_header_t), fp);
+    ESP_GOTO_ON_FALSE(len > 0, ESP_FAIL, err, TAG, "Failed create record file");
 
     wav_head.SampleRate = 16000;
-    wav_head.NumChannels = 1;
+    wav_head.NumChannels = 2;
 
-    wav_head.BitsPerSample = 16;
+    wav_head.BitsPerSample = 32;
     wav_head.ChunkSize = instance.file_total_len - 8;
     wav_head.ByteRate = wav_head.SampleRate * wav_head.BitsPerSample * wav_head.NumChannels / 8;
     wav_head.Subchunk2ID[0] = 'd';
@@ -604,11 +606,11 @@ esp_err_t audio_record_stop(void)
     memcpy((void *)instance.record_buffer, &wav_head, sizeof(wav_header_t));
     Cache_WriteBack_Addr((uint32_t)instance.record_buffer, instance.record_total_len);
     audio_player_play(instance.record_buffer, instance.file_total_len);
-// err:
-//     if (fp)
-//     {
-//         fclose(fp);
-//     }
+err:
+    if (fp)
+    {
+        fclose(fp);
+    }
     return ret;
 }
 

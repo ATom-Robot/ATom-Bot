@@ -4,6 +4,7 @@
 #include <sys/queue.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_idf_version.h"
 #include "esp_err.h"
 #include "esp_afe_sr_models.h"
 #include "esp_mn_models.h"
@@ -25,10 +26,28 @@ extern "C"
 #define SR_CMD_STR_LEN_MAX 64
 #define SR_CMD_PHONEME_LEN_MAX 64
 
-#define I2S_CONFIG_DEFAULT() { \
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+#define I2S_CONFIG_DEFAULT(sample_rate, channel_fmt, bits_per_chan) { \
+        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(sample_rate), \
+        .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(bits_per_chan, channel_fmt), \
+        .gpio_cfg = { \
+            .mclk = GPIO_I2S_MCLK, \
+            .bclk = GPIO_I2S_SCLK, \
+            .ws   = GPIO_I2S_LRCK, \
+            .dout = GPIO_I2S_DOUT, \
+            .din  = GPIO_I2S_SDIN, \
+            .invert_flags = { \
+                .mclk_inv = false, \
+                .bclk_inv = false, \
+                .ws_inv   = false, \
+            }, \
+        }, \
+    }
+#else
+#define I2S_CONFIG_DEFAULT(sample_rate, channel_fmt, bits_per_chan) { \
     .mode                   = I2S_MODE_MASTER | I2S_MODE_RX, \
     .sample_rate            = 16000, \
-    .bits_per_sample        = I2S_BITS_PER_SAMPLE_16BIT, \
+    .bits_per_sample        = I2S_BITS_PER_SAMPLE_32BIT, \
     .channel_format         = I2S_CHANNEL_FMT_ONLY_LEFT, \
     .communication_format   = I2S_COMM_FORMAT_STAND_I2S, \
     .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1, \
@@ -38,8 +57,9 @@ extern "C"
     .tx_desc_auto_clear     = true, \
     .fixed_mclk             = 0, \
     .mclk_multiple          = I2S_MCLK_MULTIPLE_DEFAULT, \
-    .bits_per_chan          = I2S_BITS_PER_CHAN_16BIT, \
+    .bits_per_chan          = I2S_BITS_PER_CHAN_32BIT, \
 }
+#endif
 
 typedef enum
 {

@@ -61,11 +61,11 @@ static esp_afe_sr_iface_t *afe_handle = NULL;
 static srmodel_list_t *models = NULL;
 static SemaphoreHandle_t sr_detect_semaphore = NULL;
 
-static esp_err_t bsp_i2s_init(i2s_port_t i2s_num)
+static esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate, int channel_format, int bits_per_chan)
 {
     esp_err_t ret_val = ESP_OK;
 
-    i2s_config_t i2s_config = I2S_CONFIG_DEFAULT();
+    i2s_config_t i2s_config = I2S_CONFIG_DEFAULT(sample_rate, I2S_CHANNEL_FMT_ONLY_LEFT, bits_per_chan);
     i2s_pin_config_t pin_config =
     {
         .bck_io_num = GPIO_I2S_SCLK,
@@ -106,8 +106,9 @@ esp_err_t bsp_get_feed_data(int16_t *buffer, int buffer_len)
     int32_t *tmp_buff = buffer;
     for (int i = 0; i < audio_chunksize; i++)
     {
-        tmp_buff[i] = tmp_buff[i] >> 14;
+        tmp_buff[i] = tmp_buff[i] >> 14; // 32:8为有效位， 8:0为低8位， 全为0， AFE的输入为16位语音数据，拿29：13位是为了对语音信号放大。
     }
+
     return ret;
 }
 
@@ -123,8 +124,8 @@ static const sr_cmd_t g_default_cmd_info[] =
 {
     {SR_CMD_SING, SR_LANG_CN, 0, "唱首歌", "chang shou ge", {NULL}},
     {SR_CMD_MUSIC, SR_LANG_CN, 0, "音乐", "yin yue", {NULL}},
-    {SR_CMD_PLAY_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
-    {SR_CMD_PLAY_PREV, SR_LANG_CN, 0, "上一曲", "shang yi qv", {NULL}},
+    {SR_CMD_PLAY_NEXT, SR_LANG_CN, 0, "下一首", "xia yi shou", {NULL}},
+    {SR_CMD_PLAY_PREV, SR_LANG_CN, 0, "上一首", "shang yi shou", {NULL}},
     {SR_CMD_PLAY_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
     {SR_CMD_PLAY_STOP, SR_LANG_CN, 0, "停止", "ting zhi", {NULL}},
     {SR_CMD_PLAY_POLICE, SR_LANG_CN, 0, "警车", "jing che", {NULL}},
@@ -135,8 +136,8 @@ static const sr_cmd_t g_default_cmd_info[] =
     {SR_CMD_PLAY_DANCE, SR_LANG_CN, 0, "跳舞", "tiao wu", {NULL}},
     {SR_CMD_PLAY_MOVE_FORWARD, SR_LANG_CN, 0, "向前", "xiang qian", {NULL}},
     {SR_CMD_PLAY_MOVE_BACKWARD, SR_LANG_CN, 0, "向后", "xiang hou", {NULL}},
-    {SR_CMD_ENTER_AI_MODE, SR_LANG_CN, 0, "开启交流", "kai qi jiao liu", {NULL}},
-    {SR_CMD_EXIT_AI_MODE, SR_LANG_CN, 0, "关闭交流", "guan bi jiao liu", {NULL}},
+    {SR_CMD_ENTER_AI_MODE, SR_LANG_CN, 0, "开启聊天", "kai qi liao tian", {NULL}},
+    {SR_CMD_EXIT_AI_MODE, SR_LANG_CN, 0, "关闭聊天", "guan bi liao tian", {NULL}},
 };
 
 static void feed_Task(void *pvParam)
@@ -164,18 +165,8 @@ static void feed_Task(void *pvParam)
             vTaskDelete(NULL);
         }
 
-        // bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * 2);
-
         /* Read audio data from I2S bus */
-        i2s_read(I2S_NUM_1, audio_buffer, audio_chunksize * sizeof(int16_t), &bytes_read, portMAX_DELAY);
-
-        /* Channel Adjust */
-        // for (int  i = audio_chunksize - 1; i >= 0; i--)
-        // {
-        //     audio_buffer[i * 3 + 2] = 0;
-        //     audio_buffer[i * 3 + 1] = audio_buffer[i * 2 + 1];
-        //     audio_buffer[i * 3 + 0] = audio_buffer[i * 2 + 0];
-        // }
+        bsp_get_feed_data(audio_buffer, audio_chunksize * sizeof(int16_t) * feed_channel);
 
         afe_handle->feed(afe_data, (int16_t *)audio_buffer);
 
@@ -247,34 +238,28 @@ static void audio_detect_task(void *pvParam)
 
         if (true == detect_flag)
         {
-            if (local_state != res->vad_state)
-            {
-                local_state = res->vad_state;
-                if (AFE_VAD_SILENCE != local_state)
-                {
-                    ESP_LOGW(TAG, "%s, res:%d", "silence", res->vad_state);
-                }
-                frame_keep = 0;
-            }
-            else
-            {
-                frame_keep++;
-                ESP_LOGW(TAG, "res:%d", res->vad_state);
-            }
-            if ((150 == frame_keep) && (AFE_VAD_SILENCE == res->vad_state))
-            {
-                ESP_LOGW(TAG, "vad Time out");
-                sr_result_t result =
-                {
-                    .wakenet_mode = WAKENET_NO_DETECT,
-                    .state = ESP_MN_STATE_TIMEOUT,
-                    .command_id = 0,
-                };
-                xQueueSend(g_sr_data->result_que, &result, 0);
-                g_sr_data->afe_handle->enable_wakenet(afe_data);
-                detect_flag = false;
-                continue;
-            }
+            // if (AFE_VAD_SPEECH == res->vad_state)
+            // {
+            //     frame_keep = 0;
+            // }
+            // else
+            // {
+            //     frame_keep++;
+            // }
+            // if ((100 == frame_keep) && (AFE_VAD_SILENCE == res->vad_state))
+            // {
+            //     ESP_LOGW(TAG, "speak over");
+            //     sr_result_t result =
+            //     {
+            //         .wakenet_mode = WAKENET_NO_DETECT,
+            //         .state = ESP_MN_STATE_TIMEOUT,
+            //         .command_id = 0,
+            //     };
+            //     xQueueSend(g_sr_data->result_que, &result, 0);
+            //     g_sr_data->afe_handle->enable_wakenet(afe_data);
+            //     detect_flag = false;
+            //     // continue;
+            // }
 
             esp_mn_state_t mn_state = ESP_MN_STATE_DETECTING;
             // 开始离线语音识别
@@ -335,7 +320,7 @@ static void audio_detect_task(void *pvParam)
 esp_err_t App_Speech_Init(void)
 {
     esp_err_t res = ESP_OK;
-    res = bsp_i2s_init(I2S_NUM_1);
+    res = bsp_i2s_init(I2S_NUM_1, 16000, 2, 32);
     assert(res != ESP_FAIL);
     return res;
 }
@@ -369,7 +354,6 @@ esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
 {
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
     ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invaild");
-    ESP_RETURN_ON_FALSE(cmd->lang == g_sr_data->lang, ESP_ERR_INVALID_ARG, TAG, "cmd lang error");
     ESP_RETURN_ON_FALSE(ESP_MN_MAX_PHRASE_NUM >= g_sr_data->cmd_num, ESP_ERR_INVALID_STATE, TAG, "cmd is full");
 
     sr_cmd_t *item = (sr_cmd_t *)heap_caps_calloc(1, sizeof(sr_cmd_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
@@ -544,30 +528,14 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
 {
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
 
-    if (new_lang == g_sr_data->lang)
-    {
-        ESP_LOGW(TAG, "nothing to do");
-        return ESP_OK;
-    }
-    else
-    {
-        g_sr_data->lang = new_lang;
-    }
-
-    ESP_LOGW(TAG, "Set language to %s", SR_LANG_EN == g_sr_data->lang ? "EN" : "CN");
-    if (g_sr_data->model_data)
-    {
-        g_sr_data->multinet->destroy(g_sr_data->model_data);
-    }
-
     g_sr_data->cmd_num = 0;
 
-    char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
+    char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, "wn9_alexa");
     ESP_RETURN_ON_FALSE(NULL != wn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
     g_sr_data->afe_handle->set_wakenet(g_sr_data->afe_data, wn_name);
     ESP_LOGI(TAG, "load wakenet:%s", wn_name);
 
-    char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ((SR_LANG_EN == g_sr_data->lang) ? ESP_MN_ENGLISH : ESP_MN_CHINESE));
+    char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ESP_MN_CHINESE);
     ESP_RETURN_ON_FALSE(NULL != mn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
     esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
     model_iface_data_t *model_data = multinet->create(mn_name, 5760);
@@ -587,11 +555,8 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     // count command number
     for (size_t i = 0; i < sizeof(g_default_cmd_info) / sizeof(sr_cmd_t); i++)
     {
-        if (g_default_cmd_info[i].lang == g_sr_data->lang)
-        {
-            app_sr_add_cmd(&g_default_cmd_info[i]);
-            cmd_number++;
-        }
+        app_sr_add_cmd(&g_default_cmd_info[i]);
+        cmd_number++;
     }
     ESP_LOGI(TAG, "cmd_number=%d", cmd_number);
 
@@ -622,27 +587,26 @@ esp_err_t App_Speech_run(void)
     SLIST_INIT(&g_sr_data->cmd_list);
 
     models = esp_srmodel_init("model");
-    afe_handle = (esp_afe_sr_iface_t *)&ESP_AFE_SR_HANDLE;
+
     afe_config_t afe_config = AFE_CONFIG_DEFAULT();
-
     afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
+    afe_config.memory_alloc_mode = AFE_MEMORY_ALLOC_MORE_PSRAM;
+    afe_config.wakenet_init = true;
+    afe_config.voice_communication_init = false;
     afe_config.aec_init = false;
-    afe_config.pcm_config.total_ch_num = 2;
-    afe_config.pcm_config.mic_num = 2;
-    afe_config.pcm_config.ref_num = 0;
-    // afe_config.wakenet_mode = DET_MODE_90;
 
+    afe_config.pcm_config.total_ch_num = 2;
+    afe_config.pcm_config.mic_num = 1;
+    afe_config.pcm_config.ref_num = 1;
+    afe_config.wakenet_mode = DET_MODE_90;
+    afe_config.se_init = false;
+
+    afe_handle = (esp_afe_sr_iface_t *)&ESP_AFE_SR_HANDLE;
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
     g_sr_data->afe_handle = afe_handle;
     g_sr_data->afe_data = afe_data;
-
-    // afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
-    // afe_config.se_init = false;
-    // afe_config.vad_init = false;
-    // afe_config.alloc_from_psram = AFE_PSRAM_HIGH_COST;
-    // g_sr_data->afe_data = g_sr_data->afe_handle->create_from_config(&afe_config);
     g_sr_data->lang = SR_LANG_MAX;
-    ret = app_sr_set_language(SR_LANG_CN);
+    ret = app_sr_set_language(SR_LANG_EN);
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG, "Failed to set language");
 
     BaseType_t ret_val = xTaskCreatePinnedToCore((TaskFunction_t)feed_Task, "App/SR/Feed", 8 * 1024, afe_data, 5, &g_sr_data->feed_task, 1);
@@ -651,8 +615,8 @@ esp_err_t App_Speech_run(void)
     ret_val = xTaskCreatePinnedToCore((TaskFunction_t)audio_detect_task, "App/SR/Detect", 6 * 1024, afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio detect task");
 
-    // ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);
-    // ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio handler task");
+    ret_val = xTaskCreatePinnedToCore(sr_handler_task, "SR Handler Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &g_sr_data->handle_task, 1);
+    ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG, "Failed create audio handler task");
 
     sr_detect_semaphore = xSemaphoreCreateBinary();
 
