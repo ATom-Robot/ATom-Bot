@@ -58,7 +58,7 @@ int32_t vl53l0x_write_regs(uint8_t slave_addr, uint8_t reg, uint8_t *data, uint1
     }
     else
     {
-        LOG_E("i2c bus write failed!\r\n");
+        rt_kprintf("i2c bus write failed!\r\n");
         return -RT_ERROR;
     }
 }
@@ -82,7 +82,7 @@ int32_t vl53l0x_read_regs(uint8_t slave_addr, uint8_t reg, uint8_t *data, uint16
     }
     else
     {
-        LOG_E("i2c bus read failed!\r\n");
+        rt_kprintf("i2c bus read failed!\r\n");
         return -RT_ERROR;
     }
 }
@@ -302,7 +302,7 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
     i2c_bus = rt_i2c_bus_device_find(cfg->intf.dev_name);
     if (i2c_bus == RT_NULL)
     {
-        LOG_E("i2c bus device %s not found!\r\n", cfg->intf.dev_name);
+        rt_kprintf("i2c bus device %s not found!\r\n", cfg->intf.dev_name);
         ret = -RT_ERROR;
         goto __exit;
     }
@@ -334,7 +334,7 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
         ret = rt_hw_sensor_register(sensor_dist, name, RT_DEVICE_FLAG_RDWR, (void *)&vl53l0x_dev/* private data */);
         if (ret != RT_EOK)
         {
-            LOG_E("device register err code: %d", ret);
+            rt_kprintf("device register err code: %d", ret);
             goto __exit;
         }
     }
@@ -342,7 +342,8 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
     /* vl53l0x init */
     if (VL53L0X_ERROR_NONE != VL53L0X_DataInit(&vl53l0x_dev))
     {
-        LOG_E("vl53l0x data init failed\r\n");
+        rt_kprintf("vl53l0x data init failed\r\n");
+        ret = -RT_ERROR;
         goto __exit;
     }
 
@@ -356,20 +357,22 @@ int rt_hw_vl53l0x_init(const char *name, struct rt_sensor_config *cfg, rt_base_t
     /* set single ranging mode */
     if (VL53L0X_ERROR_NONE != vl53l0x_single_ranging_mode(&vl53l0x_dev))
     {
-        LOG_E("vl53l0x single ranging init failed\r\n");
+        rt_kprintf("vl53l0x single ranging init failed\r\n");
+        ret = -RT_ERROR;
         goto __exit;
     }
 
     if (VL53L0X_ERROR_NONE != VL53L0X_SetMeasurementTimingBudgetMicroSeconds(&vl53l0x_dev, 33000))
     {
-        LOG_E("vl53l0x Set measureme Timing failed\r\n");
+        rt_kprintf("vl53l0x Set measureme Timing failed\r\n");
+        ret = -RT_ERROR;
         goto __exit;
     }
 
 #if VL53L0X_USING_INT
     if (VL53L0X_ERROR_NONE != VL53L0X_SetInterMeasurementPeriodMilliSeconds(&vl53l0x_dev, 33000))
     {
-        LOG_E("vl53l0x Set Interrupt measureme failed\r\n");
+        rt_kprintf("vl53l0x Set Interrupt measureme failed\r\n");
         goto __exit;
     }
 

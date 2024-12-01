@@ -21,6 +21,7 @@
 
 #define INT_PIN GET_PIN(A, 2)
 
+static rt_err_t init_flag;
 static rt_int32_t *dis_sensor_data;
 static rt_device_t vl5310x_dev = RT_NULL;
 static struct rt_sensor_data temp_data;
@@ -65,6 +66,8 @@ MSH_CMD_EXPORT(get_distence_sensor_data, Get distence sensor data)
 
 rt_int32_t distence_sensor_get(void)
 {
+	if (init_flag != RT_EOK)
+		return -RT_ERROR;
 #if VL53L0X_USING_INT
     VL53L0X_RangingMeasurementData_t measure;
     VL53L0X_GetRangingMeasurementData(&vl53l0x_dev, &measure);
@@ -87,7 +90,6 @@ rt_int32_t distence_sensor_get(void)
 int vl53l0x_port(void)
 {
     struct rt_sensor_config cfg;
-    static rt_err_t init_flag;
 
     cfg.intf.dev_name = "i2c1";         /* i2c bus */
     cfg.intf.user_data = (void *)0x29;  /* i2c slave addr */
